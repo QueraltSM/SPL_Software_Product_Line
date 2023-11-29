@@ -1,4 +1,3 @@
-# SemanticModel
 class SemanticModel
   attr_accessor :class_name, :fields
   def initialize()
@@ -6,7 +5,6 @@ class SemanticModel
   end
 end
 
-# Analizador
 def entity_class(name)
   semantic_model = SemanticModel.new
   semantic_model.class_name = name
@@ -18,7 +16,6 @@ def entity_class(name)
 end
 semantic_model = eval File.read('user_dsl.rb')
 
-# Generator
 eval "class #{semantic_model.class_name} end"
 entity_class_data = Object.const_get(semantic_model.class_name)
 entity_class_data.class_eval do
@@ -37,10 +34,8 @@ entity_class_data.class_eval do
     end
     result +  "---------------------------------"
   end
-
 end
 
-# Class Reader
 eval "class #{semantic_model.class_name}sReader end"
 class_reader = Object.const_get("#{semantic_model.class_name}sReader")
 class_reader.class_eval do
