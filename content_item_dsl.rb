@@ -1,6 +1,8 @@
-entity_class "Content_Item" do
+entity_class "ContentItem" do
+    field "id", "int"
     field "title", "String"
+    field "author", "String"
     field "description", "String"
-    field "url", "String"
     field "pubdate", "String"
+    field "type", "String"
   end

@@ -3,5 +3,5 @@ entity_class "Comment" do
     field "user_id", "int"
     field "content_item_id", "int"
     field "text", "String"
-    field "datetime", "String"
+    field "pubdate", "String"
   end
