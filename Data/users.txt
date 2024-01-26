@@ -1,3 +1,3 @@
-1 ||| Pedro López ||| pedro@uned.es ||| pedro123
-2 ||| Juan Medina ||| juan@uned.es ||| juan123
-3 ||| Carmen González ||| carmen@uned.es ||| carmen123
+1 ||| Pedro López ||| pedro@uned.es ||| pedro123 ||| Admin
+2 ||| Juan Medina ||| juan@uned.es ||| juan123 ||| User
+3 ||| Carmen González ||| carmen@uned.es ||| carmen123 ||| User

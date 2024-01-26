@@ -58,9 +58,12 @@ class_reader.class_eval do
     }
   end
   define_method :updateFile do |file_path, data|
+    event_id_generator = 1
     File.open(file_path, 'w') do |file|
       data.each do |event|
-        file.puts("#{event.get('title')},#{event.get('description')},#{event.get('venue')},#{event.get('datetime')},#{event.get('image')}")
+        file.puts(event_id_generator.to_s + " ||| " + event.get('title') + " ||| " + event.get('description') + " ||| " + event.get('venue') + 
+        " ||| " + event.get('datetime') + " ||| " + event.get('pubdate') + " ||| " + event.get('image') + "\n")
+        event_id_generator+=1
       end
     end
   end
@@ -81,14 +84,12 @@ class_reader.class_eval do
     readFile('./Data/users.txt')
     @data.find { |user| user.get('email').downcase == email.downcase && user.get('password') == password }
   end 
-
   def save_username(email)
     readFile('./Data/users.txt')
     user = @data.find { |u| u.get('email').downcase == email.downcase }
-    @username = user.get('name')
-    puts @username
+    $username = user.get('name')
+    $user_role = user.get('role')
   end 
-
   def print_menu()
     menu_html = "<head>
                    <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css' rel='stylesheet'>
@@ -115,7 +116,7 @@ class_reader.class_eval do
                        margin-right: 0;
                      }
                      .menu a:hover {
-                       font-weight: bold;
+                      color:#C0392B;
                      }
                      .menu .user-info {
                        float: right;
@@ -123,6 +124,7 @@ class_reader.class_eval do
                      .menu .user-info span {
                        color: #333;
                        margin-right: 10px;
+                       font-size: 13px;
                      }
                      .menu .logout-link {
                        color: #333;
@@ -138,15 +140,17 @@ class_reader.class_eval do
                    <a href='/videos'>Videos</a>
                    <a href='/recipes'>Recipes</a>
                    <a href='/news'>News</a>
-                   <a href='/events'>Events</a>
-                   <div class='user-info'>
-                     <span>#{@username}</span>
+                   <a href='/events'>Events</a>"
+                   if $user_role == "Admin"
+                    menu_html += "<a style='background:#C0392B;color:#FFF;padding:10px;border-radius:5%' href='/events'>Create</a>"
+                  end
+                    menu_html +=  "<div class='user-info'>
+                     <span>#{$username}</span>
                      <a class='logout-link' href='/'><i class='bi bi-box-arrow-right'></i></a>
                    </div>
                  </div>"
     return menu_html
   end
-  
   def getJoinedId(iduser,data)
     readFile(data)
     user = @data.find { |user| user.get('id') == iduser }
@@ -154,7 +158,6 @@ class_reader.class_eval do
       user.get('name')
     end
   end
-
   def image_url_to_base64(image_url)
     begin
       uri = URI.parse(image_url)
@@ -173,7 +176,6 @@ class_reader.class_eval do
       return nil
     end
   end
-
   def print_content_items(type, view_all = false)
     reset_state()
     readFile('./Data/content_items.txt')
@@ -204,7 +206,6 @@ class_reader.class_eval do
     return content_divs
   end
 end  
-
 def print_content_item_data(id)
   reset_state()
   readFile('./Data/content_items.txt')
@@ -225,8 +226,6 @@ def print_content_item_data(id)
   content_html += "</div>"
   return content_html
 end
-
-  
   def print_comments(id, joined_reader)
     reset_state()
     readFile('./Data/comments.txt')
@@ -250,16 +249,15 @@ end
     html_content += "</div></div>"
     return html_content
   end
-    
   def print_events()
     reset_state()
     readFile('./Data/events.txt')
     
-    # @data.reject! do |event|
-    #   event_date = DateTime.parse(event.get('datetime'))
-    #   event_date < DateTime.now
-    # end
-    # updateFile('./Data/events.txt', @data)
+    @data.reject! do |event| # Eliminamos de forma permanente los eventos pasados
+       event_date = DateTime.parse(event.get('datetime'))
+       event_date < DateTime.now
+    end
+    updateFile('./Data/events.txt', @data) #Actualizamos el fichero con los eventos que aún no se han celebrado
 
     sorted_data = @data.sort_by { |event| DateTime.parse(event.get('datetime')) }.reverse
     html_content = "<div style='display: flex; flex-wrap: wrap; justify-content: center; border: 1px solid #E9E9E9; border-radius: 5px; margin: 15px; padding: 10px;'>
@@ -278,5 +276,4 @@ end
     html_content += "</div>"
     return html_content
   end
-   
 end
