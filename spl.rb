@@ -28,7 +28,7 @@ post '/login' do
   email = params[:email]
   password = params[:password]
   if users_reader.user_exists?(email, password)
-    users_reader.save_username(email)
+    users_reader.save_user(email)
     redirect "/index"
   else
     login_form_dsl.generate_login_form("Login failed because the user does not exist or the password is incorrect.")
@@ -65,7 +65,6 @@ end
 get '/content_item/:id' do
   id = params[:id]
   menu = content_item_reader.print_menu()
-  welcome_message = "<p>Información para contenido con id #{id}</p>"
   content_item_data = content_item_reader.print_content_item_data(id)
   comments = comments_reader.print_comments(id,users_reader)
   html_content = "<html>
@@ -185,3 +184,58 @@ get '/events' do
                   </html>"
   html_content
 end
+
+#---Comments---
+
+post '/submit_comment' do # Create new comment
+  comment_id = SecureRandom.uuid
+  comment_user_id = params['comment_user_id']
+  comment_content_item_id = params['content_item_id']
+  comment_text = params['comment_text']
+  comment_pubdate = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
+  new_comment = "\n#{comment_id} ||| #{comment_user_id} ||| #{comment_content_item_id} ||| #{comment_text} ||| #{comment_pubdate}"
+  File.open('./Data/comments.txt', 'a') { |file| file.puts(new_comment) }
+  content_item_id = params['content_item_id']
+  redirect "/content_item/#{content_item_id}"
+end
+
+post '/delete_comment' do # Delete a comment
+  comment_id = params['comment_id']
+  comment_content_item_id = params['content_item_id']
+  comments_file_path = './Data/comments.txt'
+  comments_data = File.readlines(comments_file_path).map(&:chomp)
+  File.open(comments_file_path, 'r+') do |file|
+    lines = file.readlines
+    lines.reject! { |line| line.split(' ||| ')[0] == comment_id }
+    file.rewind
+    file.write(lines.join(""))
+    file.truncate(file.pos)
+  end
+  redirect "/content_item/#{comment_content_item_id}"
+end
+
+post '/update_comment' do # Actualizar un comentario
+  comment_id = params['comment_id']
+  comment_content_item_id = params['content_item_id']
+  updated_pubdate = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
+  updated_text = params['updated_text']
+  comments_file_path = './Data/comments.txt'
+  File.open(comments_file_path, 'r+') do |file|
+    lines = file.readlines
+    lines.map! do |line|
+      data = line.split(' ||| ')
+      if data[0] == comment_id
+        data[3] = updated_text
+        data[4] = updated_pubdate
+        line = data.join(' ||| ')
+      end
+      line
+    end
+    file.rewind
+    file.write(lines.join(""))
+    file.truncate(file.pos)
+  end
+  redirect "/content_item/#{comment_content_item_id}"
+end
+
+#------

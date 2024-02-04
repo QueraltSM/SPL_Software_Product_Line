@@ -73,7 +73,7 @@ class LoginFormDSL
                   </style>"
     
       form_html += "<div class='form-container' style='text-align:center'>"
-      form_html += "<h1>Welcome!</h1>"
+      form_html += "<h1>Welcome</h1>"
       form_html += "<p>Log in to continue.</p>"                
       form_html += "<form id='loginForm' #{attributes_to_html(@form_attributes)} novalidate>"
       @fields.each do |field|

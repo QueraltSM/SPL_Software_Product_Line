@@ -84,10 +84,11 @@ class_reader.class_eval do
     readFile('./Data/users.txt')
     @data.find { |user| user.get('email').downcase == email.downcase && user.get('password') == password }
   end 
-  def save_username(email)
+  def save_user(email)
     readFile('./Data/users.txt')
     user = @data.find { |u| u.get('email').downcase == email.downcase }
-    $username = user.get('name')
+    $user_id = user.get('id')
+    $user_name = user.get('name')
     $user_role = user.get('role')
   end 
   def print_menu()
@@ -116,7 +117,7 @@ class_reader.class_eval do
                        margin-right: 0;
                      }
                      .menu a:hover {
-                      color:#C0392B;
+                      color:#1F6F3A;
                      }
                      .menu .user-info {
                        float: right;
@@ -141,11 +142,11 @@ class_reader.class_eval do
                    <a href='/recipes'>Recipes</a>
                    <a href='/news'>News</a>
                    <a href='/events'>Events</a>"
-                   if $user_role == "Admin"
-                    menu_html += "<a style='background:#C0392B;color:#FFF;padding:10px;border-radius:5%' href='/events'>Create</a>"
-                  end
+                    if $user_role == "Admin"
+                      menu_html += "<a style='background:#1F6F3A;color:#FFF;padding:10px;border-radius:5%' href='/create'>Create</a>"
+                    end
                     menu_html +=  "<div class='user-info'>
-                     <span>#{$username}</span>
+                     <span>#{$user_name}</span>
                      <a class='logout-link' href='/'><i class='bi bi-box-arrow-right'></i></a>
                    </div>
                  </div>"
@@ -187,8 +188,9 @@ class_reader.class_eval do
         base64_image = image_url_to_base64(content_item.get('image'))
         unless unique_images.include?(base64_image)
           unique_images.add(base64_image)
-          content_divs += "<div class='content-item' style='margin: 10px; padding: 10px; cursor: pointer; width: calc(20% - 20px); box-sizing: border-box; text-align: center;' onclick=\"window.location='/content_item/#{content_item.get('id')}'\">
-                            <div class='thumbnail' style='background: white url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat; height: 250px;'></div>
+          id = content_item.get('id')
+          content_divs += "<div class='content-item' style='margin: 10px; padding: 10px; cursor: pointer; width: calc(20% - 20px); box-sizing: border-box; text-align: center;' onclick=\"window.location='/content_item/#{id}'\">
+                            <div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat; height: 250px; width:200px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);'></div>
                             <div class='info' style='padding: 10px;'>
                               <div class='title' style='font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;'>#{content_item.get('title')}</div>
                               <div class='author' style='color: #555; font-size: 12px;'>#{content_item.get('author')}</div>
@@ -212,13 +214,30 @@ def print_content_item_data(id)
   content_html = "<div style='display: flex; flex-direction: column; align-items: center; margin-top: 20px;text-align:justify;'>"
   @data.each do |content_item|
     if content_item.get('id') == id
-      content_html +=
-        "<div style='width: 70%; margin-bottom: 20px; overflow: hidden;'>
-          <div style='padding: 20px;'>
+      content_html = "<style>
+      .button-container {
+        float: right;
+      }
+      .button-container button {
+        background: #C0392B;
+        color: #FFF;
+        padding: 10px;
+        border-radius: 5%;
+        margin-left: 5px;
+        border: none;
+        cursor: pointer;
+      }
+      </style>"
+      content_html +="<div style='width: 70%; margin-bottom: 20px; overflow: hidden;margin: 20px auto; '>"
+      if $user_role == "Admin"
+        content_html += "<div class='button-container'><button style='background:#2B88C0;color:#FFF;padding:10px;border-radius:5%'>Update</button>
+        <button style='background:#C0392B;color:#FFF;padding:10px;border-radius:5%'>Delete</button></div>"
+      end
+      content_html += "<div style='padding: 20px;font-size:15px'>
             <h2 style='color: #333;'>#{content_item.get('title')}</h2>
             <p style='color: #888; font-style: italic;'>#{content_item.get('author')}</p>
             <pre style='color: #555; white-space: pre-wrap;'>#{content_item.get('description')}</pre>
-            <p style='color: #777;'>Fecha de publicación: #{content_item.get('pubdate')}</p>
+            <p style='color: #777;'><strong>Fecha de publicación</strong>: #{content_item.get('pubdate')}</p>
           </div>
         </div>"
     end
@@ -226,29 +245,7 @@ def print_content_item_data(id)
   content_html += "</div>"
   return content_html
 end
-  def print_comments(id, joined_reader)
-    reset_state()
-    readFile('./Data/comments.txt')
-    sorted_comments = @data.select { |comment| comment.get('content_item_id') == id }
-                           .sort_by { |comment| DateTime.parse(comment.get('pubdate')) }.reverse
-    html_content = "<div style='margin-top: 20px; text-align: center;'><h2>Comments</h2></div><div style='margin: 20px auto; width: 50%;'>
-                    <div style='border: 1px solid #ddd; border-radius: 10px; overflow: hidden; padding: 10px; background-color: #f5f5f5;'>"
-    if sorted_comments.empty?
-      html_content += "<p style='color: #555; text-align: center;'>No comments yet.</p>"
-    else
-      sorted_comments.each do |content_item|
-        user = joined_reader.getJoinedId(content_item.get('user_id'), './Data/users.txt')
-        html_content +=
-          "<div style='margin-bottom: 15px;'>
-            <span style='font-weight: bold; color: #333;'>#{user}</span>
-            <span style='color: #777; margin-left: 10px;'>#{content_item.get('pubdate')}</span>
-            <p style='margin-top: 5px; color: #555;'>#{content_item.get('text')}</p>
-          </div>"
-      end
-    end
-    html_content += "</div></div>"
-    return html_content
-  end
+
   def print_events()
     reset_state()
     readFile('./Data/events.txt')
@@ -276,4 +273,71 @@ end
     html_content += "</div>"
     return html_content
   end
+
+
+  def print_comments(content_item_id, joined_reader) # Print and manage comments
+    reset_state()
+    readFile('./Data/comments.txt')
+    sorted_comments = @data.select { |comment| comment.get('content_item_id') == content_item_id }
+                           .sort_by { |comment| DateTime.parse(comment.get('pubdate')) }.reverse
+    html_content = "<div style='margin-top: 20px; text-align: center;'><h3>Comments</h3></div><div style='margin: 20px auto; width: 70%;'>
+                    <div style='border: 1px solid #ddd; border-radius: 10px; overflow: hidden; padding: 20px; background-color: #f9f9f9;'>"
+    html_content += "<div style='margin-bottom: 20px;'>
+                      <form action='/submit_comment' method='post'>
+                      <input type='hidden' name='content_item_id' value='#{content_item_id}'>
+                      <input type='hidden' name='comment_user_id' value='#{$user_id}'>
+                        <label for='comment_text' style='font-size: 16px; color: #555;'>Add a comment:</label><br>
+                        <textarea id='comment_text' name='comment_text' rows='4' cols='50' style='width: 100%; margin-top: 10px;'></textarea><br>
+                        <div style='text-align: right;'>
+                          <input type='submit' value='Send' style='background-color: #1F6F3A; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
+                        </div>
+                      </form>
+                    </div>"
+    if sorted_comments.empty?
+      html_content += "<p style='color: #555; text-align: center;text-size:15px;'>No comments yet.</p>"
+    else
+      sorted_comments.each do |comment|
+        user = joined_reader.getJoinedId(comment.get('user_id'), './Data/users.txt')
+        html_content +=
+          "<div style='margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #ffffff;text-align:justify;'>
+            <span style='font-weight: bold; color: #333; font-size: 17px;'>#{user}</span>
+            <span style='color: #777; margin-left: 10px; font-size: 14px;'>#{comment.get('pubdate')}</span>
+            <p style='margin-top: 10px; color: #555; font-size: 15px;'>#{comment.get('text')}</p>"
+            if comment.get('user_id') == $user_id # Edit and Delete operations if user is owned of the comment
+                html_content += "<form id='update_comment' action='/update_comment' method='post' style='margin-top: 10px; display: none;'>
+                <input type='hidden' name='content_item_id' value='#{content_item_id}'>
+                <input type='hidden' name='comment_id' value='#{comment.get('id')}'>
+                <textarea name='updated_text' style='width: 100%;' rows='4' cols='50'>#{comment.get('text')}</textarea><br><br>
+                <input type='submit' value='Update' style='background-color: #1F6F3A; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
+                <button type='button' class='cancel-edit' style='background-color: #C0392B; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>Cancel</button>
+              </form>
+              <div style='display: flex; justify-content: flex-end;'>
+              <form action='' onsubmit='return false;'>
+                <input type='submit' class='edit-button' value='Edit' style='background-color: #2B88C0; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
+              </form>          
+              <form action='/delete_comment' method='post'>
+                <input type='hidden' name='content_item_id' value='#{content_item_id}'>
+                <input type='hidden' name='comment_id' value='#{comment.get('id')}'>
+                <input type='submit' value='Delete' style='background-color: #C0392B; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>
+              </form>
+              </div>"
+              html_content += "<script> document.addEventListener('DOMContentLoaded', function() {
+                var editButton = document.querySelector('.edit-button');
+                var updateForm = document.querySelector('#update_comment');
+                var cancelEditButton = document.querySelector('.cancel-edit');
+                editButton.addEventListener('click', function() {
+                  updateForm.style.display = 'block';
+                });
+                cancelEditButton.addEventListener('click', function() {
+                  updateForm.style.display = 'none';
+                });
+              });</script>"
+            end
+        html_content += "</div>"
+      end
+    end
+    html_content += "</div></div>"
+    return html_content
+    end
+    
 end
