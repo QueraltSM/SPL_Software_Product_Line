@@ -1,5 +1,6 @@
 require_relative 'semantic_model'
-require_relative './DSL/login_dsl'
+require_relative 'login'
+require_relative 'signup'
 require 'sinatra'
 
 users_semantic_model = create_semantic_model('./DSL/user_dsl.rb')
@@ -24,6 +25,27 @@ get '/' do
   login_form_dsl.generate_login_form
 end
 
+signup_form_dsl = SignupFormDSL.new
+get '/signup' do
+  signup_form_dsl.generate_signup_form
+end 
+
+post '/signup' do
+  name = params['name']
+  email = params['email']
+  password = params['password']
+  confirm_password = params['confirm_password']
+  if password != confirm_password
+    signup_form_dsl.generate_signup_form("Password do not match")
+  elsif users_reader.email_exists?(email)
+    signup_form_dsl.generate_signup_form("User already exists")
+  else
+    users_reader.create_user?(name, email,password)
+    users_reader.save_user(email)
+    redirect "/index"
+  end
+end
+
 post '/login' do
   email = params[:email]
   password = params[:password]
@@ -31,7 +53,7 @@ post '/login' do
     users_reader.save_user(email)
     redirect "/index"
   else
-    login_form_dsl.generate_login_form("Login failed because the user does not exist or the password is incorrect.")
+    login_form_dsl.generate_login_form("User does not exist or the password is incorrect.")
   end
 end
 
@@ -62,6 +84,7 @@ get '/index' do
   html_content
 end
 
+# --- Visualización de un contenido ---
 get '/content_item/:id' do
   id = params[:id]
   menu = content_item_reader.print_menu()
@@ -79,6 +102,7 @@ get '/content_item/:id' do
                   </html>"
   html_content
 end
+#------
 
 get '/books' do
   menu = content_item_reader.print_menu()
@@ -194,7 +218,7 @@ post '/submit_comment' do # Create new comment
   comment_text = params['comment_text']
   comment_pubdate = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
   new_comment = "\n#{comment_id} ||| #{comment_user_id} ||| #{comment_content_item_id} ||| #{comment_text} ||| #{comment_pubdate}"
-  File.open('./Data/comments.txt', 'a') { |file| file.puts(new_comment) }
+  File.open('./Data/comments.json', 'a') { |file| file.puts(new_comment) }
   content_item_id = params['content_item_id']
   redirect "/content_item/#{content_item_id}"
 end
@@ -202,7 +226,7 @@ end
 post '/delete_comment' do # Delete a comment
   comment_id = params['comment_id']
   comment_content_item_id = params['content_item_id']
-  comments_file_path = './Data/comments.txt'
+  comments_file_path = './Data/comments.json'
   comments_data = File.readlines(comments_file_path).map(&:chomp)
   File.open(comments_file_path, 'r+') do |file|
     lines = file.readlines
@@ -219,7 +243,7 @@ post '/update_comment' do # Actualizar un comentario
   comment_content_item_id = params['content_item_id']
   updated_pubdate = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
   updated_text = params['updated_text']
-  comments_file_path = './Data/comments.txt'
+  comments_file_path = './Data/comments.json'
   File.open(comments_file_path, 'r+') do |file|
     lines = file.readlines
     lines.map! do |line|

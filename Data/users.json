@@ -1,0 +1,9 @@
+[
+  {
+    "id": "1",
+    "name": "Administrator",
+    "email": "admin@uned.es",
+    "password": "admin123",
+    "role": "Admin"
+  }
+]

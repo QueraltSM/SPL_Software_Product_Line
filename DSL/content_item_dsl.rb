@@ -4,6 +4,6 @@ entity_class "ContentItem" do
     field "author", "String"
     field "description", "String"
     field "pubdate", "String"
-    field "image", "String"
+    field "digital_content", "String"
     field "type", "String"
   end
