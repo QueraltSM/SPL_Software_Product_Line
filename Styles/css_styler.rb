@@ -124,7 +124,6 @@ class CSS_Styler
               font-size: 13px;
               margin: 4px 2px;
               cursor: pointer;
-              font-weight: bold;
           }
           .error-message {
               color: red;
@@ -132,7 +131,53 @@ class CSS_Styler
           }
         </style>
         HTML
-      end      
+      end   
+      
+    def menu_css()
+        <<~HTML
+        <head>
+        <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css' rel='stylesheet'>
+        <style>
+          body {
+            margin: 0 auto;
+            font-family: 'Verdana', sans-serif;
+            color: black;
+          }
+          .menu {
+            background-color: #E3ECD6;
+            padding: 10px;
+            text-align: center;
+          }
+          .menu a {
+            color: #333;
+            text-decoration: none;
+            margin: 10px;
+            padding: 10px;
+            display: inline-block;
+            font-size: 14px;
+          }
+          .menu a:last-child {
+            margin-right: 0;
+          }
+          .menu a:hover {
+           color:#1F6F3A;
+          }
+          .menu .user-info {
+            float: right;
+          }
+          .menu .user-info span {
+            color: #333;
+            margin-right: 10px;
+            font-size: 13px;
+          }
+          .menu .logout-link {
+            color: #333;
+            text-decoration: none;
+          }
+        </style>
+        </head>         
+        HTML
+    end
 
     def header_events()
         <<~HTML

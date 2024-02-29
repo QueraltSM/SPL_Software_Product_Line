@@ -4,16 +4,43 @@ class ContentItemStyler
     end
   
     def content_item_header_style
+      header_style = <<~HTML
+        <style>
+          .input-container {
+            margin-bottom: 20px;
+          }
+          .input-label {
+            color: #444;
+            font-size: 16px;
+            margin-bottom: 5px;
+          }
+          .input-field {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #E3ECD6;;
+            border-radius: 5px;
+            font-size: 16px;
+          }
+          .input-field:focus {
+            outline: none;
+            border-color: #ccc;
+          }
+          .news-style {
+            width: 50%;
+            margin-bottom: 20px;
+            overflow: hidden;
+            margin: 20px auto;
+          }
+        </style>
+      HTML
       if @content_item['type'] == 'News'
-          <<~HTML
-            <div class='news-style' style='width: 50%; margin-bottom: 20px; overflow: hidden;margin: 20px auto;'>
-          HTML
+        header_style += "<div class='news-style'>"
       else
-        <<~HTML
-          <div style='width: 70%; margin-bottom: 20px; overflow: hidden;margin: 20px auto; '>
-        HTML
+        header_style += "<div style='width: 70%; margin-bottom: 20px; overflow: hidden;margin: 20px auto;'>"
       end
+      return header_style
     end
+    
 
     def content_item_body_style
       base64_image = image_url_to_base64(@content_item['digital_content'])
@@ -33,17 +60,21 @@ class ContentItemStyler
               </div>
           </div>
           HTML
-          elsif @content_item['type'] == 'Videos'
+          elsif @content_item['type'] == 'Videos' ||  @content_item['type'] == 'Movies'
             <<~HTML
-            <div style='padding: 20px;font-size:15px;display: flex; justify-content: flex-start; align-items: center;'>
-              <div style='margin-left: 20px;'>
-                <h2 style='color: #333;'>#{@content_item['title']}</h2>
-                <p style='color: #888; font-style: italic;'>#{@content_item['author']}</p>
-                <div style='display: flex; justify-content: center;'><iframe width='560' height='315' src='#{@content_item["digital_content"]}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe></div>
-                <pre style='color: #555; white-space: pre-wrap;'>#{@content_item['description']}</pre>
-                <p style='color: #777;'><strong>Publication date</strong>: #{@content_item['pubdate']}</p>
-              </div>
+            <div style='padding: 20px; font-size: 16px; display: flex; flex-direction: column; align-items: flex-start;  border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);'>
+            <h3 style='color: #444; font-size: 26px; margin: 10px; font-weight: bold; text-transform: uppercase;'>#{@content_item['title']}</h3>
+            <div style='width: 100%; border-radius: 10px; overflow: hidden;'>
+              <iframe width='100%' height='600' style='border: none; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);' src='#{@content_item["digital_content"]}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe>
             </div>
+            <div style='margin-top: 15px;'>
+              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>#{(@content_item['type'] == 'Movies') ? 'Director' : 'User' }</strong> #{@content_item['author']}</p>
+              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Release date</strong> #{@content_item['pubdate']}</p>
+            </div>
+            <div style='margin-top: 20px;'>
+              <p style='color: #555; font-size: 16px; line-height: 1.6; margin-bottom: 20px;'>#{@content_item['description']}</p>
+            </div>
+          </div>
           HTML
         elsif @content_item['type'] == 'News'
           <<~HTML
@@ -72,6 +103,90 @@ class ContentItemStyler
       end
     end
 
+    def update_content_item_body_style
+      base64_image = image_url_to_base64(@content_item['digital_content'])
+      unique_images = Set.new
+      unless unique_images.include?(base64_image)
+        unique_images.add(base64_image)
+        if @content_item['type'] == 'Books'
+          
+          <<~HTML
+          <div style='padding: 20px; font-size: 15px; display: flex; align-items: flex-start;'>
+            <form action="/update_content_item" method="post" style="display: flex; width: 100%;">
+              <input type="hidden" name="content_item_id" value="#{@content_item['id']}">
+              <div class='thumbnail' name="image-container" style='background: url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat; height: 400px; width: 560px; margin-right: 20px;'></div>
+              <div style='width:100%;'>
+                <div class="input-container">
+                  <label class="input-label"><strong>Title</strong></label>
+                  <input class="input-field" name="updated_title" type="text" style="color: #333;" value="#{@content_item['title']}">
+                </div>
+                <div class="input-container">
+                  <label class="input-label"><strong>Author</strong></label>
+                  <input class="input-field" name="updated_author" type="text" style="color: #333;" value="#{@content_item['author']}">
+                </div>
+                <div class="input-container">
+                  <label class="input-label"><strong>Description</strong></label>
+                  <textarea class="input-field" name="updated_description" style="color: #333; height: 100px;">#{@content_item['description']}</textarea>
+                </div>
+                <div class="input-container">
+                  <label class="input-label"><strong>Release</strong></label>
+                  <input class="input-field" name="updated_pubdate" type="text" style="color: #333;" value="#{@content_item['pubdate']}">
+                </div>
+              </div>
+            </form>
+          </div>
+          <div style="margin-top: 20px; text-align: center;">
+            <input type="file" name="updated_digital_content" accept="image/*" style="display: none;">
+            <button class="btn" style="background-color: #2B88C0; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;" onclick="document.getElementById('updated_digital_content').click();">Choose Image</button>
+            <button class="btn" style="background-color: #C0392B; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;" onclick="window.location.href='/content_item/#{@content_item['id']}'">Cancel</button>
+            <button class="btn" style="background-color: #1F6F3A; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" onclick="if(confirm('¿Estás seguro de que quieres actualizar este contenido?')) { document.querySelector('form').submit(); }">Update</button>
+          </div>
+          HTML
+          
+          
+          elsif @content_item['type'] == 'Videos' ||  @content_item['type'] == 'Movies'
+            <<~HTML
+            <div style='padding: 20px; font-size: 16px; display: flex; flex-direction: column; align-items: flex-start;  border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);'>
+            <h3 style='color: #444; font-size: 26px; margin: 10px; font-weight: bold; text-transform: uppercase;'>#{@content_item['title']}</h3>
+            <div style='width: 100%; border-radius: 10px; overflow: hidden;'>
+              <iframe width='100%' height='600' style='border: none; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);' src='#{@content_item["digital_content"]}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe>
+            </div>
+            <div style='margin-top: 15px;'>
+              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>#{(@content_item['type'] == 'Movies') ? 'Director' : 'User' }</strong> #{@content_item['author']}</p>
+              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Release date</strong> #{@content_item['pubdate']}</p>
+            </div>
+            <div style='margin-top: 20px;'>
+              <p style='color: #555; font-size: 16px; line-height: 1.6; margin-bottom: 20px;'>#{@content_item['description']}</p>
+            </div>
+          </div>
+          HTML
+        elsif @content_item['type'] == 'News'
+          <<~HTML
+            <div style='padding: 20px;font-size:15px;display: flex; justify-content: flex-start; align-items: center;'>
+              <div style='margin-left: 20px;'>
+                <h2 style='color: #333;'>#{@content_item['title']}</h2>
+                <p style='color: #888; font-style: italic;'>#{@content_item['author']}</p>
+                <div style="display: flex; justify-content: center;"><img src='data:image/jpeg;base64,#{base64_image}'/></div>
+                <pre style='color: #555; white-space: pre-wrap;text-align:justify;'>#{@content_item['description']}</pre>
+                <p style='color: #777;'><strong>Publication date</strong>: #{@content_item['pubdate']}</p>
+              </div>
+            </div>
+          HTML
+        else
+          <<~HTML
+          <div style='padding: 20px;font-size:15px'>
+            <h2 style='color: #333;'>#{@content_item['title']}</h2>
+            <p style='color: #888; font-style: italic;'>#{@content_item['author']}</p>
+            <div style='display: flex; justify-content: center;'><div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat; height: 250px; width:200px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);'></div></div>
+            <pre style='color: #555; white-space: pre-wrap;'>#{@content_item['description']}</pre>
+            <p style='color: #777;'><strong>Publication date</strong>: #{@content_item['pubdate']}</p>
+          </div>
+          </div>
+          HTML
+        end
+      end
+    end
+    
     def admin_actions
       <<~HTML
       <style>
@@ -95,10 +210,16 @@ class ContentItemStyler
           margin-bottom: 10px;
         }
       </style>
-        <div class='button-container'>
-          <button style='background:#2B88C0'>Modify content</button>
-          <button style='background:#C0392B'>Delete item</button>
-        </div>
+      <div class='button-container'>
+      <form action='/update_content_item_form' method='post'>
+      <input type='hidden' name='content_item_id' value="#{@content_item['id']}">
+      <button style='background:#2B88C0'>Modify</button>
+    </form>
+      <form action='/delete_content_item' method='post'>
+        <input type='hidden' name='content_item_id' value="#{@content_item['id']}">
+        <button style='background:#C0392B' onclick="return confirm('Are you sure you want to delete this item?')">Delete</button>
+      </form>
+    </div>    
       HTML
     end
     

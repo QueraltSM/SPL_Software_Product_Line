@@ -21,7 +21,7 @@
     "id": "Mw==",
     "title": "Pride and Prejudice",
     "author": "Jane Austen",
-    "description": "\"Pride and Prejudice\" is a classic novel that follows the life of Elizabeth Bennet as she navigates marriage, morality, and class in 19th-century England.",
+    "description": "With the arrival of the rich and handsome Mr. Darcy to their region, the lives of the Bennet family and their five daughters are turned upside down. Pride and social distance, cunning and hypocrisy, misunderstandings and hasty judgments lead their characters to scandal and pain, but also to understanding, knowledge, and true love.",
     "pubdate": "02/11/2022",
     "digital_content": "https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9781471134746/pride-and-prejudice-9781471134746_hr.jpg",
     "type": "Books"
@@ -47,7 +47,7 @@
   {
     "id": "Ng==",
     "title": "The Godfather",
-    "director": "Albert S. Ruddy",
+    "author": "Albert S. Ruddy",
     "description": "Un épico drama criminal que sigue la historia de la familia Corleone y su participación en el crimen organizado en Nueva York después de la Segunda Guerra Mundial.",
     "pubdate": "24/03/1972",
     "digital_content": "https://th.bing.com/th/id/OIP.EZncYnNoDxdf2bBsnDbQigAAAA?rs=1&pid=ImgDetMain",
@@ -56,16 +56,16 @@
   {
     "id": "Nw==",
     "title": "Inception",
-    "director": "Christopher Nolan",
-    "description": "Un intrigante thriller de ciencia ficción que explora el mundo de los sueños y la realidad a través de la historia de Dom Cobb, un ladrón habilidoso que se especializa en el robo de secretos valiosos extrayéndolos de los sueños de las personas. Con un equipo talentoso, Cobb se embarca en una misión final para redimirse y volver a su vida normal, pero se enfrenta a desafíos inesperados en los reinos oníricos.",
-    "pubdate": "16/07/2010",
-    "digital_content": "https://th.bing.com/th/id/R.d77a229b5e52d0707f59553625493fb0?rik=qvZBh9tZLPg4rQ&riu=http%3a%2f%2f2.bp.blogspot.com%2f-xFYEth1IzNg%2fT7aRDDExXfI%2fAAAAAAAABxs%2fUUKfDL0Tgw0%2fs1600%2finception-poster.jpg&ehk=i6gnJR4AT5XBOzLognKiXd5bzm%2fG1qNee%2bzl%2fpeo8z4%3d&risl=&pid=ImgRaw&r=0",
+    "author": "Christopher Nolan",
+    "description": "A thief who steals corporate secrets through the use of dream-sharing technology is given the task of implanting an idea into the mind of a CEO of a large corporation.",
+    "pubdate": "July 8, 2010 (London, premiere)",
+    "digital_content": "https://www.youtube.com/embed/YoHD9XEInc0?si=nKtRkC33shSi5qzl",
     "type": "Movies"
   },
   {
     "id": "OA==",
     "title": "Pulp Fiction",
-    "director": "Quentin Tarantino",
+    "author": "Quentin Tarantino",
     "description": "Una película de crimen y comedia negra que entrelaza varias historias en Los Ángeles.",
     "pubdate": "14/10/1994",
     "digital_content": "https://image.tmdb.org/t/p/original/gSnbhR0vftfJ2U6KpGmR7WzZlVo.jpg",
@@ -74,7 +74,7 @@
   {
     "id": "OQ==",
     "title": "The Shawshank Redemption",
-    "director": "Frank Darabont",
+    "author": "Frank Darabont",
     "description": "Basada en la historia de Stephen King, sigue la vida de un hombre inocente condenado a cadena perpetua y su amistad con un compañero de prisión.",
     "pubdate": "23/09/1994",
     "digital_content": "https://irs.www.warnerbros.com/gallery-jpeg/the_shawshank_redemption_posterlarge_0-675188670.jpg",
@@ -123,15 +123,6 @@
     "description": "Una ensalada fresca y saludable que combina la quinoa con aguacate, tomate y un aderezo ligero de limón y cilantro. Rica en proteínas y nutrientes, esta ensalada es ideal para una comida rápida y nutritiva. ¡Una opción deliciosa para aquellos que buscan opciones de alimentación consciente!",
     "pubdate": "15/05/2023",
     "digital_content": "https://th.bing.com/th/id/OIP.UQqcBxDjPzYi8z_O0rSrSwHaJ4?rs=1&pid=ImgDetMain",
-    "type": "Recipes"
-  },
-  {
-    "id": "MTU55=",
-    "title": "Pollo al Curry con Leche de Coco",
-    "author": "Chef Emily Chang",
-    "description": "Una receta clásica de pollo al curry que combina sabores intensos con la suavidad de la leche de coco. Las especias aromáticas se mezclan perfectamente con el pollo tierno, creando un plato lleno de sabor. ¡Sirve con arroz para una experiencia culinaria completa!",
-    "pubdate": "20/05/2023",
-    "digital_content": "https://th.bing.com/th/id/OIP.uPrYjpBtl-ouaJMyXrA3HQHaDt?rs=1&pid=ImgDetMain",
     "type": "Recipes"
   },
   {

@@ -3,6 +3,7 @@ require 'net/http'
 require 'base64'
 require_relative './Styles/css_styler'
 require_relative './Styles/content_item_styler'
+require_relative 'menu'
 
 class SemanticModel
     attr_accessor :class_name, :fields
@@ -62,12 +63,6 @@ class_reader.class_eval do
       file.write(JSON.pretty_generate(data))
     end
   end  
-  define_method :updateFile do |file_path, data|
-    File.open(file_path, 'w') do |file|
-      json_data = data.map { |entity| entity.instance_variables.map { |var| [var.to_s.delete('@'), entity.instance_variable_get(var)] }.to_h }
-      file.puts(JSON.pretty_generate(json_data))
-    end
-  end
   define_method :process_line do |line|
     @data << entity_class_data.new(line)
   end
@@ -102,73 +97,13 @@ def create_user?(name,email, password)
 end
 
 def save_user(email)
-    readFile('./Data/users.json')
-    user = @data.find { |u| u['email'].downcase == email.downcase }
-    $user_id = user['id']
-    $user_name = user['name']
-    $user_role = user['role']
-  end  
-  def print_menu()
-    menu_html = "<head>
-                   <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css' rel='stylesheet'>
-                   <style>
-                     body {
-                       margin: 0 auto;
-                       font-family: 'Verdana', sans-serif;
-                       color: black;
-                     }
-                     .menu {
-                       background-color: #E3ECD6;
-                       padding: 10px;
-                       text-align: center;
-                     }
-                     .menu a {
-                       color: #333;
-                       text-decoration: none;
-                       margin: 10px;
-                       padding: 10px;
-                       display: inline-block;
-                       font-size: 14px;
-                     }
-                     .menu a:last-child {
-                       margin-right: 0;
-                     }
-                     .menu a:hover {
-                      color:#1F6F3A;
-                     }
-                     .menu .user-info {
-                       float: right;
-                     }
-                     .menu .user-info span {
-                       color: #333;
-                       margin-right: 10px;
-                       font-size: 13px;
-                     }
-                     .menu .logout-link {
-                       color: #333;
-                       text-decoration: none;
-                     }
-                   </style>
-                 </head>
-                 <div class='menu'>
-                   <a class='logout-link' href='/index'><i class='bi bi-house'></i></a>
-                   <a href='/books'>Books</a>
-                   <a href='/movies'>Movies</a>
-                   <a href='/music'>Music</a>
-                   <a href='/videos'>Videos</a>
-                   <a href='/recipes'>Recipes</a>
-                   <a href='/news'>News</a>
-                   <a href='/events'>Events</a>"
-                    if $user_role == "Admin"
-                      menu_html += "<a style='background:#1F6F3A;color:#FFF;padding:10px;border-radius:5%' href='/create'>Create</a>"
-                    end
-                    menu_html +=  "<div class='user-info'>
-                     <span>#{$user_name}</span>
-                     <a class='logout-link' href='/'><i class='bi bi-box-arrow-right'></i></a>
-                   </div>
-                 </div>"
-    return menu_html
-  end
+  readFile('./Data/users.json')
+  user = @data.find { |u| u['email'].downcase == email.downcase }
+  $user_id = user['id']
+  $user_name = user['name']
+  $user_role = user['role']
+end  
+
   def getJoinedId(iduser,data)
     readFile(data)
     user = @data.find { |user| user['id'] == iduser }
@@ -176,11 +111,11 @@ def save_user(email)
       user['name']
     end
   end
+
   def image_url_to_base64(image_url)
     begin
       uri = URI.parse(image_url)
       response = Net::HTTP.get_response(uri)
-  
       if response.is_a?(Net::HTTPSuccess)
         image_data = response.body
         base64_data = Base64.strict_encode64(image_data)
@@ -203,12 +138,11 @@ def save_user(email)
     if view_all 
         content_divs += "<button style='position: absolute; top: 10px; right: 10px; padding: 10px; background:#E3ECD6; cursor: pointer; border:none; border-radius: 5px;' onclick=\"window.location='/#{type.downcase}'\">View all #{type.downcase}</button>"
     end
-
     unique_images = Set.new
     counter = 0
     @data.each_with_index do |content_item, index|
       if content_item['type'] == type
-        if counter < 3
+        if counter < 3 || !view_all
           digital_content_html = ""
           if content_item['type'] == 'Videos'
             digital_content_html = "<div style='display: flex; justify-content: center;'><iframe width='560' height='315' src='#{content_item['digital_content']}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe></div>"
@@ -231,13 +165,25 @@ def save_user(email)
         end
       end
     end
-    # if view_all 
-    #   content_divs += "<button style='position: absolute; top: 10px; right: 10px; padding: 10px; background:#E3ECD6; cursor: pointer; border:none; border-radius: 5px;' onclick=\"window.location='/#{type.downcase}'\">View All</button></div>"
-    # end
     content_divs += "</div>"
     return content_divs
   end
 end  
+
+def print_update_form(id)
+  reset_state()
+  readFile('./Data/content_items.json')
+  content_html = "<div style='display: flex; flex-direction: column; align-items: center; margin-top: 20px;text-align:justify;'>"
+  @data.each do |content_item|
+    if content_item['id'] == id
+      styler = ContentItemStyler.new(content_item)
+      content_html += styler.content_item_header_style
+      content_html += styler.update_content_item_body_style
+    end
+  end
+  content_html += "</div>"
+  return content_html
+end
 
 def print_content_item_data(id) # Visualización del contenido de un content_item
   reset_state()
@@ -260,13 +206,10 @@ end
   def print_events() # Visualización de los eventos
     reset_state()
     readFile('./Data/events.json')
-    
     @data.reject! do |event| # Eliminamos de forma permanente los eventos pasados
        event_date = DateTime.parse(event['datetime'])
        event_date < DateTime.now
     end
-    
-    #updateFile('./Data/events.json', @data) #Actualizamos el fichero con los eventos que aún no se han celebrado
     styler = CSS_Styler.new()
     sorted_data = @data.sort_by { |event| DateTime.parse(event['datetime']) }.reverse
     html_content = styler.header_events()
@@ -283,9 +226,9 @@ end
     readFile('./Data/comments.json')
     sorted_comments = @data.select { |comment| comment['content_item_id'] == content_item_id }
                            .sort_by { |comment| DateTime.parse(comment['pubdate']) }.reverse
-    html_content = "<div style='margin-top: 20px; text-align: center;'><h3>Comments</h3></div><div style='margin: 20px auto; width: 70%;'>
+    html_content = "<div style='margin: 20px auto; width: 70%;'>
                     <div style='border: 1px solid #ddd; border-radius: 10px; overflow: hidden; padding: 20px; background-color: #f9f9f9;'>"
-    html_content += "<div style='margin-bottom: 20px;'>
+    html_content += "<div style='margin-bottom: 20px;'><div style='margin-top: 20px; text-align: center;'><h3>Comments</h3></div>
                       <form action='/submit_comment' method='post'>
                       <input type='hidden' name='content_item_id' value='#{content_item_id}'>
                       <input type='hidden' name='comment_user_id' value='#{$user_id}'>
@@ -306,6 +249,7 @@ end
             <span style='font-weight: bold; color: #333; font-size: 17px;'>#{user}</span>
             <span style='color: #777; margin-left: 10px; font-size: 14px;'>#{comment['pubdate']}</span>
             <p style='margin-top: 10px; color: #555; font-size: 15px;'>#{comment['text']}</p>"
+
             if comment['user_id'] == $user_id # Edit and Delete operations if user is owned of the comment
                 html_content += "<form id='update_comment' action='/update_comment' method='post' style='margin-top: 10px; display: none;'>
                 <input type='hidden' name='content_item_id' value='#{content_item_id}'>
@@ -324,6 +268,7 @@ end
                 <input type='submit' value='Delete' style='background-color: #C0392B; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>
               </form>
               </div>"
+
               html_content += "<script> document.addEventListener('DOMContentLoaded', function() {
                 var editButton = document.querySelector('.edit-button');
                 var updateForm = document.querySelector('#update_comment');

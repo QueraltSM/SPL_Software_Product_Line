@@ -58,27 +58,20 @@ post '/login' do
 end
 
 get '/index' do
-  menu = content_item_reader.print_menu()
-  books_table = content_item_reader.print_content_items("Books", true)
-  movies_table = content_item_reader.print_content_items("Movies", true)
-  music_table = content_item_reader.print_content_items("Music", true)
-  videos_table = content_item_reader.print_content_items("Videos", true)
-  recipes_table = content_item_reader.print_content_items("Recipes", true)
-  news_table = content_item_reader.print_content_items("News", true)
-  events = events_reader.print_events()
+
   html_content = "<html>
                     <head>
                       <title></title>
                     </head>
                     <body>
-                      #{menu}
-                      #{books_table}
-                      #{movies_table}
-                      #{music_table}
-                      #{news_table}
-                      #{recipes_table}
-                      #{videos_table}
-                      #{events}
+                      #{Menu.generate_menu_html()}
+                      #{content_item_reader.print_content_items("Books", true)}
+                      #{content_item_reader.print_content_items("Movies", true)}
+                      #{content_item_reader.print_content_items("Music", true)}
+                      #{content_item_reader.print_content_items("News", true)}
+                      #{content_item_reader.print_content_items("Recipes", true)}
+                      #{content_item_reader.print_content_items("Videos", true)}
+                      #{events_reader.print_events()}
                     </body>
                   </html>"
   html_content
@@ -87,17 +80,14 @@ end
 # --- Visualización de un contenido ---
 get '/content_item/:id' do
   id = params[:id]
-  menu = content_item_reader.print_menu()
-  content_item_data = content_item_reader.print_content_item_data(id)
-  comments = comments_reader.print_comments(id,users_reader)
   html_content = "<html>
                     <head>
                       <title></title>
                     </head>
                     <body>
-                      #{menu}
-                      #{content_item_data}
-                      #{comments}
+                      #{Menu.generate_menu_html()}
+                      #{content_item_reader.print_content_item_data(id)}
+                      #{comments_reader.print_comments(id,users_reader)}
                     </body>
                   </html>"
   html_content
@@ -105,161 +95,177 @@ end
 #------
 
 get '/books' do
-  menu = content_item_reader.print_menu()
-  books_table = content_item_reader.print_content_items("Books")
   html_content = "<html>
                     <head>
                       <title></title>
                     </head>
                     <body>
-                      #{menu}
-                      #{books_table}
+                      #{Menu.generate_menu_html()}
+                      #{content_item_reader.print_content_items("Books")}
                     </body>
                   </html>"
   html_content
 end
 
 get '/movies' do
-  menu = content_item_reader.print_menu()
-  movies_table = content_item_reader.print_content_items("Movies")
   html_content = "<html>
                     <head>
                       <title></title>
                     </head>
                     <body>
-                      #{menu}
-                      #{movies_table}
+                      #{Menu.generate_menu_html()}
+                      #{content_item_reader.print_content_items("Movies")}
                     </body>
                   </html>"
   html_content
 end
 
 get '/music' do
-  menu = content_item_reader.print_menu()
-  music_table = content_item_reader.print_content_items("Music")
   html_content = "<html>
                     <head>
                       <title></title>
                     </head>
                     <body>
-                      #{menu}
-                      #{music_table}
+                      #{Menu.generate_menu_html()}
+                      #{content_item_reader.print_content_items("Music")}
                     </body>
                   </html>"
   html_content
 end
 
 get '/videos' do
-  menu = content_item_reader.print_menu()
-  videos_table = content_item_reader.print_content_items("Videos")
+  menu = Menu.generate_menu_html()
   html_content = "<html>
                     <head>
                       <title></title>
                     </head>
                     <body>
-                      #{menu}
-                      #{videos_table}
+                      #{Menu.generate_menu_html()}
+                      #{content_item_reader.print_content_items("Videos")}
                     </body>
                   </html>"
   html_content
 end
 
 get '/recipes' do
-  menu = content_item_reader.print_menu()
-  recipes_table = content_item_reader.print_content_items("Recipes")
   html_content = "<html>
                     <head>
                       <title></title>
                     </head>
                     <body>
-                      #{menu}
-                      #{recipes_table}
+                      #{Menu.generate_menu_html()}
+                      #{content_item_reader.print_content_items("Recipes")}
                     </body>
                   </html>"
   html_content
 end
 
 get '/news' do
-  menu = content_item_reader.print_menu()
-  news_table = content_item_reader.print_content_items("News")
   html_content = "<html>
                     <head>
                       <title></title>
                     </head>
                     <body>
-                      #{menu}
-                      #{news_table}
+                      #{Menu.generate_menu_html()}
+                      #{content_item_reader.print_content_items("News")}
                     </body>
                   </html>"
   html_content
 end
 
 get '/events' do
-  menu = content_item_reader.print_menu()
-  events = events_reader.print_events()
   html_content = "<html>
                     <head>
                       <title></title>
                     </head>
                     <body>
-                      #{menu}
-                      #{events}
+                      #{Menu.generate_menu_html()}
+                      #{ events = events_reader.print_events()}
                     </body>
                   </html>"
   html_content
 end
 
-#---Comments---
+#---Content Item---
+post '/delete_content_item' do
+  content_item_id = params['content_item_id']
+  puts content_item_id
+  #items = content_item_reader.readFile('./Data/content_items.json')
+  #index_to_delete = items.find_index { |item| item["id"] == content_item_id }
+  #items.delete_at(index_to_delete)
+  #content_item_reader.writeFile('./Data/content_items.json', items)
+  redirect "/index"
+end
 
+post '/update_content_item_form' do
+  html_content = "<html>
+                    <head>
+                      <title></title>
+                    </head>
+                    <body>
+                      #{Menu.generate_menu_html()}
+                      #{content_item_reader.print_update_form(params['content_item_id'])}
+                    </body>
+                  </html>"
+  html_content
+end
+
+post '/update_content_item' do
+  content_item_id = params['content_item_id']
+  updated_title = params['updated_title']
+  updated_author = params['updated_author']
+  updated_description = params['updated_description']
+  updated_pubdate = params['updated_pubdate']
+
+  content_items = content_item_reader.readFile('./Data/content_items.json')
+  index_to_update = content_items.find_index { |item| item["id"] == content_item_id }
+
+  if !params['updated_digital_content'].nil?
+    content_items[index_to_update]["digital_content"] = params['updated_digital_content']
+    puts params['updated_digital_content']
+  end
+  content_items[index_to_update]["title"] = updated_title
+  content_items[index_to_update]["author"] = updated_author
+  content_items[index_to_update]["description"] = updated_description
+  content_items[index_to_update]["pubdate"] = updated_pubdate
+  content_item_reader.writeFile('./Data/content_items.json', content_items)
+  redirect "/content_item/#{content_item_id}"
+end
+#---
+
+#---Comments---
 post '/submit_comment' do # Create new comment
-  comment_id = SecureRandom.uuid
-  comment_user_id = params['comment_user_id']
-  comment_content_item_id = params['content_item_id']
-  comment_text = params['comment_text']
-  comment_pubdate = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
-  new_comment = "\n#{comment_id} ||| #{comment_user_id} ||| #{comment_content_item_id} ||| #{comment_text} ||| #{comment_pubdate}"
-  File.open('./Data/comments.json', 'a') { |file| file.puts(new_comment) }
+  new_comment = {
+    "id": SecureRandom.uuid,
+    "user_id": params['comment_user_id'],
+    "content_item_id":  params['content_item_id'],
+    "text": params['comment_text'],
+    "pubdate": DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
+  }
+  comments = comments_reader.readFile('./Data/comments.json')
+  comments << new_comment
+  comments_reader.writeFile('./Data/comments.json', comments)
   content_item_id = params['content_item_id']
   redirect "/content_item/#{content_item_id}"
 end
 
 post '/delete_comment' do # Delete a comment
   comment_id = params['comment_id']
-  comment_content_item_id = params['content_item_id']
-  comments_file_path = './Data/comments.json'
-  comments_data = File.readlines(comments_file_path).map(&:chomp)
-  File.open(comments_file_path, 'r+') do |file|
-    lines = file.readlines
-    lines.reject! { |line| line.split(' ||| ')[0] == comment_id }
-    file.rewind
-    file.write(lines.join(""))
-    file.truncate(file.pos)
-  end
-  redirect "/content_item/#{comment_content_item_id}"
+  comments = comments_reader.readFile('./Data/comments.json')
+  index_to_delete = comments.find_index { |comment| comment["id"] == comment_id }
+  comments.delete_at(index_to_delete)
+  comments_reader.writeFile('./Data/comments.json', comments)
+  redirect "/content_item/#{params['content_item_id']}"
 end
 
 post '/update_comment' do # Actualizar un comentario
   comment_id = params['comment_id']
-  comment_content_item_id = params['content_item_id']
-  updated_pubdate = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
   updated_text = params['updated_text']
-  comments_file_path = './Data/comments.json'
-  File.open(comments_file_path, 'r+') do |file|
-    lines = file.readlines
-    lines.map! do |line|
-      data = line.split(' ||| ')
-      if data[0] == comment_id
-        data[3] = updated_text
-        data[4] = updated_pubdate
-        line = data.join(' ||| ')
-      end
-      line
-    end
-    file.rewind
-    file.write(lines.join(""))
-    file.truncate(file.pos)
-  end
-  redirect "/content_item/#{comment_content_item_id}"
+  comments = comments_reader.readFile('./Data/comments.json')
+  index_to_update = comments.find_index { |comment| comment["id"] == comment_id }
+  comments[index_to_update]["text"] = updated_text
+  comments[index_to_update]["pubdate"] = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
+  comments_reader.writeFile('./Data/comments.json', comments)
+  redirect "/content_item/#{params['content_item_id']}"
 end
-
 #------

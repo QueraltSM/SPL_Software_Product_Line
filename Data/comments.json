@@ -1,16 +1,9 @@
 [
-    {
-      "id": "MQ==",
-      "user_id": "1",
-      "content_item_id": "MQ==",
-      "text": "\"1984\" es una obra maestra distópica que ofrece una mirada impactante a un futuro totalitario. La narrativa absorbente y los temas profundos sobre el control gubernamental y la resistencia hacen que esta novela sea una experiencia literaria inolvidable. Orwell ha creado un mundo sombrío que te hace reflexionar sobre la libertad y la vigilancia. Una lectura obligada para aquellos que aprecian la crítica social y la exploración de la condición humana.",
-      "pubdate": "01/12/2023 13:30:23"
-    },
-    {
-      "id": "Mw==",
-      "user_id": "2",
-      "content_item_id": "MQ==",
-      "text": "\"1984\" es una obra maestra atemporal que sigue siendo relevante hoy en día. La habilidad de Orwell para tejer una narrativa tan intensa y perturbadora es asombrosa. La trama cautivadora y los personajes vívidos hacen que sea imposible dejar de leer. La manera en que aborda temas como la manipulación de la verdad y la invasión de la privacidad es sorprendentemente profunda. Un clásico que deja una impresión duradera.",
-      "pubdate": "03/12/2023 18:00:34"
-    }
-  ]  
+  {
+    "id": "MQ==",
+    "user_id": "1",
+    "content_item_id": "MQ==",
+    "text": "\"1984\" es una obra maestra distópica que ofrece una mirada impactante a un futuro totalitario. La narrativa absorbente y los temas profundos sobre el control gubernamental y la resistencia hacen que esta novela sea una experiencia literaria inolvidable. Orwell ha creado un mundo sombrío que te hace reflexionar sobre la libertad y la vigilancia. Una lectura obligada para aquellos que aprecian la crítica social y la exploración de la condición humana.",
+    "pubdate": "01/12/2023 13:30:23"
+  }
+]

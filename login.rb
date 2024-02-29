@@ -31,9 +31,9 @@ class LoginFormDSL
         form_html += "<input type='#{field[:type]}' name='#{field[:name]}' #{attributes_to_html(field[:attributes])} required />"
         form_html += "</div>"
       end
-      form_html += "<button class='submit-btn' type='button' onclick='submitForm()'>Login</button></form>"
+      form_html += "<button class='submit-btn' type='button' onclick='submitForm()'><strong>Login</strong></button></form>"
       form_html += "<div class='error-message' style='font-size:13px;'>#{error_message}</div>" if error_message
-      form_html += "<button class='create-account-btn' onclick='createAccount()'>Sign up</button>"
+      form_html += "<button class='create-account-btn' onclick='createAccount()'>Create new account</button>"
       form_html += "<script>
                      function submitForm() {
                        document.getElementById('loginForm').submit();

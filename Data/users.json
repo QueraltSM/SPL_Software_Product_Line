@@ -1,9 +1,16 @@
 [
   {
-    "id": "1",
+    "id": "126d00cd-a5a8-4b56-bac1-a3e3fa5d155e",
     "name": "Administrator",
     "email": "admin@uned.es",
     "password": "admin123",
     "role": "Admin"
+  },
+  {
+    "id": "cf3defec-68a2-4037-81d2-19cc2679b83b",
+    "name": "queralt sosa",
+    "email": "queralt@gmail.com",
+    "password": "123",
+    "role": "User"
   }
 ]
