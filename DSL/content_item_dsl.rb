@@ -5,5 +5,6 @@ entity_class "ContentItem" do
     field "description", "String"
     field "pubdate", "String"
     field "digital_content", "String"
+    field "rating", "int"
     field "type", "String"
   end

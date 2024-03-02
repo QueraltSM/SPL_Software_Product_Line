@@ -130,45 +130,48 @@ end
     end
   end
 
-  def print_content_items(type, view_all = false) # Imprime el contenido digital en la pantalla de Inicio
+  def print_content_items(type, view_all = true) # Imprime el contenido digital en la pantalla de Inicio
     reset_state()
     readFile('./Data/content_items.json')
     content_divs = "<div id='#{type}_content' style='position: relative; justify-content: center; display: flex; flex-wrap: wrap; margin: 15px; padding: 10px;'>
-                     <p style='width: 100%; text-align: center; font-size: 18px; font-weight: bold;'>#{type}</p>"
-    if view_all 
-        content_divs += "<button style='position: absolute; top: 10px; right: 10px; padding: 10px; background:#E3ECD6; cursor: pointer; border:none; border-radius: 5px;' onclick=\"window.location='/#{type.downcase}'\">View all #{type.downcase}</button>"
+                     <p style='width: 100%; text-align: center; font-size: 18px; font-weight: bold;'>#{view_all ? type.upcase : "Top 3 #{type}"}</p>"
+    if !view_all 
+      content_divs += "<button style='position: absolute; top: 10px; right: 10px; padding: 10px; background:#E3ECD6; cursor: pointer; border:none; border-radius: 5px;' onclick=\"window.location='/#{type.downcase}'\">View all #{type.downcase}</button>"
     end
     unique_images = Set.new
     counter = 0
-    @data.each_with_index do |content_item, index|
-      if content_item['type'] == type
-        if counter < 3 || !view_all
-          digital_content_html = ""
-          if content_item['type'] == 'Videos'
-            digital_content_html = "<div style='display: flex; justify-content: center;'><iframe width='560' height='315' src='#{content_item['digital_content']}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe></div>"
-          else
-            base64_image = image_url_to_base64(content_item['digital_content'])
-            unique_images = Set.new
-            unless unique_images.include?(base64_image)
-              unique_images.add(base64_image)
-              digital_content_html = "<div style='display: flex; justify-content: center;'><div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / cover no-repeat; height: 315px; width:560px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);'></div></div>"
-            end
-          end
-          id = content_item['id']
-          content_divs += "<div class='content-item' style='margin: 10px; padding: 10px; cursor: pointer; width: calc(20% - 20px); box-sizing: border-box; text-align: center;' onclick=\"window.location='/content_item/#{id}'\">
-                            "+digital_content_html+"<div class='info' style='padding: 10px;'>
-                                <div class='title' style='font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;'>#{content_item['title']}</div>
-                                <div class='author' style='color: #555; font-size: 12px;'>#{content_item['author']}</div>
-                              </div>
-                            </div><br>"
-          counter += 1
+
+    if view_all
+      items = @data.select { |item| item['type'] == type }
+
+    else 
+      items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
+      items = items.first(3)
+    end 
+
+    items.each_with_index do |content_item, index|
+      digital_content_html = ""
+      if content_item['type'] == 'Videos'
+        digital_content_html = "<div style='display: flex; justify-content: center;'><iframe width='560' height='315' src='#{content_item['digital_content']}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe></div>"
+      else
+        base64_image = image_url_to_base64(content_item['digital_content'])
+        unless unique_images.include?(base64_image)
+          unique_images.add(base64_image)
+          digital_content_html = "<div style='display: flex; justify-content: center;'><div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / cover no-repeat; height: 315px; width:560px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);'></div></div>"
         end
       end
+      id = content_item['id']
+      content_divs += "<div class='content-item' style='margin: 10px; padding: 10px; cursor: pointer; width: calc(20% - 20px); box-sizing: border-box; text-align: center;' onclick=\"window.location='/content_item/#{id}'\">
+                        "+digital_content_html+"<div class='info' style='padding: 10px;'>
+                            <div class='title' style='font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;'>#{content_item['title']}</div>
+                            <div class='author' style='color: #555; font-size: 12px;'>#{content_item['author']}</div>
+                          </div>
+                        </div><br>"
     end
     content_divs += "</div>"
     return content_divs
   end
-end  
+end
 
 def print_update_form(id)
   reset_state()
@@ -194,6 +197,7 @@ def print_content_item_data(id) # Visualización del contenido de un content_ite
       styler = ContentItemStyler.new(content_item)
       content_html += styler.content_item_header_style
       if $user_role == "Admin"
+        content_html +=  CSS_Styler.new().admin_css
         content_html += styler.admin_actions
       end
       content_html += styler.content_item_body_style
@@ -220,7 +224,34 @@ end
     return html_content
   end
 
-
+  def rating_content_item(content_item_id)
+    content_item = @data.find { |item| item['id'] == content_item_id }
+    content_rating = content_item['rating']
+    html_content = "<div style='margin-bottom: 20px;'>
+                      <div style='margin-top: 20px; text-align: center;'>
+                        <h3>Rate this content</h3>
+                      </div>
+                      <form id='ratingForm' action='/update_rating' method='post'>
+                        <input type='hidden' name='content_item_id' value='#{content_item_id}'>
+                        <input type='hidden' name='rating' id='selectedStar'>
+                        <div style='text-align: center;'>
+                          <div class='rating'>"
+    (1..10).each do |i|
+      html_content += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedStar(#{i})'><label for='star#{i}'></label>"
+    end
+    html_content += "</div><br>
+                      <input id='submitBtn' type='submit' value='Submit' style='background-color: #1F6F3A; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
+                      </div>
+                      </form>
+                      </div>
+                      <script>
+                        function setSelectedStar(starValue) {
+                          document.getElementById('selectedStar').value = starValue;
+                        }
+                      </script>"
+    return html_content
+  end
+  
   def print_comments(content_item_id, joined_reader) # Print and manage comments
     reset_state()
     readFile('./Data/comments.json')

@@ -50,26 +50,29 @@ class ContentItemStyler
         if @content_item['type'] == 'Books'
           <<~HTML
           <div style='padding: 20px;font-size:15px;display: flex; justify-content: flex-start; align-items: center;'>
-            <div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / cover no-repeat; height: 400px; width: 560px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); margin-right: 20px;'></div>
-                <div style='margin-left: 20px;'>
+          <div class='thumbnail' name="image-container" style='background: url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat; height: 400px; width: 560px; margin-right: 20px;'></div>
+            <div style='margin-left: 20px;'>
                     <h2 style='color: #333;'>#{@content_item['title']}</h2>
-                    <p style='color: #888; font-style: italic;'>#{@content_item['author']}</p>
-                    <pre style='color: #555; white-space: pre-wrap;'>#{@content_item['description']}</pre>
-                    <p style='color: #777;'><strong>Publication date</strong>: #{@content_item['pubdate']}</p>
+                    <div style='margin-top: 15px;'>
+                    <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Author</strong> #{@content_item['author']}</p>
+                    <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Released</strong> #{@content_item['pubdate']}</p>
+                  </div>
+                  <pre style='color: #555; white-space: pre-wrap;'>#{@content_item['description']}</pre>
                 </div>
               </div>
           </div>
           HTML
           elsif @content_item['type'] == 'Videos' ||  @content_item['type'] == 'Movies'
             <<~HTML
-            <div style='padding: 20px; font-size: 16px; display: flex; flex-direction: column; align-items: flex-start;  border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);'>
+            <div style='padding: 20px; font-size: 16px; display: flex; flex-direction: column; align-items: flex-start;'>
             <h3 style='color: #444; font-size: 26px; margin: 10px; font-weight: bold; text-transform: uppercase;'>#{@content_item['title']}</h3>
             <div style='width: 100%; border-radius: 10px; overflow: hidden;'>
               <iframe width='100%' height='600' style='border: none; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);' src='#{@content_item["digital_content"]}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe>
             </div>
             <div style='margin-top: 15px;'>
               <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>#{(@content_item['type'] == 'Movies') ? 'Director' : 'User' }</strong> #{@content_item['author']}</p>
-              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Release date</strong> #{@content_item['pubdate']}</p>
+              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Released</strong> #{@content_item['pubdate']}</p>
+              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Rating</strong> #{@content_item['rating']}</p>
             </div>
             <div style='margin-top: 20px;'>
               <p style='color: #555; font-size: 16px; line-height: 1.6; margin-bottom: 20px;'>#{@content_item['description']}</p>
@@ -109,7 +112,6 @@ class ContentItemStyler
       unless unique_images.include?(base64_image)
         unique_images.add(base64_image)
         if @content_item['type'] == 'Books'
-          
           <<~HTML
           <div style='padding: 20px; font-size: 15px; display: flex; align-items: flex-start;'>
             <form action="/update_content_item" method="post" style="display: flex; width: 100%;">
@@ -141,9 +143,18 @@ class ContentItemStyler
             <button class="btn" style="background-color: #C0392B; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;" onclick="window.location.href='/content_item/#{@content_item['id']}'">Cancel</button>
             <button class="btn" style="background-color: #1F6F3A; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" onclick="if(confirm('¿Estás seguro de que quieres actualizar este contenido?')) { document.querySelector('form').submit(); }">Update</button>
           </div>
+          <script>
+          document.getElementById('updated_digital_content').addEventListener('change', function(event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+              var imageDataUrl = e.target.result;
+              document.getElementById('image-container').style.backgroundImage = "url(" + imageDataUrl + ")";
+            };
+            reader.readAsDataURL(file);
+          });
+        </script>
           HTML
-          
-          
           elsif @content_item['type'] == 'Videos' ||  @content_item['type'] == 'Movies'
             <<~HTML
             <div style='padding: 20px; font-size: 16px; display: flex; flex-direction: column; align-items: flex-start;  border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);'>
@@ -153,7 +164,7 @@ class ContentItemStyler
             </div>
             <div style='margin-top: 15px;'>
               <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>#{(@content_item['type'] == 'Movies') ? 'Director' : 'User' }</strong> #{@content_item['author']}</p>
-              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Release date</strong> #{@content_item['pubdate']}</p>
+              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Released</strong> #{@content_item['pubdate']}</p>
             </div>
             <div style='margin-top: 20px;'>
               <p style='color: #555; font-size: 16px; line-height: 1.6; margin-bottom: 20px;'>#{@content_item['description']}</p>
@@ -189,39 +200,23 @@ class ContentItemStyler
     
     def admin_actions
       <<~HTML
-      <style>
-        .button-container {
-          float: right;
-        }
-        .button-container button {
-          color: #FFF;
-          padding: 10px;
-          border-radius: 5px;
-          margin-left: 10px;
-          border: none;
-          cursor: pointer;
-        }
-        .button-container button:hover {
-          background: #1D6F9C;
-        }
-        .text-container {
-          font-size: 11px;
-          color: #555;
-          margin-bottom: 10px;
-        }
-      </style>
-      <div class='button-container'>
-      <form action='/update_content_item_form' method='post'>
-      <input type='hidden' name='content_item_id' value="#{@content_item['id']}">
-      <button style='background:#2B88C0'>Modify</button>
-    </form>
-      <form action='/delete_content_item' method='post'>
-        <input type='hidden' name='content_item_id' value="#{@content_item['id']}">
-        <button style='background:#C0392B' onclick="return confirm('Are you sure you want to delete this item?')">Delete</button>
-      </form>
-    </div>    
+      <div class='button-container' style='display: flex; align-items: center;'>
+        <form action='/update_content_item_form' method='post'>
+          <input type='hidden' name='content_item_id' value="#{@content_item['id']}">
+          <button style='background:#2B88C0; margin-right: 10px;'>
+            <i class='fas fa-pencil-alt'></i>
+          </button>
+        </form>
+        <form action='/delete_content_item' method='post'>
+          <input type='hidden' name='content_item_id' value="#{@content_item['id']}">
+          <button style='background:#C0392B' onclick="return confirm('Are you sure you want to delete this item?')">
+            <i class='fas fa-trash'></i>
+          </button>
+        </form>
+      </div> 
       HTML
     end
+    
     
   end
 

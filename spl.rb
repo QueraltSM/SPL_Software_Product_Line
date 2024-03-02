@@ -65,12 +65,12 @@ get '/index' do
                     </head>
                     <body>
                       #{Menu.generate_menu_html()}
-                      #{content_item_reader.print_content_items("Books", true)}
-                      #{content_item_reader.print_content_items("Movies", true)}
-                      #{content_item_reader.print_content_items("Music", true)}
-                      #{content_item_reader.print_content_items("News", true)}
-                      #{content_item_reader.print_content_items("Recipes", true)}
-                      #{content_item_reader.print_content_items("Videos", true)}
+                      #{content_item_reader.print_content_items("Books", false)}
+                      #{content_item_reader.print_content_items("Movies", false)}
+                      #{content_item_reader.print_content_items("Music", false)}
+                      #{content_item_reader.print_content_items("News", false)}
+                      #{content_item_reader.print_content_items("Recipes", false)}
+                      #{content_item_reader.print_content_items("Videos", false)}
                       #{events_reader.print_events()}
                     </body>
                   </html>"
@@ -87,6 +87,7 @@ get '/content_item/:id' do
                     <body>
                       #{Menu.generate_menu_html()}
                       #{content_item_reader.print_content_item_data(id)}
+                      #{content_item_reader.rating_content_item(id)}
                       #{comments_reader.print_comments(id,users_reader)}
                     </body>
                   </html>"
@@ -269,3 +270,16 @@ post '/update_comment' do # Actualizar un comentario
   redirect "/content_item/#{params['content_item_id']}"
 end
 #------
+
+#---Rating---
+post '/update_rating' do  # Actualizar la puntuación
+content_items = content_item_reader.readFile('./Data/content_items.json')
+index_to_update = content_items.find_index { |item| item["id"] == params['content_item_id'] }
+current_rating = content_items[index_to_update]["rating"]
+new_rating = params['rating'].to_i 
+average_rating = (current_rating + new_rating) / 2
+content_items[index_to_update]["rating"] = average_rating
+content_item_reader.writeFile('./Data/content_items.json', content_items)
+redirect "/content_item/#{params['content_item_id']}"
+end
+#-------

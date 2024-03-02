@@ -131,7 +131,34 @@ class CSS_Styler
           }
         </style>
         HTML
-      end   
+      end  
+      
+    def admin_css()
+      <<~HTML
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+      <style>
+        .button-container {
+          float: right;
+        }
+        .button-container button {
+          color: #FFF;
+          padding: 10px;
+          border-radius: 5px;
+          margin-left: 10px;
+          border: none;
+          cursor: pointer;
+        }
+        .button-container button:hover {
+          background: #1D6F9C;
+        }
+        .text-container {
+          font-size: 11px;
+          color: #555;
+          margin-bottom: 10px;
+        }
+      </style>
+      HTML
+    end 
       
     def menu_css()
         <<~HTML

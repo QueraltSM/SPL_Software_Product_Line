@@ -16,13 +16,11 @@ class Menu
         if $user_role == "Admin"
             menu_html += "<a style='background:#1F6F3A;color:#FFF;padding:10px;border-radius:5%' href='/create'>Create</a>"
         end
-  
         menu_html += "<div class='user-info'>
                         <span>#{$user_name}</span>
                         <a class='logout-link' href='/'><i class='bi bi-box-arrow-right'></i></a>
                         </div>
                     </div>"
-  
       return menu_html
     end
   end
