@@ -5,12 +5,5 @@
     "email": "admin@uned.es",
     "password": "admin123",
     "role": "Admin"
-  },
-  {
-    "id": "cf3defec-68a2-4037-81d2-19cc2679b83b",
-    "name": "queralt sosa",
-    "email": "queralt@gmail.com",
-    "password": "123",
-    "role": "User"
   }
 ]

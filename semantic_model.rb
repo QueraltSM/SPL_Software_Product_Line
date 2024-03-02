@@ -231,13 +231,13 @@ end
                       <div style='margin-top: 20px; text-align: center;'>
                         <h3>Rate this content</h3>
                       </div>
-                      <form id='ratingForm' action='/update_rating' method='post'>
+                      <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();'>
                         <input type='hidden' name='content_item_id' value='#{content_item_id}'>
-                        <input type='hidden' name='rating' id='selectedStar'>
+                        <input type='hidden' name='rating' id='selectedRating'>
                         <div style='text-align: center;'>
                           <div class='rating'>"
     (1..10).each do |i|
-      html_content += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedStar(#{i})'><label for='star#{i}'></label>"
+      html_content += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedRating(#{i})'><label for='star#{i}'></label>"
     end
     html_content += "</div><br>
                       <input id='submitBtn' type='submit' value='Submit' style='background-color: #1F6F3A; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
@@ -245,12 +245,16 @@ end
                       </form>
                       </div>
                       <script>
-                        function setSelectedStar(starValue) {
-                          document.getElementById('selectedStar').value = starValue;
+                        function setSelectedRating(starValue) {
+                          document.getElementById('selectedRating').value = starValue;
+                        }
+                        
+                        function confirmRating() {
+                          return confirm('Are you sure you want to submit this rating?');
                         }
                       </script>"
     return html_content
-  end
+  end  
   
   def print_comments(content_item_id, joined_reader) # Print and manage comments
     reset_state()
