@@ -5,16 +5,15 @@ class Menu
         menu_html = styler.menu_css()
         menu_html += "<div class='menu'>
                      <a class='logout-link' href='/index'><i class='bi bi-house'></i></a>
-                     <a href='/books'>Books</a>
-                     <a href='/movies'>Movies</a>
-                     <a href='/music'>Music</a>
-                     <a href='/videos'>Videos</a>
-                     <a href='/recipes'>Recipes</a>
-                     <a href='/news'>News</a>
-                     <a href='/events'>Events</a>"
-  
+                     <a href='/content/Books'>Books</a>
+                     <a href='/content/Movies'>Movies</a>
+                     <a href='/content/Music'>Music</a>
+                     <a href='/content/Videos'>Videos</a>
+                     <a href='/content/Recipes'>Recipes</a>
+                     <a href='/content/News'>News</a>
+                     <a href='/Events'>Events</a>"
         if $user_role == "Admin"
-            menu_html += "<a style='background:#1F6F3A;color:#FFF;padding:10px;border-radius:5%' href='/create'>Create</a>"
+            menu_html += "<a style='background:#1F6F3A;color:#FFF;padding:10px;border-radius:5%' href='/create_content'>Create new</a>"
         end
         menu_html += "<div class='user-info'>
                         <span>#{$user_name}</span>

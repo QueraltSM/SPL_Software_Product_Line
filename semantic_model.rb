@@ -130,43 +130,53 @@ end
     end
   end
 
+  def generate_creation_form()
+    content_html = ContentItemStyler.new(nil).creation_content_item_form
+    return content_html
+  end
+  
+
   def print_content_items(type, view_all = true) # Imprime el contenido digital en la pantalla de Inicio
     reset_state()
     readFile('./Data/content_items.json')
     content_divs = "<div id='#{type}_content' style='position: relative; justify-content: center; display: flex; flex-wrap: wrap; margin: 15px; padding: 10px;'>
                      <p style='width: 100%; text-align: center; font-size: 18px; font-weight: bold;'>#{view_all ? type.upcase : "Top 3 #{type}"}</p>"
     if !view_all 
-      content_divs += "<button style='position: absolute; top: 10px; right: 10px; padding: 10px; background:#E3ECD6; cursor: pointer; border:none; border-radius: 5px;' onclick=\"window.location='/#{type.downcase}'\">View all #{type.downcase}</button>"
+      content_divs += "<button style='position: absolute; top: 10px; right: 10px; padding: 10px; background:#E3ECD6; cursor: pointer; border:none; border-radius: 5px;' onclick=\"window.location='/content/#{type.downcase}'\">View all #{type.downcase}</button>"
     end
     unique_images = Set.new
     counter = 0
-
     if view_all
       items = @data.select { |item| item['type'] == type }
-
     else 
       items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
       items = items.first(3)
     end 
 
-    items.each_with_index do |content_item, index|
-      digital_content_html = ""
-      if content_item['type'] == 'Videos'
-        digital_content_html = "<div style='display: flex; justify-content: center;'><iframe width='560' height='315' src='#{content_item['digital_content']}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe></div>"
-      else
-        base64_image = image_url_to_base64(content_item['digital_content'])
-        unless unique_images.include?(base64_image)
-          unique_images.add(base64_image)
-          digital_content_html = "<div style='display: flex; justify-content: center;'><div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / cover no-repeat; height: 315px; width:560px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);'></div></div>"
+    items.each_slice(3) do |slice|
+      row_html = "<div class='row' style='display: flex; justify-content: center;'>"
+      slice.each_with_index do |content_item, index|
+        digital_content_html = ""
+        if content_item['type'] == 'Videos' || content_item['type'] == 'Movies'
+          digital_content_html = "<div style='display: flex; justify-content: center;'><iframe width='560' height='315' src='#{content_item['digital_content']}' frameborder='0' allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen controls></iframe></div>"
+        else
+          base64_image = image_url_to_base64(content_item['digital_content'])
+          unless unique_images.include?(base64_image)
+            unique_images.add(base64_image)
+            digital_content_html = "<div style='display: flex; justify-content: center;'>
+            <div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat; height: 315px; width:560px;'></div></div>"
+          end
         end
+        id = content_item['id']
+        content_divs += "<div class='content-item' style='margin: 10px; padding: 10px; cursor: pointer; width: calc(33.33% - 20px); box-sizing: border-box; text-align: center;' onclick=\"window.location='/content_item/#{id}'\">
+                          "+digital_content_html+"<div class='info' style='padding: 10px;'>
+                              <div class='title' style='font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;'>#{content_item['title']}</div>
+                              <div class='author' style='color: #555; font-size: 12px;'>#{content_item['author']}</div>
+                            </div>
+                          </div>"
       end
-      id = content_item['id']
-      content_divs += "<div class='content-item' style='margin: 10px; padding: 10px; cursor: pointer; width: calc(20% - 20px); box-sizing: border-box; text-align: center;' onclick=\"window.location='/content_item/#{id}'\">
-                        "+digital_content_html+"<div class='info' style='padding: 10px;'>
-                            <div class='title' style='font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;'>#{content_item['title']}</div>
-                            <div class='author' style='color: #555; font-size: 12px;'>#{content_item['author']}</div>
-                          </div>
-                        </div><br>"
+      row_html += "</div><br>"
+      content_divs += row_html
     end
     content_divs += "</div>"
     return content_divs
@@ -215,8 +225,9 @@ end
        event_date < DateTime.now
     end
     styler = CSS_Styler.new()
+    html_content = ""
     sorted_data = @data.sort_by { |event| DateTime.parse(event['datetime']) }.reverse
-    html_content = styler.header_events()
+    html_content += styler.header_events()
     sorted_data.each do |event|
       html_content += styler.events_css(event)
     end
@@ -229,7 +240,7 @@ end
     content_rating = content_item['rating']
     html_content = "<div style='margin-bottom: 20px;'>
                       <div style='margin-top: 20px; text-align: center;'>
-                        <h3>Rate this content</h3>
+                        <h4>Rate this content</h4>
                       </div>
                       <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();'>
                         <input type='hidden' name='content_item_id' value='#{content_item_id}'>
@@ -263,20 +274,18 @@ end
                            .sort_by { |comment| DateTime.parse(comment['pubdate']) }.reverse
     html_content = "<div style='margin: 20px auto; width: 70%;'>
                     <div style='border: 1px solid #ddd; border-radius: 10px; overflow: hidden; padding: 20px; background-color: #f9f9f9;'>"
-    html_content += "<div style='margin-bottom: 20px;'><div style='margin-top: 20px; text-align: center;'><h3>Comments</h3></div>
+    html_content += "<div style='margin-bottom: 20px;'><div style='margin-top: 20px; text-align: center;'><h4>Comments</h4></div>
                       <form action='/submit_comment' method='post'>
                       <input type='hidden' name='content_item_id' value='#{content_item_id}'>
                       <input type='hidden' name='comment_user_id' value='#{$user_id}'>
-                        <label for='comment_text' style='font-size: 16px; color: #555;'>Add a comment:</label><br>
+                        <label for='comment_text' style='font-size: 13px; color: #555;'>Add a comment:</label><br>
                         <textarea id='comment_text' name='comment_text' rows='4' cols='50' style='width: 100%; margin-top: 10px;'></textarea><br>
                         <div style='text-align: right;'>
                           <input type='submit' value='Send' style='background-color: #1F6F3A; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
                         </div>
                       </form>
                     </div>"
-    if sorted_comments.empty?
-      html_content += "<p style='color: #555; text-align: center;text-size:15px;'>No comments yet.</p>"
-    else
+    if !sorted_comments.empty?
       sorted_comments.each do |comment|
         user = joined_reader.getJoinedId(comment['user_id'], './Data/users.json')
         html_content +=

@@ -1,54 +1,54 @@
 [
   {
     "id": 1,
-    "title": "Conferencia de Innovación Tecnológica",
-    "description": "Únete a nosotros para explorar las últimas tendencias y avances en tecnología. Conferencistas destacados compartirán sus conocimientos sobre inteligencia artificial, ciberseguridad y más.",
-    "location": "Centro de Convenciones TechHub, 123 Calle Innovación, Ciudad Tecnológica",
+    "title": "Conference on Technological Innovation",
+    "description": "Join us to explore the latest trends and advancements in technology. Distinguished speakers will share their knowledge on artificial intelligence, cybersecurity, and more.",
+    "location": "TechHub Convention Center, 123 Innovation Street, Technological City",
     "datetime": "25/03/2025 13:30",
     "pubdate": "20/02/2025 11:00",
     "image": "https://th.bing.com/th/id/R.9a351a156f0a3af47de04df649359174?rik=cgT8nNobHB5%2b6g&pid=ImgRaw&r=0"
   },
   {
     "id": 2,
-    "title": "Taller de arte creativo",
-    "description": "Explora tu lado artístico en nuestro taller de arte creativo. Únete a artistas locales para aprender nuevas técnicas, experimentar con diferentes medios y crear obras únicas. No se requiere experiencia previa, ¡todos son bienvenidos!",
-    "location": "Galería de Arte \"ArteCreativo\", 789 Calle Artística, Ciudad Creativa",
+    "title": "Creative Art Workshop",
+    "description": "Explore your artistic side at our creative art workshop. Join local artists to learn new techniques, experiment with different mediums, and create unique works of art. No prior experience required, everyone is welcome!",
+    "location": "ArtCreative Art Gallery, 789 Artistic Street, Creative City",
     "datetime": "10/05/2025 18:00",
     "pubdate": "10/02/2025 10:50",
     "image": "https://secureservercdn.net/192.169.220.223/c7a.83f.myftpupload.com/wp-content/uploads/2019/10/Resized_20180126_195638.jpg"
   },
   {
     "id": 3,
-    "title": "Noche de Cine al Aire Libre",
-    "description": "Únete a nosotros para una noche mágica bajo las estrellas. Trae tu manta y disfruta de películas clásicas proyectadas en una pantalla gigante. Habrá palomitas de maíz y refrescos para todos. ¡Una experiencia de cine única!",
-    "location": "Plaza del Cine Estelar, 234 Calle Cinematográfica, Ciudad del Cine",
+    "title": "Open-Air Cinema Night",
+    "description": "Join us for a magical evening under the stars. Bring your blanket and enjoy classic movies projected on a giant screen. There will be popcorn and refreshments for everyone. A unique cinema experience!",
+    "location": "Stellar Cinema Plaza, 234 Cinematic Street, Cine City",
     "datetime": "20/06/2025 20:00",
     "pubdate": "22/04/2025 15:15",
     "image": "https://static.emisorasunidas.com/uploads/2020/01/cinema.jpg"
   },
   {
     "id": 4,
-    "title": "Festival Gastronómico \"Sabores del Mundo\"",
-    "description": "Embárcate en un viaje culinario en nuestro Festival Gastronómico \"Sabores del Mundo\". Descubre la diversidad de la cocina internacional con chefs destacados que te guiarán a través de demostraciones en vivo, degustaciones y actividades interactivas. Desde platos exquisitos hasta secretos culinarios, este evento es una experiencia única para los amantes de la comida. ¡Únete a nosotros y satisface tu paladar con este festín de sabores extraordinarios! No se necesita experiencia culinaria, ¡todos sois bienvenidos!",
-    "location": "Centro CulinaryExpo, 456 Calle Delicioso, Ciudad Sibarita",
+    "title": "The Gastronomic Festival Flavors of the World",
+    "description": "Embark on a culinary journey at our Flavors of the World Gastronomic Festival. Discover the diversity of international cuisine with renowned chefs who will guide you through live demonstrations, tastings, and interactive activities. From exquisite dishes to culinary secrets, this event is a unique experience for food lovers. Join us and satisfy your palate with this feast of extraordinary flavors! No culinary experience required, all are welcome!",
+    "location": "CulinaryExpo Center, 456 Delicious Street, Sibarita City",
     "datetime": "15/07/2025 19:00",
     "pubdate": "17/05/2025 16:50",
     "image": "https://media.metrolatam.com/2020/03/10/festivalgastrono-15f988b2146287aadea51b8107b01f76-1200x800.jpg"
   },
   {
     "id": 5,
-    "title": "Festival de Arte Urbano",
-    "description": "Explora la creatividad en cada rincón de la ciudad. Artistas locales exhibirán sus obras en un festival vibrante de arte urbano. Disfruta de murales coloridos, esculturas modernas y música en vivo. ¡Únete a la celebración del arte en nuestra comunidad!",
-    "location": "Anfiteatro del Parque, 456 Avenida del Arte, Ciudad Cultural",
+    "title": "Urban Art Festival",
+    "description": "Explore creativity in every corner of the city. Local artists will showcase their works in a vibrant urban art festival. Enjoy colorful murals, modern sculptures, and live music. Join the celebration of art in our community!",
+    "location": "Park Amphitheater, 456 Art Avenue, Cultural City",
     "datetime": "17/04/2025 10:00",
     "pubdate": "11/01/2025 11:45",
     "image": "https://th.bing.com/th/id/R.4c6a6fff3cc0341504203b49dd4b54e6?rik=0kZ1Z0RZHi39TQ&pid=ImgRaw&r=0"
   },
   {
     "id": 6,
-    "title": "Concierto al aire libre",
-    "description": "Disfruta de una noche mágica con música en vivo bajo las estrellas. Artistas locales se presentarán en un escenario al aire libre, creando una experiencia inolvidable para todos los amantes de la música.",
-    "location": "456 Avenida del Parque Barrio Serenata, Ciudad Armonía Provincia de Música",
+    "title": "Outdoor Concert",
+    "description": "Enjoy a magical evening with live music under the stars. Local artists will perform on an outdoor stage, creating an unforgettable experience for all music lovers.",
+    "location": "456 Park Avenue, Serenade Neighborhood, Harmony City, Music Province",
     "datetime": "17/04/2025 11:00",
     "pubdate": "16/03/2025 18:30",
     "image": "https://offloadmedia.feverup.com/saopaulosecreto.com/wp-content/uploads/2020/05/19075952/image3.jpg"

@@ -216,12 +216,12 @@ class CSS_Styler
     def events_css(event)
         image = event['image']
         <<~HTML
-        <div style='width: 40%; margin: 10px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;text-align:justify;'>
-        <img src=#{image} alt='Event image' style='width: 100%; height: 150px; object-fit: cover; border-bottom: 1px solid #ddd;'>
+        <div style='width: 30%; margin: 10px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;text-align:justify;'>
+        <img src=#{image} style='width: 100%; height: 150px; object-fit: cover; border-bottom: 1px solid #ddd;'>
         <div style='padding: 10px; margin: 15px;'>
           <p style='font-weight: bold; color: #333;'>#{event['title']}</p>
-          <p style='display: block; color: #555;font-size:15px'>#{event['description']}</p>
-          <p style="font-size:13px"><i class='bi bi-geo'></i>#{event['location']}</p>
+          <p style='display: block; color: #555;font-size:13px;text-align:justify;'>#{event['description']}</p>
+          <p style="color: #777;font-size:13px"><i class='bi bi-geo-alt'></i>#{event['location']}</p>
           <p style='color: #777;font-size:13px'><i class='bi bi-clock'></i> #{event['datetime']}</p>
         </div>
       </div>
