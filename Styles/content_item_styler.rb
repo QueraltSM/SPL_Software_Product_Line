@@ -243,15 +243,19 @@ class ContentItemStyler
         </div><br>
         <div id='media-input' class='form-group'>
           <label for='media' style='display: block; font-weight: bold;'>Enter relevant URL:</label>
-          <input type='url' id='digital_content' name='digital_content' placeholder='Enter relevant URL' class='form-control' style='width: 100%; margin-top: 10px; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+          <input type='url' id='digital_content' name='digital_content' class='form-control' style='width: 100%; margin-top: 10px; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
         </div><br>
         <div class='form-group'>
           <label for='title' id='title-label' style='display: none; display: block; font-weight: bold;'>Title:</label>
           <input type='text' id='title' name='title' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
         </div><br>
         <div class='form-group'>
+          <label for='author' id='author-label' style='display: none; display: block; font-weight: bold;'>Author:</label>
+          <input type='text' id='author' name='author' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+        </div><br>
+        <div class='form-group'>
           <label for='description' id='description-label' style='display: none; display: block; font-weight: bold;'>Description:</label>
-          <textarea id='description' name='description' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'></textarea>
+          <textarea id='description' name='description' placeholder="You can insert HTML code or plain text" class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'></textarea>
         </div><br>
         <div class='form-group'>
           <label for='location' id='location-label' style='display: none; display: block; font-weight: bold;'>Location:</label>
@@ -259,11 +263,11 @@ class ContentItemStyler
         </div><br>
         <div class='form-group'>
           <label for='datetime' id='datetime-label' style='display: none; display: block; font-weight: bold;'>Event date and time:</label>
-          <input type='text' id='datetime' name='datetime' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+          <input type='text' id='datetime' name='datetime' placeholder="You must follow the format dd/MM/yyyy HH:mm" class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
         </div>
         <div class='form-group'>
           <label for='pubdate' id='pubdate-label' style='display: none; display: block; font-weight: bold;'>Publication date:</label>
-          <input type='text' id='pubdate' name='pubdate' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+          <input type='text' id='pubdate' name='pubdate' placeholder="Feel free to input any format" class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
         </div><br>
         <div style='text-align: center;'>
           <button type='submit' class='btn btn-primary' style='width: 40%; padding: 10px; background-color: #E3ECD6; border: none; color: #000; border-radius: 3px; cursor: pointer;'>Create</button>
@@ -272,18 +276,28 @@ class ContentItemStyler
       <script>
       document.getElementById('datetime-label').style.display = 'none';
       document.getElementById('datetime').style.display = 'none';
+      document.getElementById('location-label').style.display = 'none';
+      document.getElementById('location').style.display = 'none';
       function toggleFields() {
         var type = document.getElementById('type').value;
         if (type === 'Events') {
           document.getElementById('datetime-label').style.display = 'block';
           document.getElementById('datetime').style.display = 'block';
+          document.getElementById('location-label').style.display = 'block';
+          document.getElementById('location').style.display = 'block';
           document.getElementById('pubdate-label').style.display = 'none';
           document.getElementById('pubdate').style.display = 'none';
+          document.getElementById('author-label').style.display = 'none';
+          document.getElementById('author').style.display = 'none';
         } else {
           document.getElementById('datetime-label').style.display = 'none';
           document.getElementById('datetime').style.display = 'none';
+          document.getElementById('location-label').style.display = 'none';
+          document.getElementById('location').style.display = 'none';
           document.getElementById('pubdate-label').style.display = 'block';
           document.getElementById('pubdate').style.display = 'block';
+          document.getElementById('author-label').style.display = 'block';
+          document.getElementById('author').style.display = 'block';
         }
       }
       </script>      
