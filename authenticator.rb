@@ -1,6 +1,6 @@
 require './Styles/css_styler'
 
-class AuthenticatorDSL
+class Authenticator
   attr_accessor :form_attributes, :fields
 
   def initialize
@@ -27,13 +27,11 @@ class AuthenticatorDSL
     form_html += "<div class='form-container' style='text-align:center'>"
     form_html += "<h1>#{form_type.capitalize}</h1>"
     form_html += "<form id='#{form_type}Form' action='#{form_type == 'login' ? '/login' : '/signup'}' method='post' #{attributes_to_html(@form_attributes)} novalidate>"
-    
     @fields.each do |field|
       form_html += "<div class='form-group'>"
       form_html += "<input type='#{field[:type]}' name='#{field[:name]}' placeholder='Enter your #{field[:name]}' required />"
       form_html += "</div>"
     end
-    
     form_html += "<button class='submit-btn' type='button' onclick='submitForm()'>#{form_type.capitalize}</button>"
     form_html += "</form>"
     form_html += "<div class='error-message' style='font-size:13px;'>#{error_message}</div>" if error_message
@@ -50,8 +48,6 @@ class AuthenticatorDSL
   def save_to_file(filename, form_type, error_message = nil)
     File.write(filename, generate_form(form_type, error_message))
   end
-
-  private
 
   def attributes_to_html(attributes)
     attributes.map { |k, v| "#{k}='#{v}'" }.join(' ')

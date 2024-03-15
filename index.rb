@@ -4,25 +4,29 @@ require 'sinatra'
 require 'date'
 
 # Inicialización de modelos y lectores
-users_semantic_model = create_semantic_model('./DSL/user_dsl.rb')
+users_semantic_model = create_semantic_model('./DSL/user.rb')
 users_reader = UsersReader.new
-content_item_semantic_model = create_semantic_model('./DSL/content_item_dsl.rb')
+content_item_semantic_model = create_semantic_model('./DSL/content_item.rb')
 content_item_reader = ContentItemsReader.new
-comment_semantic_model = create_semantic_model('./DSL/comment_dsl.rb')
+comment_semantic_model = create_semantic_model('./DSL/comment.rb')
 comments_reader = CommentsReader.new
-events_semantic_model = create_semantic_model('./DSL/event_dsl.rb')
+events_semantic_model = create_semantic_model('./DSL/event.rb')
 events_reader = EventsReader.new
-login_form_dsl = AuthenticatorDSL.new
-signup_form_dsl = AuthenticatorDSL.new
+authentication_form = Authenticator.new
 #---------------------------------------
 
 # Rutas de inicio de sesión
 get '/' do
-  login_form_dsl.form(action: '/login', method: 'post') do
+  redirect '/login'
+end
+
+get '/login' do
+  authentication_form = Authenticator.new
+  authentication_form.form(action: '/login', method: 'post') do
     input 'email', 'text', placeholder: 'Email'
     input 'password', 'password', placeholder: 'Password'
  end
-  login_form_dsl.generate_form('login')
+  authentication_form.generate_form('login')
 end
 
 post '/login' do
@@ -32,20 +36,21 @@ post '/login' do
     users_reader.save_user(email)
     redirect "/index"
   else
-    login_form_dsl.generate_form("login", "User does not exist or the password is incorrect.")
+    authentication_form.generate_form("login", "User does not exist or the password is incorrect.")
   end
 end
 #---------------------------------------
 
 # Rutas de registro de usuarios
 get '/signup' do
-  signup_form_dsl.form(action: '/singup', method: 'post') do
+  authentication_form = Authenticator.new
+  authentication_form.form(action: '/singup', method: 'post') do
     input 'name', 'text', placeholder: 'Name'
     input 'email', 'text', placeholder: 'Email'
     input 'password', 'password', placeholder: 'Password'
     input 'password again', 'password', placeholder: 'Confirm password'
  end
-  signup_form_dsl.generate_form('signup')
+  authentication_form.generate_form('signup')
 end 
 
 post '/signup' do
@@ -54,9 +59,9 @@ post '/signup' do
   password = params[:password]
   confirm_password = params['password again']
   if users_reader.email_exists?(email)
-    signup_form_dsl.generate_form("signup", "User already exists")
+    authentication_form.generate_form("signup", "User already exists")
   elsif password != confirm_password
-    signup_form_dsl.generate_form("signup","Password do not match")
+    authentication_form.generate_form("signup","Password do not match")
   else
     users_reader.create_user?(name, email,password)
     users_reader.save_user(email)
