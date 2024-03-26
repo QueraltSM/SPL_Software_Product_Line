@@ -78,12 +78,7 @@ get '/index' do
                     </head>
                     <body>
                       #{Menu.generate_menu_html()}
-                      #{content_item_reader.print_content_items("Books", false)}
-                      #{content_item_reader.print_content_items("Movies", false)}
-                      #{content_item_reader.print_content_items("Music", false)}
-                      #{content_item_reader.print_content_items("News", false)}
-                      #{content_item_reader.print_content_items("Recipes", false)}
-                      #{content_item_reader.print_content_items("Videos", false)}
+                      #{content_item_reader.print_best_content_items()}
                       #{events_reader.print_events()}
                     </body>
                   </html>"

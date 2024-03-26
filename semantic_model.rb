@@ -134,54 +134,80 @@ end
     content_html = ContentItemStyler.new(nil).creation_content_item_form
     return content_html
   end
-  
 
-  def print_content_items(type, view_all = true) # Imprime el contenido digital en la pantalla de Inicio
+  def print_best_content_items()
     reset_state()
     readFile('./Data/content_items.json')
-    content_divs = "<div id='#{type}_content' style='position: relative; justify-content: center; display: flex; flex-wrap: wrap; margin: 15px; padding: 10px;'>
-                     <p style='width: 100%; text-align: center; font-size: 18px; font-weight: bold;'>#{view_all ? type.upcase : "Top 3 #{type}"}</p>"
-    if !view_all 
-      content_divs += "<button style='position: absolute; top: 10px; right: 10px; padding: 10px; background:#E3ECD6; cursor: pointer; border:none; border-radius: 5px;' onclick=\"window.location='/content/#{type.downcase}'\">View all #{type.downcase}</button>"
-    end
-    unique_images = Set.new
-    counter = 0
-    if view_all
-      items = @data.select { |item| item['type'] == type }
-    else 
-      items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
-      items = items.first(3)
-    end 
-
-    items.each_slice(3) do |slice|
-      row_html = "<div class='row' style='display: flex; justify-content: center;'>"
-      slice.each_with_index do |content_item, index|
-        digital_content_html = ""
-        if content_item['type'] == 'Videos' || content_item['type'] == 'Movies'
-          digital_content_html = "<div style='display: flex; justify-content: center;'><iframe width='560' height='315' src='#{content_item['digital_content']}' frameborder='0' allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen controls></iframe></div>"
-        else
-          base64_image = image_url_to_base64(content_item['digital_content'])
-          unless unique_images.include?(base64_image)
-            unique_images.add(base64_image)
-            digital_content_html = "<div style='display: flex; justify-content: center;'>
-            <div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat; height: 315px; width:560px;'></div></div>"
-          end
-        end
-        id = content_item['id']
-        content_divs += "<div class='content-item' style='margin: 10px; padding: 10px; cursor: pointer; width: calc(33.33% - 20px); box-sizing: border-box; text-align: center;' onclick=\"window.location='/content_item/#{id}'\">
-                          "+digital_content_html+"<div class='info' style='padding: 10px;'>
-                              <div class='title' style='font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;'>#{content_item['title']}</div>
-                              <div class='author' style='color: #555; font-size: 12px;'>#{content_item['author']}</div>
-                            </div>
-                          </div>"
+    content_divs = "<div style='position: relative; justify-content: center; display: flex; flex-wrap: wrap; margin: 15px; padding: 10px;'>"
+  
+    # Creamos un hash para almacenar el mejor elemento de cada tipo de contenido
+    best_items = Hash.new { |h, k| h[k] = nil }
+  
+    # Iteramos sobre los datos y almacenamos el mejor de cada tipo
+    @data.each do |content_item|
+      type = content_item['type']
+      rating = content_item['rating'].to_i
+      if rating > 0 && (best_items[type].nil? || rating > best_items[type]['rating'].to_i)
+        best_items[type] = content_item
       end
-      row_html += "</div><br>"
-      content_divs += row_html
+    end
+  
+    # Iteramos sobre los mejores elementos de cada tipo y los mostramos en la página
+    best_items.each do |type, content_item|
+      next if content_item.nil?
+  
+      digital_content_html = ""
+      if content_item['type'] == 'Videos' || content_item['type'] == 'Movies'
+        digital_content_html = "<div style='display: flex; justify-content: center;'><iframe width='280' height='160' src='#{content_item['digital_content']}' frameborder='0' allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen controls></iframe></div>"
+      else
+        base64_image = image_url_to_base64(content_item['digital_content'])
+        digital_content_html = "<div style='display: flex; justify-content: center;'><img src='data:image/jpeg;base64,#{base64_image}' style='max-width: 100%; height: auto; max-height: 160px;'></div>"
+      end
+  
+      id = content_item['id']
+      content_divs += "<div style='position: relative; text-align: center; margin-bottom: 30px; width: 280px; margin-right: 20px;'>"
+      content_divs += "<h4 style='background-color: #E3ECD6; color: black; padding: 5px 10px; border-radius: 5px;'>Best of #{type}</h4>"
+      content_divs += "<div class='content-item' style='margin: 10px; padding: 10px; cursor: pointer; text-align: center;' onclick=\"window.location='/content_item/#{id}'\">#{digital_content_html}<div class='info' style='padding: 10px;'><div class='title' style='font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;'>#{content_item['title']}</div><div class='author' style='color: #555; font-size: 12px;'>#{content_item['author']}</div></div></div>"
+      content_divs += "</div>"
+    end
+  
+    content_divs += "</div>"
+    return content_divs
+  end
+  
+  def print_content_items(type)
+    reset_state()
+    readFile('./Data/content_items.json')
+    content_divs = "<div id='#{type}_content' style='display: flex; flex-wrap: wrap; margin: 15px; padding: 20px;'>"
+    unique_images = Set.new
+    
+    items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
+    
+    items.each do |content_item|
+      digital_content_html = ""
+      if content_item['type'] == 'Videos' || content_item['type'] == 'Movies'
+        digital_content_html = "<iframe width='100%' height='200' src='#{content_item['digital_content']}' frameborder='0' allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe>"
+      else
+        base64_image = image_url_to_base64(content_item['digital_content'])
+        unless unique_images.include?(base64_image)
+          unique_images.add(base64_image)
+          digital_content_html = "<div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / cover; height: 200px;'></div>"
+        end
+      end
+      id = content_item['id']
+      content_divs += "<div class='content-item' style='width: 30%; margin: 10px; padding: 10px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: #fff;'>
+                        #{digital_content_html}
+                        <a href='#' style='text-decoration: none;' onclick=\"window.location='/content_item/#{id}'\"><div class='info' style='padding: 10px;'>
+                          <div class='title' style='font-size: 16px; font-weight: bold; color: #333; margin-top: 10px;'>#{content_item['title']}</div>
+                          <div class='author' style='color: #555; font-size: 14px;'>#{content_item['author']}</div>
+                        </div>
+                      </a></div>"
     end
     content_divs += "</div>"
     return content_divs
   end
 end
+  
 
 def print_update_form(id)
   reset_state()
