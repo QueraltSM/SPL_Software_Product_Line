@@ -116,7 +116,7 @@
     "description": "Una expedición científica ha identificado una nueva especie de flora en la densa selva amazónica. El hallazgo destaca la importancia de la conservación y la biodiversidad en una región crucial para el equilibrio ecológico global. Los científicos instan a medidas de preservación más estrictas para proteger estos valiosos ecosistemas.",
     "pubdate": "12/04/2023",
     "digital_content": "https://4.bp.blogspot.com/_ExV1sVx8tAs/TImvwQbTbaI/AAAAAAAACjE/d6BINAHizHc/s1600/14-36.JPG",
-    "rating": 3,
+    "rating": 8,
     "type": "News"
   },
   {
@@ -126,7 +126,7 @@
     "description": "Disfruta de este delicioso risotto de champiñones, una receta cremosa y reconfortante. Los champiñones frescos se mezclan con arroz arborio y caldo de vegetales, creando una textura suave y sabores ricos. ¡Perfecto para una cena especial o como acompañamiento elegante!. En la cocina de Andrea Gomez, los ingredientes se convierten en una sinfonía de sabores:<br><br><li>1 taza de arroz arborio</li><br><li>200 g de champiñones frescos, limpios y cortados en láminas</li><br><li>1 cebolla, finamente picada</li><br><li>2 dientes de ajo, picados</li><br><li>1/2 taza de vino blanco seco</li><br><li>4 tazas de caldo de vegetales caliente</li><br><li>1/2 taza de queso parmesano rallado</li><br><li>2 cucharadas de mantequilla</li><br><li> Sal y pimienta al gusto</li><br><li>Perejil fresco, picado (opcional, para decorar).</li><br><br><strong>Instrucciones</strong>:<br><br>1. En una sartén grande, derrite una cucharada de mantequilla a fuego medio. Añade la cebolla y el ajo picados, y saltea hasta que estén tiernos y fragantes.<br><br>2. Agrega los champiñones y cocina hasta que estén dorados y hayan liberado sus jugos. Reserva algunos champiñones para decorar al final.<br><br>3. Incorpora el arroz arborio a la sartén y revuelve para que se impregne con los jugos de los champiñones. Cocina por unos minutos hasta que el arroz esté ligeramente dorado.<br><br>4. Vierte el vino blanco en la sartén y cocina hasta que se evapore.<br><br>5. Agrega el caldo de vegetales caliente, una taza a la vez. Cocina a fuego lento, removiendo constantemente. Espera a que el líquido se absorba antes de añadir más caldo.<br><br>6. Continúa este proceso hasta que el arroz esté cocido al dente y tenga una textura cremosa, aproximadamente 18-20 minutos.<br><br>7. Añade el queso parmesano rallado y la mantequilla restante. Mezcla bien hasta que el queso se derrita y la mezcla esté suave. Ajusta la sazón con sal y pimienta al gusto.<br><br>8.Sirve el risotto en platos individuales, decorando con los champiñones reservados y espolvoreando perejil fresco picado, si lo deseas.<br><br>¡Sumérgete en la deliciosa experiencia de este risotto de champiñones! Un plato sofisticado que deleitará tu paladar en cualquier ocasión especial.",
     "pubdate": "10/05/2023",
     "digital_content": "https://d1bvpoagx8hqbg.cloudfront.net/originals/receta-risotto-champinones-59f40b48456fe8e5e889ffa80011c6fd.jpg",
-    "rating": 6,
+    "rating": 3,
     "type": "Recipes"
   },
   {
@@ -198,5 +198,25 @@
     "digital_content": "https://www.youtube.com/embed/W2hRlGrgoUQ?si=shjH7s_MLJUXFWc1",
     "rating": 5,
     "type": "Videos"
+  },
+  {
+    "id": "6ab7e158-ec29-4ccc-9d11-009778b3c6c0",
+    "title": "",
+    "author": "",
+    "description": "",
+    "pubdate": "",
+    "digital_content": null,
+    "rating": -1,
+    "type": "Books"
+  },
+  {
+    "id": "da6cc432-084b-46bf-b0a7-53168eb23731",
+    "title": "Prueba",
+    "author": "Equipo Editorial de Viajes Expertos",
+    "description": "<div>\r\n    <h2>Travel Tips</h2>\r\n    <p>Here are some essential travel tips to make your trip smoother:</p>\r\n    <ul>\r\n        <li><strong>Pack Light:</strong> Try to bring only the essentials to make your luggage more manageable.</li>\r\n        <li><strong>Research:</strong> Research your destination beforehand to know about local customs, language, and currency.</li>\r\n        <li><strong>Stay Hydrated:</strong> Drink plenty of water, especially if you're traveling to warmer climates.</li>\r\n        <li><strong>Emergency Contacts:</strong> Keep a list of emergency contacts handy in case of any unforeseen situations.</li>\r\n    </ul>\r\n    <p>Remember to relax and enjoy your trip!</p>\r\n    <img src=\"https://images8.alphacoders.com/706/706397.png\" alt=\"Travel Tips\" style=\"width: 100%; max-width: 400px;\">\r\n</div>\r\n",
+    "pubdate": "2024-04-15",
+    "digital_content": "https://images8.alphacoders.com/706/706397.png",
+    "rating": -1,
+    "type": "News"
   }
 ]

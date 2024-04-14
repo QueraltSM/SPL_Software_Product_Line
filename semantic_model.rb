@@ -135,6 +135,163 @@ end
     return content_html
   end
 
+ 
+  def generate_landing_page
+    html = <<~HTML
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Welcome to Our Website</title>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+          <style>
+              body {
+                  font-family: 'Poppins', sans-serif;
+                  margin: 0;
+                  padding: 0;
+                  background-color: #f9f9f9;
+              }
+              .header {
+                  background-color: #333;
+                  color: #fff;
+                  padding: 20px 0;
+                  text-align: center;
+              }
+              .container {
+                  max-width: 1200px;
+                  margin: 0 auto;
+                  padding: 20px;
+              }
+              .hero {
+                  text-align: center;
+                  margin-top: 10px;
+                  padding: 20px 0;
+              }
+              .hero h1 {
+                  font-size: 30px;
+                  color: #333;
+                  margin-bottom: 20px;
+              }
+              .hero p {
+                  font-size: 18px;
+                  color: #666;
+                  margin-bottom: 30px;
+              }
+              .features {
+                  display: flex;
+                  justify-content: center;
+                  flex-wrap: wrap;
+              }
+              .feature {
+                  width: calc(15% - 20px);
+                  background: linear-gradient(to bottom right, #f5f5f5, #e0e0e0);
+                  border-radius: 10px;
+                  padding: 40px;
+                  margin: 20px;
+                  text-align: center;
+                  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                  transition: transform 0.3s ease;
+                  cursor: pointer;
+              }
+              .feature:hover {
+                  transform: translateY(-10px);
+                  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+              }
+              .feature h2 {
+                  font-size: 20px;
+                  color: #333;
+                  margin-bottom: 10px;
+              }
+              .feature p {
+                  font-size: 13px;
+                  color: #666;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="hero">
+                  <h1>Discover a world of multimedia content</h1>
+              </div>
+
+              <div class="features">
+              <div class="feature" onclick="window.location.href = '/content/News';">
+              <i class="fas fa-globe fa-2x"></i>
+    <h2>News</h2>
+    <p>Stay informed with breaking news and in-depth articles.</p>
+</div>
+
+                  <div class="feature" onclick="window.location.href = '/content/Books';">
+                  <i class="fas fa-book fa-2x"></i>
+                      <h2>Books</h2>
+                      <p>Find your next favorite read.</p>
+                  </div>
+
+                  <div class="feature" onclick="window.location.href = '/content/Recipes';">
+                  <i class="fas fa-utensils fa-2x"></i>
+                  <h2>Recipes</h2>
+                  <p>Cook up delicious dishes from around the world.</p>
+              </div>
+                  <div class="feature" onclick="window.location.href = '/content/Movies';">
+                  <i class="fas fa-film fa-2x"></i>
+                      <h2>Movies</h2>
+                      <p>Enjoy blockbuster hits and indie gems.</p>
+                  </div>
+                  <div class="feature" onclick="window.location.href = '/content/Videos';">
+                  <i class="fas fa-video fa-2x"></i>
+                  <h2>Videos</h2>
+                  <p>Watch entertaining and informative videos.</p>
+              </div>
+                  <div class="feature" onclick="window.location.href = '/content/Music';">
+                  <i class="fas fa-music fa-2x"></i>
+                      <h2>Music</h2>
+                      <p>Listen to the latest tracks and timeless classics.</p>
+                  </div>
+  
+                  <div class="feature" onclick="window.location.href = '/content/Podcasts';">
+                  <i class="fas fa-podcast  fa-2x"></i>
+                      <h2>Podcasts</h2>
+                      <p>Listen to insightful discussions and captivating stories.</p>
+                  </div>
+                
+              <div class="feature" onclick="window.location.href = '/content/Videogames';">
+              <i class="fas fa-gamepad fa-2x"></i>
+                  <h2>Videogames</h2>
+                  <p>Embark on epic adventures and immerse yourself in virtual worlds.</p>
+              </div>
+                <div class="feature" onclick="window.location.href = '/content/Art';">
+                <i class="fas fa-paint-brush  fa-2x"></i>
+                  <h2>Art</h2>
+                  <p>Explore stunning artworks and creative masterpieces.</p>
+              </div>
+              <div class="feature" onclick="window.location.href = '/content/Platforms';">
+              <i class="fas fa-link fa-2x"></i>
+              <h2>Platforms</h2>
+              <p>Find out what's trending and discover hidden gems.</p>
+          </div>
+          
+                  <div class="feature" onclick="window.location.href = '/content/Events';">
+                  <i class="fas fa-calendar-alt fa-2x"></i>
+                  <h2>Events</h2>
+                  <p>Discover exciting events happening near you.</p>
+              </div>
+                  <div class="feature" onclick="window.location.href = '/create';">
+                  <i class="fas fa-plus-circle fa-2x"></i>
+                  <h2>Create</h2>
+                  <p>Bring your ideas to life and share them with the world.</p>
+              </div>
+              </div>
+          </div>
+      </body>
+      </html>
+    HTML
+  
+    return html
+  end
+   
+  
   def print_best_content_items()
     reset_state()
     readFile('./Data/content_items.json')
@@ -174,15 +331,54 @@ end
     content_divs += "</div>"
     return content_divs
   end
-  
-  def print_content_items(type)
+
+  def print_content_items(type, sort_by)
     reset_state()
     readFile('./Data/content_items.json')
-    content_divs = "<div id='#{type}_content' style='display: flex; flex-wrap: wrap; margin: 15px; padding: 20px;'>"
+    content_divs = "<h4 style='text-align: center;
+    margin-top: 10px;
+    padding: 20px 0;font-size: 30px;
+    color: #333;
+    margin-bottom: 20px;'>#{type}</h4>"
+  
+    content_divs += "<form id='sort-form' style='margin-top: 20px;margin: 20px;'>
+    <div style='display: flex; align-items: center; justify-content: flex-end;'>
+      <input type='text' name='search' id='search' placeholder='Search...' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
+      <select id='sort_by' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
+        <option value='date'  #{'selected' if sort_by == 'date'}>Order by date</option>
+        <option value='rating'  #{'selected' if sort_by == 'rating'}>Order by rating</option>
+      </select>
+    </div>
+    </form>
+    <script>
+    document.getElementById('sort_by').addEventListener('change', function() {
+      window.location.href = '/content/#{type}?sort_by=' + this.value;
+    });
+    document.getElementById('search').addEventListener('input', function() {
+      var searchText = this.value.toLowerCase();
+      var contentItems = document.getElementsByClassName('content-item');
+  
+      Array.from(contentItems).forEach(function(item) {
+        var title = item.querySelector('.title').innerText.toLowerCase();
+        var author = item.querySelector('.author').innerText.toLowerCase();
+        if (title.includes(searchText) || author.includes(searchText)) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+    </script>";
+  
+    content_divs += "<div id='#{type}_content' style='display: flex; flex-wrap: wrap; margin: 15px; padding: 20px;'>"
     unique_images = Set.new
-    
-    items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
-    
+  
+    if sort_by == 'rating'
+      items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
+    elsif sort_by == 'date'
+      items = @data.select { |item| item['type'] == type }.sort_by { |item| Date.parse(item['pubdate']) }.reverse
+    end    
+
     items.each do |content_item|
       digital_content_html = ""
       if content_item['type'] == 'Videos' || content_item['type'] == 'Movies'
@@ -195,6 +391,7 @@ end
         end
       end
       id = content_item['id']
+      
       content_divs += "<div class='content-item' style='width: 30%; margin: 10px; padding: 10px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: #fff;'>
                         #{digital_content_html}
                         <a href='#' style='text-decoration: none;' onclick=\"window.location='/content_item/#{id}'\"><div class='info' style='padding: 10px;'>
@@ -206,8 +403,7 @@ end
     content_divs += "</div>"
     return content_divs
   end
-end
-  
+end  
 
 def print_update_form(id)
   reset_state()
@@ -243,31 +439,35 @@ def print_content_item_data(id) # Visualización del contenido de un content_ite
   return content_html
 end
 
-  def print_events() # Visualización de los eventos
-    reset_state()
-    readFile('./Data/events.json')
-    @data.reject! do |event| # Eliminamos de forma permanente los eventos pasados
-       event_date = DateTime.parse(event['datetime'])
-       event_date < DateTime.now
-    end
-    styler = CSS_Styler.new()
-    html_content = ""
-    sorted_data = @data.sort_by { |event| DateTime.parse(event['datetime']) }.reverse
-    html_content += styler.header_events()
-    sorted_data.each do |event|
-      html_content += styler.events_css(event)
-    end
-    html_content += "</div>"
-    return html_content
+def print_events(upcoming)
+  reset_state()
+  readFile('./Data/events.json')
+  styler = CSS_Styler.new()
+  html_content = ""
+
+  # Eliminar eventos pasados del archivo events.json
+  @data.reject! { |event| DateTime.parse(event['datetime']) < DateTime.now }
+  writeFile('./Data/events.json', @data)
+
+  sorted_data = @data.sort_by { |event| DateTime.parse(event['datetime']) }.reverse
+  html_content += styler.header_events(upcoming)
+  html_content += "<div style='display: flex; flex-wrap: wrap; justify-content: center; margin: 15px; padding: 10px;text-align:center'>"
+
+  events_to_display = upcoming ? sorted_data[-3..-1] : sorted_data
+
+  events_to_display.each do |event|
+    html_content += styler.body_events(event)
   end
+  html_content += "</div>"
+
+  return html_content
+end
+
 
   def rating_content_item(content_item_id)
     content_item = @data.find { |item| item['id'] == content_item_id }
     content_rating = content_item['rating']
     html_content = "<div style='margin-bottom: 20px;'>
-                      <div style='margin-top: 20px; text-align: center;'>
-                        <h4>Rate this content</h4>
-                      </div>
                       <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();'>
                         <input type='hidden' name='content_item_id' value='#{content_item_id}'>
                         <input type='hidden' name='rating' id='selectedRating'>
@@ -277,7 +477,7 @@ end
       html_content += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedRating(#{i})'><label for='star#{i}'></label>"
     end
     html_content += "</div><br>
-                      <input id='submitBtn' type='submit' value='Submit' style='background-color: #1F6F3A; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
+                      <input id='submitBtn' title='Rate this content' type='submit' value='Rate this content' style='background-color: #1F6F3A; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
                       </div>
                       </form>
                       </div>
@@ -326,7 +526,7 @@ end
                 <input type='hidden' name='comment_id' value='#{comment['id']}'>
                 <textarea name='updated_text' style='width: 100%;' rows='4' cols='50'>#{comment['text']}</textarea><br><br>
                 <input type='submit' value='Update' style='background-color: #1F6F3A; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
-                <button type='button' class='cancel-edit' style='background-color: #C0392B; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>Cancel</button>
+                <button type='button' class='cancel-edit' style='background-color: #D86E6E; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>Cancel</button>
               </form>
               <div style='display: flex; justify-content: flex-end;'>
               <form action='' onsubmit='return false;'>
@@ -335,7 +535,7 @@ end
               <form action='/delete_comment' method='post'>
                 <input type='hidden' name='content_item_id' value='#{content_item_id}'>
                 <input type='hidden' name='comment_id' value='#{comment['id']}'>
-                <input type='submit' value='Delete' style='background-color: #C0392B; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>
+                <input type='submit' value='Delete' style='background-color: #D86E6E; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>
               </form>
               </div>"
 

@@ -32,10 +32,10 @@ class Authenticator
       form_html += "<input type='#{field[:type]}' name='#{field[:name]}' placeholder='Enter your #{field[:name]}' required />"
       form_html += "</div>"
     end
-    form_html += "<button class='submit-btn' type='button' onclick='submitForm()'>#{form_type.capitalize}</button>"
+    form_html += "<button class='submit-btn' type='button' onclick='submitForm()'><strong>#{form_type.capitalize}</strong></button>"
     form_html += "</form>"
     form_html += "<div class='error-message' style='font-size:13px;'>#{error_message}</div>" if error_message
-    form_html += "<p style='font-size:13px;'>#{form_type == 'login' ? "Don't have an account? <a href='/signup'>Sign up</a>" : "Already have an account? <a href='/login'>Log in</a>"}</p>"
+    form_html += "<p style='font-size:13px;'>#{form_type == 'login' ? "Don't have an account? <a href='/signup' style='color:#1F6F3A'>Sign up</a>" : "Already have an account? <a href='/login'>Log in</a>"}</p>"
     form_html += "<script>
                    function submitForm() {
                      document.getElementById('#{form_type}Form').submit();

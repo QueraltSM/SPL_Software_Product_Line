@@ -1,7 +1,9 @@
 require_relative 'semantic_model'
 require_relative 'authenticator'
+require './Styles/css_styler'
 require 'sinatra'
 require 'date'
+
 
 # Inicialización de modelos y lectores
 users_semantic_model = create_semantic_model('./DSL/user.rb')
@@ -78,8 +80,7 @@ get '/index' do
                     </head>
                     <body>
                       #{Menu.generate_menu_html()}
-                      #{content_item_reader.print_best_content_items()}
-                      #{events_reader.print_events()}
+                      #{content_item_reader.generate_landing_page()}
                     </body>
                   </html>"
   html_content
@@ -106,13 +107,14 @@ end
 
 get '/content/:type' do
   content_type = params[:type]
+  sort_by = params['sort_by'] || 'date'
   html_content = "<html>
                     <head>
                       <title></title>
                     </head>
                     <body>
                       #{Menu.generate_menu_html()}
-                      #{content_item_reader.print_content_items(content_type.capitalize)}
+                      #{content_item_reader.print_content_items(content_type.capitalize, sort_by)}
                     </body>
                   </html>"
   html_content
@@ -125,14 +127,14 @@ get '/Events' do
                     </head>
                     <body>
                       #{Menu.generate_menu_html()}
-                      #{events_reader.print_events()}
+                      #{events_reader.print_events(false)}
                     </body>
                   </html>"
   html_content
 end
 
 #---Content Item---
-get '/create_content' do
+get '/create' do
   html_content = "<html>
                     <head>
                       <title></title>
@@ -163,7 +165,7 @@ def build_youtube_embed_url(url)
   end
 end
 
-put '/create_content_item' do
+put '/create_item' do
   url = './Data/content_items.json'
   if params['type'] == 'Events'
     new_content = {
@@ -183,7 +185,7 @@ put '/create_content_item' do
       "author": params['author'],
       "description": params['description'],
       "pubdate": params['pubdate'],
-      "digital_content": build_youtube_embed_url(params['digital_content']),
+      "digital_content": params['digital_content'], #build_youtube_embed_url(params['digital_content']),
       "rating": -1,
       "type": params['type']
     }
@@ -191,7 +193,11 @@ put '/create_content_item' do
   content = content_item_reader.readFile(url)
   content << new_content
   content_item_reader.writeFile(url, content)
-  redirect "/index"
+  if params['type'] == 'Events'
+    redirect "/Events"
+  else
+    redirect "/content/#{params['type']}"
+  end  
 end
 
 post '/delete_content_item' do

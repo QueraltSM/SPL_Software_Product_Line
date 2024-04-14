@@ -4,7 +4,7 @@ class CSS_Styler
         <<~HTML
         <style>
             body {
-                font-family: 'Verdana', sans-serif;
+                font-family: "Lato", sans-serif;
                 background-color: #f0f0f0;
                 margin: 0;
                 display: flex;
@@ -19,7 +19,7 @@ class CSS_Styler
                 background-color: #fff;
                 border-radius: 5px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                font-family: 'Verdana', sans-serif;
+                font-family: "Lato", sans-serif;
             }
             .form-group {
                 margin-bottom: 15px;
@@ -28,7 +28,7 @@ class CSS_Styler
                 display: block;
                 margin-bottom: 5px;
                 font-weight: bold;
-                font-family: 'Verdana', sans-serif;
+                font-family: "Lato", sans-serif;
             }
             input {
                 width: 100%;
@@ -36,7 +36,7 @@ class CSS_Styler
                 box-sizing: border-box;
                 border: 1px solid #ccc;
                 border-radius: 4px;
-                font-family: 'Verdana', sans-serif;
+                font-family: "Lato", sans-serif;
             }
             .submit-btn {
                 background-color: #E3ECD6;
@@ -46,7 +46,7 @@ class CSS_Styler
                 border-radius: 5px;
                 cursor: pointer;
                 width: 100%;
-                font-family: 'Verdana', sans-serif;
+                font-family: "Lato", sans-serif;
             }
             .create-account-btn {
                 color: #145A32;
@@ -71,7 +71,7 @@ class CSS_Styler
         <<~HTML
         <style>
           body {
-              font-family: 'Verdana', sans-serif;
+              font-family: "Lato", sans-serif;
               background-color: #f0f0f0;
               margin: 0;
               display: flex;
@@ -86,7 +86,7 @@ class CSS_Styler
               background-color: #fff;
               border-radius: 5px;
               box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-              font-family: 'Verdana', sans-serif;
+              font-family: "Lato", sans-serif;
           }
           .form-group {
               margin-bottom: 15px;
@@ -95,7 +95,7 @@ class CSS_Styler
               display: block;
               margin-bottom: 5px;
               font-weight: bold;
-              font-family: 'Verdana', sans-serif;
+              font-family: "Lato", sans-serif;
           }
           input {
               width: 100%;
@@ -103,7 +103,7 @@ class CSS_Styler
               box-sizing: border-box;
               border: 1px solid #ccc;
               border-radius: 4px;
-              font-family: 'Verdana', sans-serif;
+              font-family: "Lato", sans-serif;
           }
           .submit-btn {
               background-color: #E3ECD6;
@@ -113,7 +113,7 @@ class CSS_Styler
               border-radius: 5px;
               cursor: pointer;
               width: 100%;
-              font-family: 'Verdana', sans-serif;
+              font-family: "Lato", sans-serif;
           }
           .create-account-btn {
               color: #145A32;
@@ -167,7 +167,7 @@ class CSS_Styler
         <style>
           body {
             margin: 0 auto;
-            font-family: 'Verdana', sans-serif;
+            font-family: "Lato", sans-serif;
             color: black;
           }
           .menu {
@@ -206,25 +206,37 @@ class CSS_Styler
         HTML
     end
 
-    def header_events()
-        <<~HTML
-        <div style='display: flex; flex-wrap: wrap; justify-content: center; margin: 15px; padding: 10px;'>
-        <p style='width: 100%; text-align: center; font-size: 18px; font-weight: bold;'>Events</p>
-        HTML
+    def header_events(upcoming)
+      title = upcoming ? "Upcoming events" : "Event schedules"
+      <<~HTML
+      <div style='display: flex; flex-wrap: wrap; justify-content: center;'>
+      <h4 style='background-color: #E3ECD6; color: black; padding: 5px 10px; border-radius: 5px;'>#{title}</h4>
+      </div>
+      HTML
     end
 
-    def events_css(event)
-        image = event['image']
-        <<~HTML
-        <div style='width: 30%; margin: 10px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;text-align:justify;'>
-        <img src=#{image} style='width: 100%; height: 150px; object-fit: cover; border-bottom: 1px solid #ddd;'>
-        <div style='padding: 10px; margin: 15px;'>
-          <p style='font-weight: bold; color: #333;'>#{event['title']}</p>
-          <p style='display: block; color: #555;font-size:13px;text-align:justify;'>#{event['description']}</p>
-          <p style="color: #777;font-size:13px"><i class='bi bi-geo-alt'></i>#{event['location']}</p>
-          <p style='color: #777;font-size:13px'><i class='bi bi-clock'></i> #{event['datetime']}</p>
+    def body_events(event)
+      image = event['image']
+      <<~HTML
+      <div style='width: 500px; margin: 10px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;'>
+        <img src=#{image} style='width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid #ddd;'>
+        <div style='padding: 20px;'>
+          <p style='font-weight: bold; color: #333; font-size: 16px; margin-bottom: 8px;'>#{event['title']}</p>
+          <p style='color: #555; font-size: 13px; margin-bottom: 8px;'>#{event['description']}</p>
+          <p style='color: #777; font-size: 12px; margin-bottom: 8px;'><i class='bi bi-geo-alt'></i> #{event['location']}</p>
+          <p style='color: #777; font-size: 12px;'><i class='bi bi-clock'></i> #{event['datetime']}</p>
         </div>
       </div>
-        HTML
+      HTML
     end
+
+    def print_alert(s)
+      puts "entro";
+      <<-HTML
+      <script>
+        alert("#{s}");
+      </script>
+      HTML
+    end
+
 end 

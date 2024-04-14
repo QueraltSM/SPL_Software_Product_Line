@@ -145,7 +145,7 @@ class ContentItemStyler
           <div style="margin-top: 20px; text-align: center;">
             <input type="file" name="updated_digital_content" accept="image/*" style="display: none;">
             <button class="btn" style="background-color: #2B88C0; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;" onclick="document.getElementById('updated_digital_content').click();">Choose Image</button>
-            <button class="btn" style="background-color: #C0392B; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;" onclick="window.location.href='/content_item/#{@content_item['id']}'">Cancel</button>
+            <button class="btn" style="background-color: #E98D8D; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;" onclick="window.location.href='/content_item/#{@content_item['id']}'">Cancel</button>
             <button class="btn" style="background-color: #1F6F3A; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" onclick="if(confirm('¿Estás seguro de que quieres actualizar este contenido?')) { document.querySelector('form').submit(); }">Update</button>
           </div>
           <script>
@@ -214,7 +214,7 @@ class ContentItemStyler
         </form>
         <form action='/delete_content_item' method='post'>
           <input type='hidden' name='content_item_id' value="#{@content_item['id']}">
-          <button style='background:#C0392B' onclick="return confirm('Are you sure you want to delete this item?')">
+          <button style='background:#E98D8D' onclick="return confirm('Are you sure you want to delete this item?')">
             <i class='fas fa-trash'></i>
           </button>
         </form>
@@ -224,86 +224,115 @@ class ContentItemStyler
 
     def creation_content_item_form
       <<~HTML
-      <br>
-      <h4 style='text-align:center;'>Creation of new digital content</h4>
-      <br>
-      <form action='/create_content_item' method='post' style='max-width: 70%; margin: 0 auto; padding: 20px;'>
+      <br><br>
+      <h4 style='text-align: center;
+      margin-top: 10px;
+      padding: 20px 0;font-size: 30px;
+      color: #333;
+      margin-bottom: 20px;'>Creation of new digital content</h4>
+      <form action='/create_item' method='post' style='max-width: 70%; margin: 0 auto; padding: 20px;'>
         <input type='hidden' name='_method' value='put'>
-        <div class='form-group'>
-          <label for='type' style='display: block; font-weight: bold;'>Select content type:</label>
+
+        <div class='form-group' style='padding-bottom:20px;'>
+          <label for='type' style='display: block; font-weight: bold;'>Content type</label>
+          <p style="font-size:13px;color:#9e9e9e;">Please select the type of multimedia content you want to share.</p>
           <select id='type' name='type' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;' onchange='toggleFields()'>
-            <option value='Books'>Book</option>
-            <option value='Movies'>Movie</option>
-            <option value='Music'>Music</option>
+          <option value='News'>News</option>  
+          <option value='Books'>Book</option>
+          <option value='Recipes'>Recipe</option>  
+          <option value='Movies'>Movie</option>
             <option value='Videos'>Video</option>
-            <option value='Recipes'>Recipe</option>
-            <option value='News'>News</option>
+            <option value='Music'>Music</option>
+            <option value='Poscast'>Poscast</option>
+            <option value='Videogame'>Videogame</option>
+            <option value='Art'>Art</option>
+            <option value='Platform'>Platform</option>
             <option value='Events'>Events</option>
           </select>
-        </div><br>
-        <div id='media-input' class='form-group'>
-          <label for='media' style='display: block; font-weight: bold;'>Enter relevant URL:</label>
-          <input type='url' id='digital_content' name='digital_content' class='form-control' style='width: 100%; margin-top: 10px; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
-        </div><br>
-        <div class='form-group'>
-          <label for='title' id='title-label' style='display: none; display: block; font-weight: bold;'>Title:</label>
-          <input type='text' id='title' name='title' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
-        </div><br>
-        <div class='form-group'>
-          <label for='author' id='author-label' style='display: none; display: block; font-weight: bold;'>Author:</label>
-          <input type='text' id='author' name='author' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
-        </div><br>
-        <div class='form-group'>
-          <label for='description' id='description-label' style='display: none; display: block; font-weight: bold;'>Description:</label>
-          <textarea id='description' name='description' placeholder="You can insert HTML code or plain text" class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'></textarea>
-        </div><br>
-        <div class='form-group'>
-          <label for='location' id='location-label' style='display: none; display: block; font-weight: bold;'>Location:</label>
-          <input type='text' id='location' name='location' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
-        </div><br>
-        <div class='form-group'>
-          <label for='datetime' id='datetime-label' style='display: none; display: block; font-weight: bold;'>Event date and time:</label>
-          <input type='text' id='datetime' name='datetime' placeholder="You must follow the format dd/MM/yyyy HH:mm" class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
         </div>
-        <div class='form-group'>
-          <label for='pubdate' id='pubdate-label' style='display: none; display: block; font-weight: bold;'>Publication date:</label>
-          <input type='text' id='pubdate' name='pubdate' placeholder="Feel free to input any format" class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
-        </div><br>
-        <div style='text-align: center;'>
-          <button type='submit' class='btn btn-primary' style='width: 40%; padding: 10px; background-color: #E3ECD6; border: none; color: #000; border-radius: 3px; cursor: pointer;'>Create</button>
+
+        <div class='form-group' style='padding-bottom:20px;'>
+        <label for='title' id='title-label' style='display: none; display: block; font-weight: bold;'>Title</label>
+        <p style="font-size:13px;color:#9e9e9e;">Please enter the title of the content.</p>
+        <input type='text' id='title' name='title' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+        </div>
+    
+        <div class='form-group' id='author-div' style='padding-bottom:20px;'>
+        <label id="source-label" for='author' style='display: none; display: block; font-weight: bold;'></label>
+        <p style="font-size:13px;color:#9e9e9e;">Please enter the source of the content.</p>
+        <input type='text' id='author' name='author' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+    </div>
+    
+
+    <div class='form-group' style='padding-bottom:20px;'>
+    <label for='description' style='display: none; display: block; font-weight: bold;'>Description</label>
+    <p style="font-size:13px;color:#9e9e9e;">Please provide a detailed description of the content. You can insert HTML code or plain text.</p>
+    <textarea id='description' name='description' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px; height: 150px;'></textarea>
+</div>
+
+
+        <div id='url-div' class='form-group' style='padding-bottom:20px;'>
+        <label for='media' style='display: block; font-weight: bold;'>Media URL</label>
+        <p style="font-size:13px;color:#9e9e9e;" id="url-label"></p>
+        <input type='url' id='digital_content' name='digital_content' class='form-control' style='width: 100%; margin-top: 10px; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+        </div>
+    
+
+        <div class='form-group' id='location-div' style='padding-bottom:20px;'>
+        <label for='location' style='display: none; display: block; font-weight: bold;'>Location</label>
+        <p style="font-size:13px;color:#9e9e9e;">Please enter the complete address.</p>
+        <input type='text' id='location' name='location' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+          </div>
+
+          <div class='form-group'  id='datetime-div' style='padding-bottom:20px;'>
+          <label for='datetime' style='display: none; display: block; font-weight: bold;'>Date and time</label>
+          <p style="font-size:13px;color:#9e9e9e;">Please select the date and time of the event.</p>
+          <input type='datetime-local' id='datetime' name='datetime' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+        </div>
+
+      
+
+        <div class='form-group' id='pubdate-div' style='padding-bottom:50px;'>
+        <label for='pubdate' style='display: none; display: block; font-weight: bold;'>Publication date</label>
+        <p style="font-size:13px;color:#9e9e9e;">Feel free to input any format.</p>
+        <input type='date' id='pubdate' name='pubdate' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;' min="1970-01-01" step="1">
+    </div>
+    
+        <div style='text-align: center;padding-bottom:50px;'>
+        <button onclick="/index" class='btn btn-secondary' style='width: 10%; padding: 10px; font-weight:bold; background-color: #E98D8D; border: none; color: #000; border-radius: 3px; cursor: pointer;'>Cancel</button>
+        <button type='submit' class='btn btn-primary' style='width: 10%; padding: 10px; font-weight:bold; background-color: #E3ECD6; border: none; color: #000; border-radius: 3px; cursor: pointer;'>Publish</button>
         </div>
       </form>
+
       <script>
-      document.getElementById('datetime-label').style.display = 'none';
-      document.getElementById('datetime').style.display = 'none';
-      document.getElementById('location-label').style.display = 'none';
-      document.getElementById('location').style.display = 'none';
+      document.getElementById('datetime-div').style.display = 'none';
+      document.getElementById('location-div').style.display = 'none';
+
+      if (document.getElementById('type').value == "News") {
+        document.getElementById("source-label").innerHTML = "Source";
+        document.getElementById("url-label").innerHTML = "Please enter the URL of the header image for the news.";
+    }
+    
+
       function toggleFields() {
         var type = document.getElementById('type').value;
         if (type === 'Events') {
-          document.getElementById('datetime-label').style.display = 'block';
-          document.getElementById('datetime').style.display = 'block';
-          document.getElementById('location-label').style.display = 'block';
-          document.getElementById('location').style.display = 'block';
-          document.getElementById('pubdate-label').style.display = 'none';
-          document.getElementById('pubdate').style.display = 'none';
-          document.getElementById('author-label').style.display = 'none';
-          document.getElementById('author').style.display = 'none';
+          document.getElementById('datetime-div').style.display = 'block';
+          document.getElementById('location-div').style.display = 'block';
+          document.getElementById('pubdate-div').style.display = 'none';
+          document.getElementById('author-div').style.display = 'none';
+          document.getElementById('url-div').style.display = 'none';
         } else {
-          document.getElementById('datetime-label').style.display = 'none';
-          document.getElementById('datetime').style.display = 'none';
-          document.getElementById('location-label').style.display = 'none';
-          document.getElementById('location').style.display = 'none';
-          document.getElementById('pubdate-label').style.display = 'block';
-          document.getElementById('pubdate').style.display = 'block';
-          document.getElementById('author-label').style.display = 'block';
-          document.getElementById('author').style.display = 'block';
+          document.getElementById('datetime-div').style.display = 'none';
+          document.getElementById('location-div').style.display = 'none';
+          document.getElementById('pubdate-div').style.display = 'block';
+          document.getElementById('author-div').style.display = 'block';
+          document.getElementById('url-div').style.display = 'block';
         }
       }
       </script>      
       HTML
     end
-
   end
 
   def image_url_to_base64(image_url)
@@ -324,4 +353,3 @@ class ContentItemStyler
       return nil
     end
   end
-  
