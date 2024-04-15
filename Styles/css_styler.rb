@@ -206,12 +206,14 @@ class CSS_Styler
         HTML
     end
 
-    def header_events(upcoming)
-      title = upcoming ? "Upcoming events" : "Event schedules"
+    def header_events()
       <<~HTML
-      <div style='display: flex; flex-wrap: wrap; justify-content: center;'>
-      <h4 style='background-color: #E3ECD6; color: black; padding: 5px 10px; border-radius: 5px;'>#{title}</h4>
-      </div>
+      <br><br>
+      <h4 style='text-align: center;
+      margin-top: 10px;
+      padding: 20px 0;font-size: 30px;
+      color: #333;
+      margin-bottom: 20px;'>Event schedules</h4>
       HTML
     end
 
@@ -229,14 +231,4 @@ class CSS_Styler
       </div>
       HTML
     end
-
-    def print_alert(s)
-      puts "entro";
-      <<-HTML
-      <script>
-        alert("#{s}");
-      </script>
-      HTML
-    end
-
 end 

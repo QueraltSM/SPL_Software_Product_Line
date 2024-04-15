@@ -3,7 +3,7 @@ entity_class "Event" do
     field "title", "String"
     field "description", "String"
     field "location", "String"
-    field "datetime", "String"
+    field "date", "String"
     field "pubdate", "String"
     field "image", "String"
   end

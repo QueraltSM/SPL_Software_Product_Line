@@ -166,13 +166,17 @@ def build_youtube_embed_url(url)
 end
 
 put '/create_item' do
+  puts "author123"
+  puts $user_id
   url = './Data/content_items.json'
   if params['type'] == 'Events'
     new_content = {
       "id": SecureRandom.uuid,
+      "author": $user_id,
       "title": params['title'],
       "description": params['description'],
-      "pubdate": DateTime.now.strftime('%d/%m/%Y %H:%M'),
+      "date": params['date'],
+      "pubdate": Time.now.strftime("%Y-%m-%dT%H:%M:%S"),
       "location": params['location'],
       "datetime": params['datetime'],
       "image": params['digital_content']
@@ -182,11 +186,13 @@ put '/create_item' do
     new_content = {
       "id": SecureRandom.uuid,
       "title": params['title'],
-      "author": params['author'],
+      "source": params['source'],
+      "author": $user_id,
       "description": params['description'],
-      "pubdate": params['pubdate'],
-      "digital_content": params['digital_content'], #build_youtube_embed_url(params['digital_content']),
-      "rating": -1,
+      "date": params['date'],
+      "pubdate": Time.now.strftime("%Y-%m-%dT%H:%M:%S"),
+      "digital_content": params['digital_content'],
+      "rating": 0,
       "type": params['type']
     }
   end
@@ -294,3 +300,30 @@ content_item_reader.writeFile('./Data/content_items.json', content_items)
 redirect "/content_item/#{params['content_item_id']}"
 end
 #-------
+
+def generate_video_embed(url)
+  if url.include?('youtube.com') || url.include?('youtu.be')
+    video_id = extract_youtube_video_id(url)
+  return "<div style='position:relative; padding-bottom:56.25%; height:0; overflow:hidden; max-width:100%;'><iframe width='100%' height='100%' src='https://www.youtube.com/embed/#{video_id}' style='position:absolute; top:0; left:0; width:100%; height:100%;' frameborder='0' allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe></div>"
+elsif url.include?('vimeo.com')
+    video_id = extract_vimeo_video_id(url)
+    return "<div style='position:relative; padding-bottom:56.25%; height:0; overflow:hidden; max-width:100%;'><iframe src='https://player.vimeo.com/video/#{video_id}' style='position:absolute; top:0; left:0; width:100%; height:100%;' frameborder='0' allow='autoplay; fullscreen' allowfullscreen></iframe></div>"  
+  else
+    return "<p>Video no compatible</p>"
+  end
+end
+
+def extract_youtube_video_id(url)
+  video_id = ''
+  if url.include?('youtube.com')
+    video_id = url.split('v=')[1]
+    video_id = video_id.split('&')[0] if video_id.include?('&')
+  elsif url.include?('youtu.be')
+    video_id = url.split('/')[-1]
+  end
+  video_id
+end
+
+def extract_vimeo_video_id(url)
+  url.split('/')[-1]
+end

@@ -101,7 +101,6 @@ def save_user(email)
   user = @data.find { |u| u['email'].downcase == email.downcase }
   $user_id = user['id']
   $user_name = user['name']
-  $user_role = user['role']
 end  
 
   def getJoinedId(iduser,data)
@@ -333,6 +332,7 @@ end
   end
 
   def print_content_items(type, sort_by)
+
     reset_state()
     readFile('./Data/content_items.json')
     content_divs = "<h4 style='text-align: center;
@@ -376,29 +376,37 @@ end
     if sort_by == 'rating'
       items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
     elsif sort_by == 'date'
-      items = @data.select { |item| item['type'] == type }.sort_by { |item| Date.parse(item['pubdate']) }.reverse
+      items = @data.select { |item| item['type'] == type }
+             .sort_by { |item| DateTime.parse(item['pubdate']) }
+             .reverse
     end    
 
     items.each do |content_item|
       digital_content_html = ""
-      if content_item['type'] == 'Videos' || content_item['type'] == 'Movies'
-        digital_content_html = "<iframe width='100%' height='200' src='#{content_item['digital_content']}' frameborder='0' allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe>"
+      id = content_item['id']
+
+      if content_item['type'] == 'Videos' || content_item['type'] == 'Movies' || content_item['type'] == 'Music'
+        video_embed_html = generate_video_embed(content_item['digital_content'])
+        content_divs += "<div onclick=\"window.location='/content_item/#{id}'\" class='content-item' style='text-align:center;cursor: pointer; width: 30%; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f9f9f9;'>
+                          #{video_embed_html}
+                          <div class='info' style='padding-top: 15px;'>
+                            <h3 class='title' style='font-size: 18px; font-weight: bold; color: #333; margin-bottom: 8px;'>#{content_item['title']}</h3>
+                            <p class='author' style='color: #555; font-size: 14px; margin-top: 5px;'>#{content_item['source']}</p>
+                          </div>
+                        </div>"           
       else
         base64_image = image_url_to_base64(content_item['digital_content'])
-        unless unique_images.include?(base64_image)
-          unique_images.add(base64_image)
-          digital_content_html = "<div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / cover; height: 200px;'></div>"
+        unless unique_images.include?(base64_image)                    
+          unique_images.add(base64_image)                    
+          content_divs += "<div onclick=\"window.location='/content_item/#{id}'\" class='content-item' style='text-align:center;cursor: pointer; width: 30%; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f9f9f9;'>
+          <div style='background: url(data:image/jpeg;base64,#{base64_image}) center center / cover; height: 300px; width: 100%;'></div>
+          <div class='info' style='padding-top: 15px;'>
+            <h3 class='title' style='font-size: 18px; font-weight: bold; color: #333; margin-bottom: 8px;'>#{content_item['title']}</h3>
+            <p class='author' style='color: #555; font-size: 14px; margin-top: 5px;'>#{content_item['source']}</p>
+          </div>
+        </div>"
         end
       end
-      id = content_item['id']
-      
-      content_divs += "<div class='content-item' style='width: 30%; margin: 10px; padding: 10px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: #fff;'>
-                        #{digital_content_html}
-                        <a href='#' style='text-decoration: none;' onclick=\"window.location='/content_item/#{id}'\"><div class='info' style='padding: 10px;'>
-                          <div class='title' style='font-size: 16px; font-weight: bold; color: #333; margin-top: 10px;'>#{content_item['title']}</div>
-                          <div class='author' style='color: #555; font-size: 14px;'>#{content_item['author']}</div>
-                        </div>
-                      </a></div>"
     end
     content_divs += "</div>"
     return content_divs
@@ -428,7 +436,7 @@ def print_content_item_data(id) # Visualización del contenido de un content_ite
     if content_item['id'] == id
       styler = ContentItemStyler.new(content_item)
       content_html += styler.content_item_header_style
-      if $user_role == "Admin"
+      if $user_id == content_item['author']
         content_html +=  CSS_Styler.new().admin_css
         content_html += styler.admin_actions
       end
@@ -450,7 +458,7 @@ def print_events(upcoming)
   writeFile('./Data/events.json', @data)
 
   sorted_data = @data.sort_by { |event| DateTime.parse(event['datetime']) }.reverse
-  html_content += styler.header_events(upcoming)
+  html_content += styler.header_events()
   html_content += "<div style='display: flex; flex-wrap: wrap; justify-content: center; margin: 15px; padding: 10px;text-align:center'>"
 
   events_to_display = upcoming ? sorted_data[-3..-1] : sorted_data
@@ -464,34 +472,36 @@ def print_events(upcoming)
 end
 
 
-  def rating_content_item(content_item_id)
-    content_item = @data.find { |item| item['id'] == content_item_id }
-    content_rating = content_item['rating']
-    html_content = "<div style='margin-bottom: 20px;'>
-                      <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();'>
-                        <input type='hidden' name='content_item_id' value='#{content_item_id}'>
-                        <input type='hidden' name='rating' id='selectedRating'>
-                        <div style='text-align: center;'>
-                          <div class='rating'>"
-    (1..10).each do |i|
-      html_content += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedRating(#{i})'><label for='star#{i}'></label>"
-    end
-    html_content += "</div><br>
-                      <input id='submitBtn' title='Rate this content' type='submit' value='Rate this content' style='background-color: #1F6F3A; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
-                      </div>
-                      </form>
-                      </div>
-                      <script>
-                        function setSelectedRating(starValue) {
-                          document.getElementById('selectedRating').value = starValue;
-                        }
-                        
-                        function confirmRating() {
-                          return confirm('Are you sure you want to submit this rating?');
-                        }
-                      </script>"
-    return html_content
-  end  
+def rating_content_item(content_item_id)
+  content_item = @data.find { |item| item['id'] == content_item_id }
+  content_rating = content_item['rating']
+  html_content = "<div style='margin-bottom: 20px;'>
+                    <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();'>
+                      <input type='hidden' name='content_item_id' value='#{content_item_id}'>
+                      <input type='hidden' name='rating' id='selectedRating'>
+                      <div style='text-align: center;'>
+                        <div class='rating'>"
+  (1..10).each do |i|
+    html_content += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedRating(#{i})' #{'checked' if i == content_rating}><label for='star#{i}'></label>"
+  end
+  html_content += "</div><br>
+                    <input id='submitBtn' title='Rate this content' type='submit' value='Rate this content' style='background-color: #1F6F3A; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
+                    </div>
+                    </form>
+                    </div>
+                    <script>
+                      function setSelectedRating(starValue) {
+                        document.getElementById('selectedRating').value = starValue;
+                        document.getElementById('submitBtn').value = 'Rate this content';
+                      }
+                      
+                      function confirmRating() {
+                        return confirm('Are you sure you want to submit this rating?');
+                      }
+                    </script>"
+  return html_content
+end
+
   
   def print_comments(content_item_id, joined_reader) # Print and manage comments
     reset_state()

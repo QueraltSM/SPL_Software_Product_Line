@@ -1,8 +1,10 @@
 entity_class "ContentItem" do
     field "id", "int"
     field "title", "String"
+    field "source", "String"
     field "author", "String"
     field "description", "String"
+    field "date", "String"
     field "pubdate", "String"
     field "digital_content", "String"
     field "rating", "int"
