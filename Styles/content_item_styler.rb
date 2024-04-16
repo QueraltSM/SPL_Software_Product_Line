@@ -85,23 +85,25 @@ class ContentItemStyler
           HTML
         elsif @content_item['type'] == 'News'
           <<~HTML
-            <div style='padding: 20px;font-size:15px;display: flex; justify-content: flex-start; align-items: center;'>
-              <div style='margin-left: 20px;'>
-                <h2 style='color: #333;'>#{@content_item['title']}</h2>
-                <div style="display: flex; justify-content: center;"><img src='data:image/jpeg;base64,#{base64_image}'/></div>
-                <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Written by</strong> #{@content_item['author']}</p>
-                #{rating_html(@content_item['rating']) if @content_item['rating'] != -1}
-                <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Posted on</strong> #{@content_item['date']}</p>
-                <pre style='color: #555; white-space: pre-wrap;text-align:justify;'>#{@content_item['description']}</pre>
-              </div>
+          <div style='padding: 20px; font-size: 15px;'>
+          <div style='border: 1px solid #ddd; border-radius: 5px; padding: 20px; background-color: #f9f9f9;'>
+            <h2 style='color: #333; margin: 20px;text-align:center;'>#{@content_item['title']}</h2>
+            <div style="display: flex; justify-content: center; margin-bottom: 15px;">
+              <img src='data:image/jpeg;base64,#{base64_image}' style="max-width: 100%; border-radius: 5px;">
             </div>
+            <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>#{@content_item['source']}</strong></p>
+            <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Posted on:</strong> #{ Date.parse(@content_item['date']).strftime("%d/%m/%Y")}</p>
+            <p style='color: #555; font-size: 14px; line-height: 1.6; text-align: justify;'>#{@content_item['description']}</p>
+          </div>
+        </div>
+        
           HTML
         else
           <<~HTML
           <div style='padding: 20px;font-size:15px'>
             <h2 style='color: #333;'>#{@content_item['title']}</h2>
             <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Author</strong> #{@content_item['author']}</p>
-            <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Posted on</strong> #{@content_item['date']}</p>
+            <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Posted on</strong> #{ Date.parse(@content_item['date']).strftime("%d/%m/%Y")}</p>
             <div style='display: flex; justify-content: center;'><div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat; height: 400px; width: 560px; margin-right: 20px;'></div></div>
             <pre style='color: #555; white-space: pre-wrap;'>#{@content_item['description']}</pre>
           </div>
@@ -145,7 +147,7 @@ class ContentItemStyler
           <div style="margin-top: 20px; text-align: center;">
             <input type="file" name="updated_digital_content" accept="image/*" style="display: none;">
             <button class="btn" style="background-color: #2B88C0; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;" onclick="document.getElementById('updated_digital_content').click();">Choose Image</button>
-            <button class="btn" style="background-color: #E98D8D; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;" onclick="window.location.href='/content_item/#{@content_item['id']}'">Cancel</button>
+            <button class="btn" style="background-color: #9C3030; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;" onclick="window.location.href='/content_item/#{@content_item['id']}'">Cancel</button>
             <button class="btn" style="background-color: #1F6F3A; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" onclick="if(confirm('¿Estás seguro de que quieres actualizar este contenido?')) { document.querySelector('form').submit(); }">Update</button>
           </div>
           <script>
@@ -185,12 +187,10 @@ class ContentItemStyler
               <img src='data:image/jpeg;base64,#{base64_image}' style="max-width: 100%; border-radius: 5px;">
             </div>
             <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Written by:</strong> #{@content_item['source']}</p>
-            #{rating_html(@content_item['rating']) if @content_item['rating'] != -1}
-            <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Posted on:</strong> #{@content_item['date']}</p>
+            <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Posted on:</strong> #{ Date.parse(@content_item['date']).strftime("%d/%m/%Y")}</p>
             <p style='color: #555; font-size: 14px; line-height: 1.6; text-align: justify;'>#{@content_item['description']}</p>
           </div>
         </div>
-        
           HTML
         else
           <<~HTML
@@ -210,7 +210,7 @@ class ContentItemStyler
     def admin_actions
       <<~HTML
       <div class='button-container' style='display: flex; align-items: center;'>
-        <form action='/update_content_item_form' method='post'>
+        <form action='/edit' method='post'>
           <input type='hidden' name='content_item_id' value="#{@content_item['id']}" title="Edit">
           <button style='background:#2B88C0; margin-right: 10px;'>
             <i class='fas fa-pencil-alt'></i>
@@ -218,7 +218,7 @@ class ContentItemStyler
         </form>
         <form action='/delete_content_item' method='post'>
           <input type='hidden' name='content_item_id' value="#{@content_item['id']}">
-          <button style='background:#E98D8D' onclick="return confirm('Are you sure you want to delete this item?')" title="Delete">
+          <button style='background:#9C3030' onclick="return confirm('Are you sure you want to delete this item?')" title="Delete">
             <i class='fas fa-trash'></i>
           </button>
         </form>
@@ -286,19 +286,19 @@ class ContentItemStyler
         <label for='location' style='display: none; display: block; font-weight: bold;'>Location</label>
         <p style="font-size:13px;color:#9e9e9e;">Please enter the complete address.</p>
         <input type='text' id='location' name='location' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
-          </div>
+        </div>
 
-          <div class='form-group'  id='datetime-div' style='padding-bottom:20px;'>
-          <label for='datetime' style='display: none; display: block; font-weight: bold;'>Date and time</label>
-          <p style="font-size:13px;color:#9e9e9e;">Please select the date and time of the event.</p>
-          <input type='datetime-local' id='datetime' name='datetime' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+        <div class='form-group'  id='datetime-div' style='padding-bottom:20px;'>
+        <label for='datetime' style='display: none; display: block; font-weight: bold;'>Date and time</label>
+        <p style="font-size:13px;color:#9e9e9e;">Please select the date and time of the event.</p>
+        <input type='datetime-local' id='datetime' name='datetime' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
         </div>
 
         <div class='form-group' id='date-div' style='padding-bottom:50px;'>
         <label for='date' style='display: none; display: block; font-weight: bold;'>Date of released</label>
         <p style="font-size:13px;color:#9e9e9e;">Select the date of released.</p>
         <input type='date' id='date' name='date' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;' min="1970-01-01" step="1">
-    </div>
+        </div>
     
         <div style='text-align: center;padding-bottom:50px;'>
         <button type='submit' class='btn btn-primary' style='width: 10%; padding: 10px; font-weight:bold; background-color: #E3ECD6; border: none; color: #000; border-radius: 3px; cursor: pointer;'>Publish</button>
@@ -327,8 +327,8 @@ class ContentItemStyler
           document.getElementById('date-div').style.display = 'block';
           document.getElementById('source-div').style.display = 'block';
           document.getElementById('url-div').style.display = 'block';
-          document.getElementById("pubdate").required = true;
-          document.getElementById("author").required = true;
+          document.getElementById("date").required = true;
+          document.getElementById("source").required = true;
           document.getElementById("digital_content").required = true;
         }
 
@@ -367,14 +367,139 @@ class ContentItemStyler
           document.getElementById("source-label").innerHTML = "Publisher / Company";
           document.getElementById("url-label").innerHTML = "Please enter the URL of the platform's logo or icon.";
           document.getElementById("description-label").innerHTML = "Provide a comprehensive description of the platform, including details about its purpose, target audience, features, usability, and any other relevant information you want to share.";
-      }
-      
-        
+        }   
       }
       </script>      
       HTML
     end
+
+  def edit_content_item_form(content_item)
+    <<~HTML
+    <br><br>
+    <h4 style='text-align: center;
+    margin-top: 10px;
+    padding: 20px 0;font-size: 30px;
+    color: #333;
+    margin-bottom: 20px;'>Edition of content</h4>
+    <form action='/edit_item' method='post' style='max-width: 70%; margin: 0 auto; padding: 20px;'>
+      <input type='hidden' name='_method' value='put'>
+      <input type='hidden' name='content_item_id' value="#{content_item['id']}">
+
+      <div class='form-group' style='padding-bottom:20px;'>
+      <label for='title' id='title-label' style='display: none; display: block; font-weight: bold;'>Title</label>
+      <p style="font-size:13px;color:#9e9e9e;">Enter the title of the content.</p>
+      <input type='text' id='title' value='#{content_item["title"]}' name='title' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;' required>
+      </div>
+  
+      <div class='form-group' id='source-div' style='padding-bottom:20px;'>
+      <label id="source-label" for='source' style='display: none; display: block; font-weight: bold;'></label>
+      <p style="font-size:13px;color:#9e9e9e;">Enter the source of the content.</p>
+      <input type='text' id='source'  value='#{content_item["source"]}' name='source' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+      </div>
+  
+
+      <div class='form-group' style='padding-bottom:20px;'>
+      <label for='description' style='display: none; display: block; font-weight: bold;'>Description</label>
+      <p id="description-label" style="font-size:13px;color:#9e9e9e;"></p>
+      <textarea id='description' name='description' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px; height: 150px;' required>#{content_item["description"]}</textarea>
+      </div>
+
+
+      <div id='url-div' class='form-group' style='padding-bottom:20px;'>
+      <label for='media' style='display: block; font-weight: bold;'>Media URL</label>
+      <p style="font-size:13px;color:#9e9e9e;" id="url-label"></p>
+      <input type='url' id='digital_content'  value='#{content_item["digital_content"]}' name='digital_content' class='form-control' style='width: 100%; margin-top: 10px; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+      </div>
+  
+
+      <div class='form-group' id='location-div' style='padding-bottom:20px;'>
+      <label for='location' style='display: none; display: block; font-weight: bold;'>Location</label>
+      <p style="font-size:13px;color:#9e9e9e;">Please enter the complete address.</p>
+      <input type='text' id='location' name='location' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+      </div>
+
+        <div class='form-group'  id='datetime-div' style='padding-bottom:20px;'>
+        <label for='datetime' style='display: none; display: block; font-weight: bold;'>Date and time</label>
+        <p style="font-size:13px;color:#9e9e9e;">Please select the date and time of the event.</p>
+        <input type='datetime-local' id='datetime' name='datetime' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+      </div>
+
+      <div class='form-group' id='date-div' style='padding-bottom:50px;'>
+      <label for='date' style='display: none; display: block; font-weight: bold;'>Date of released</label>
+      <p style="font-size:13px;color:#9e9e9e;">Select the date of released.</p>
+      <input type='date' id='date'  value='#{content_item["date"]}' name='date' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;' min="1970-01-01" step="1">
+      </div>
+  
+      <div style='text-align: center;padding-bottom:50px;'>
+      <button type='submit' class='btn btn-primary' style='width: 10%; padding: 10px; font-weight:bold; background-color: #E3ECD6; border: none; color: #000; border-radius: 3px; cursor: pointer;'>Update</button>
+      </div>
+    </form>
+
+    <script>
+      if ("#{content_item["type"]}" === "News") {
+        document.getElementById('datetime-div').style.display = 'none';
+        document.getElementById('location-div').style.display = 'none';
+        document.getElementById("source-label").innerHTML = "Source";
+        document.getElementById("url-label").innerHTML = "Please enter the URL of the header image for the news.";
+      }
+      if ("#{content_item["type"]}" === 'Events') {
+        document.getElementById('datetime-div').style.display = 'block';
+        document.getElementById('location-div').style.display = 'block';
+        document.getElementById('date-div').style.display = 'none';
+        document.getElementById('source-div').style.display = 'none';
+        document.getElementById('url-div').style.display = 'none';
+        document.getElementById("datetime").required = true;
+        document.getElementById("location").required = true;
+      } else {
+        document.getElementById('datetime-div').style.display = 'none';
+        document.getElementById('location-div').style.display = 'none';
+        document.getElementById('date-div').style.display = 'block';
+        document.getElementById('source-div').style.display = 'block';
+        document.getElementById('url-div').style.display = 'block';
+        document.getElementById("date").required = true;
+        document.getElementById("source").required = true;
+        document.getElementById("digital_content").required = true;
+      }
+      if ("#{content_item["type"]}" === "News") {
+        document.getElementById("source-label").innerHTML = "Source";
+        document.getElementById("url-label").innerHTML = "Please enter the URL of the header image for the news.";
+        document.getElementById("description-label").innerHTML = "Please provide a detailed description of the content. You can insert HTML code or plain text";
+      } else if ("#{content_item["type"]}" === "Books") {
+        document.getElementById("source-label").innerHTML = "Author";
+        document.getElementById("url-label").innerHTML = "Please enter the URL of the book cover image.";
+      } else if ("#{content_item["type"]}" === "Recipes") {
+        document.getElementById("source-label").innerHTML = "Chef";
+        document.getElementById("url-label").innerHTML = "Please enter the URL of the dish's photo.";
+      } else if ("#{content_item["type"]}" == "Movies") {
+        document.getElementById("source-label").innerHTML = "Director";
+        document.getElementById("url-label").innerHTML = "Please enter the URL of the movie trailer. It can be from YouTube or Vimeo.";
+      } else if ("#{content_item["type"]}" === "Videos") {
+        document.getElementById("source-label").innerHTML = "Channel";
+        document.getElementById("url-label").innerHTML = "Please enter the URL of the video. It can be from YouTube or Vimeo.";
+      } else if ("#{content_item["type"]}" == "Music") {
+        document.getElementById("source-label").innerHTML = "Singer / Band";
+        document.getElementById("url-label").innerHTML = "Please enter the URL of the music video. It can be from YouTube or Vimeo.";
+      } else if ("#{content_item["type"]}" === "Podcasts") {
+        document.getElementById("source-label").innerHTML = "Podcast Host";
+        document.getElementById("url-label").innerHTML = "Enter the URL of an image for the podcast cover.";
+        document.getElementById("description-label").innerHTML = "Include a comprehensive description of the episode or podcast, covering details like where it can be found across different platforms, URLs or hosting platforms.";
+      } else if ("#{content_item["type"]}" === "Videogames") {
+        document.getElementById("source-label").innerHTML = "Company";
+        document.getElementById("url-label").innerHTML = "Please enter the URL of an image for the game cover.";
+        document.getElementById("description-label").innerHTML = "Provide a detailed description of the game, including its genre, gameplay features and any other relevant information.";
+      }  else if ("#{content_item["type"]}" === "Art") {
+        document.getElementById("source-label").innerHTML = "Creator";
+        document.getElementById("url-label").innerHTML = "Enter the URL of an image of the artwork.";
+        document.getElementById("description-label").innerHTML = "Provide a detailed description of the artwork, like information about the artistic style, the technique used, the theme or meaning of the artwork, historical or cultural context, and any other relevant details you'd like to share.";
+      } else if ("#{content_item["type"]}" === "Platforms") {
+        document.getElementById("source-label").innerHTML = "Publisher / Company";
+        document.getElementById("url-label").innerHTML = "Please enter the URL of the platform's logo or icon.";
+        document.getElementById("description-label").innerHTML = "Provide a comprehensive description of the platform, including details about its purpose, target audience, features, usability, and any other relevant information you want to share.";
+      }
+    </script>      
+    HTML
   end
+end
 
   def image_url_to_base64(image_url)
     begin

@@ -231,4 +231,82 @@ class CSS_Styler
       </div>
       HTML
     end
+
+    def comments_form(content_item_id,sorted_comments) 
+      <<~HTML
+      <div style='margin: 20px auto; width: 70%;'>
+      <div style='border: 1px solid #ddd; border-radius: 10px; overflow: hidden; padding: 20px; background-color: #f9f9f9;'>
+      <div style='margin-bottom: 20px;'>
+        <form action='/submit_comment' method='post'>
+        <input type='hidden' name='content_item_id' value='#{content_item_id}'>
+        <input type='hidden' name='comment_user_id' value='#{$user_id}'>
+          <textarea placeholder='Add a comment' id='comment_text' name='comment_text' rows='4' cols='50' style='width: 100%; margin-top: 10px;padding:10px;border: none;outline:none'></textarea><br>
+          <div style='text-align: right;'>
+            <input type='submit' value='Comment' style='margin:10px;background-color: #1F6F3A; color: white; border: none; padding: 10px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
+          </div>
+        </form>
+      </div>
+      #{autoResizeTextarea('comment_text')}
+      HTML
+    end 
+
+    def print_comment(comment,content_item_id,user) 
+      <<~HTML
+      <div style='padding: 15px; border-radius: 5px;text-align:justify;'>
+        <span style='font-weight: bold; color: #333; font-size: 14px;'>#{user}</span>
+        <span style='color: #777; margin-left: 10px; font-size: 13px;'>#{comment['pubdate']}</span>
+        <p style='margin-top: 10px; color: #555; font-size: 13px; word-wrap: break-word; word-break: break-all;'>#{comment['text']}</p>
+        #{if comment['user_id'] == $user_id # Edit and Delete operations if user is owner of the comment
+          <<~HTML
+          <form id='update_comment' action='/update_comment' method='post' style='margin-top: 10px; display: none;'>
+            <input type='hidden' name='content_item_id' value='#{content_item_id}'>
+            <input type='hidden' name='comment_id' value='#{comment["id"]}'>
+            <textarea name='updated_text' style='width: 100%;' rows='4' cols='50'>#{comment['text']}</textarea><br><br>
+            <input type='submit' value='Update' style='background-color: #1F6F3A; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
+            <button type='button' class='cancel-edit' style='background-color: #D86E6E; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>Cancel</button>
+          </form>
+          <div style='display: flex; justify-content: flex-end;'>
+            <form action='' onsubmit='return false;'>
+              <input type='submit' class='edit-button' value='Edit' style='background-color: #2B88C0; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
+            </form>          
+            <form action='/delete_comment' method='post'>
+              <input type='hidden' name='content_item_id' value='#{content_item_id}'>
+              <input type='hidden' name='comment_id' value='#{comment["id"]}'>
+              <input type='submit' value='Delete' style='background-color: #D86E6E; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>
+            </form>
+          </div>
+          <script> 
+            document.addEventListener('DOMContentLoaded', function() {
+              var editButton = document.querySelector('.edit-button');
+              var updateForm = document.querySelector('#update_comment');
+              var cancelEditButton = document.querySelector('.cancel-edit');
+              editButton.addEventListener('click', function() {
+                updateForm.style.display = 'block';
+              });
+              cancelEditButton.addEventListener('click', function() {
+                updateForm.style.display = 'none';
+              });
+            });
+          </script>
+          HTML
+        end}
+      </div>
+      HTML
+    end
+    
+    def autoResizeTextarea(id)
+      <<~HTML
+      <script>
+        function autoResizeTextarea() {
+          const textarea = document.getElementById('#{id}');
+          textarea.style.height = 'auto';
+          textarea.style.height = textarea.scrollHeight + 'px';
+        }
+        document.getElementById('#{id}').addEventListener('input', autoResizeTextarea);
+        window.addEventListener('load', autoResizeTextarea);
+      </script>
+      HTML
+    end
+    
+
 end 

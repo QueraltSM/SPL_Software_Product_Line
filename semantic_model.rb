@@ -130,10 +130,18 @@ end
   end
 
   def generate_creation_form()
-    content_html = ContentItemStyler.new(nil).creation_content_item_form
-    return content_html
+    return ContentItemStyler.new(nil).creation_content_item_form
   end
 
+  def generate_edition_form(content_item_id)
+    readFile('./Data/content_items.json')
+    @data.each do |content_item|
+      if content_item['id'] == content_item_id
+        return ContentItemStyler.new(nil).edit_content_item_form(content_item)
+      end
+    end
+    return nil
+  end
  
   def generate_landing_page
     html = <<~HTML
@@ -290,49 +298,7 @@ end
     return html
   end
    
-  
-  def print_best_content_items()
-    reset_state()
-    readFile('./Data/content_items.json')
-    content_divs = "<div style='position: relative; justify-content: center; display: flex; flex-wrap: wrap; margin: 15px; padding: 10px;'>"
-  
-    # Creamos un hash para almacenar el mejor elemento de cada tipo de contenido
-    best_items = Hash.new { |h, k| h[k] = nil }
-  
-    # Iteramos sobre los datos y almacenamos el mejor de cada tipo
-    @data.each do |content_item|
-      type = content_item['type']
-      rating = content_item['rating'].to_i
-      if rating > 0 && (best_items[type].nil? || rating > best_items[type]['rating'].to_i)
-        best_items[type] = content_item
-      end
-    end
-  
-    # Iteramos sobre los mejores elementos de cada tipo y los mostramos en la página
-    best_items.each do |type, content_item|
-      next if content_item.nil?
-  
-      digital_content_html = ""
-      if content_item['type'] == 'Videos' || content_item['type'] == 'Movies'
-        digital_content_html = "<div style='display: flex; justify-content: center;'><iframe width='280' height='160' src='#{content_item['digital_content']}' frameborder='0' allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen controls></iframe></div>"
-      else
-        base64_image = image_url_to_base64(content_item['digital_content'])
-        digital_content_html = "<div style='display: flex; justify-content: center;'><img src='data:image/jpeg;base64,#{base64_image}' style='max-width: 100%; height: auto; max-height: 160px;'></div>"
-      end
-  
-      id = content_item['id']
-      content_divs += "<div style='position: relative; text-align: center; margin-bottom: 30px; width: 280px; margin-right: 20px;'>"
-      content_divs += "<h4 style='background-color: #E3ECD6; color: black; padding: 5px 10px; border-radius: 5px;'>Best of #{type}</h4>"
-      content_divs += "<div class='content-item' style='margin: 10px; padding: 10px; cursor: pointer; text-align: center;' onclick=\"window.location='/content_item/#{id}'\">#{digital_content_html}<div class='info' style='padding: 10px;'><div class='title' style='font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;'>#{content_item['title']}</div><div class='author' style='color: #555; font-size: 12px;'>#{content_item['author']}</div></div></div>"
-      content_divs += "</div>"
-    end
-  
-    content_divs += "</div>"
-    return content_divs
-  end
-
   def print_content_items(type, sort_by)
-
     reset_state()
     readFile('./Data/content_items.json')
     content_divs = "<h4 style='text-align: center;
@@ -340,7 +306,6 @@ end
     padding: 20px 0;font-size: 30px;
     color: #333;
     margin-bottom: 20px;'>#{type}</h4>"
-  
     content_divs += "<form id='sort-form' style='margin-top: 20px;margin: 20px;'>
     <div style='display: flex; align-items: center; justify-content: flex-end;'>
       <input type='text' name='search' id='search' placeholder='Search...' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
@@ -357,7 +322,6 @@ end
     document.getElementById('search').addEventListener('input', function() {
       var searchText = this.value.toLowerCase();
       var contentItems = document.getElementsByClassName('content-item');
-  
       Array.from(contentItems).forEach(function(item) {
         var title = item.querySelector('.title').innerText.toLowerCase();
         var author = item.querySelector('.author').innerText.toLowerCase();
@@ -369,10 +333,8 @@ end
       });
     });
     </script>";
-  
     content_divs += "<div id='#{type}_content' style='display: flex; flex-wrap: wrap; margin: 15px; padding: 20px;'>"
     unique_images = Set.new
-  
     if sort_by == 'rating'
       items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
     elsif sort_by == 'date'
@@ -380,11 +342,9 @@ end
              .sort_by { |item| DateTime.parse(item['pubdate']) }
              .reverse
     end    
-
     items.each do |content_item|
       digital_content_html = ""
       id = content_item['id']
-
       if content_item['type'] == 'Videos' || content_item['type'] == 'Movies' || content_item['type'] == 'Music'
         video_embed_html = generate_video_embed(content_item['digital_content'])
         content_divs += "<div onclick=\"window.location='/content_item/#{id}'\" class='content-item' style='text-align:center;cursor: pointer; width: 30%; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f9f9f9;'>
@@ -475,7 +435,8 @@ end
 def rating_content_item(content_item_id)
   content_item = @data.find { |item| item['id'] == content_item_id }
   content_rating = content_item['rating']
-  html_content = "<div style='margin-bottom: 20px;'>
+  html_content = "<p style='font-size:13px;color:#9e9e9e;text-align:center'>Rating is now #{content_item['rating']}</p>
+                  <div style='margin-bottom: 20px;'>
                     <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();'>
                       <input type='hidden' name='content_item_id' value='#{content_item_id}'>
                       <input type='hidden' name='rating' id='selectedRating'>
@@ -485,14 +446,14 @@ def rating_content_item(content_item_id)
     html_content += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedRating(#{i})' #{'checked' if i == content_rating}><label for='star#{i}'></label>"
   end
   html_content += "</div><br>
-                    <input id='submitBtn' title='Rate this content' type='submit' value='Rate this content' style='background-color: #1F6F3A; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
+                    <input id='submitBtn' type='submit' value='Rate' style='background-color: #1F6F3A; color: white; border: none; padding:10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
                     </div>
                     </form>
                     </div>
                     <script>
                       function setSelectedRating(starValue) {
                         document.getElementById('selectedRating').value = starValue;
-                        document.getElementById('submitBtn').value = 'Rate this content';
+                        document.getElementById('submitBtn').value = 'Rate';
                       }
                       
                       function confirmRating() {
@@ -508,60 +469,12 @@ end
     readFile('./Data/comments.json')
     sorted_comments = @data.select { |comment| comment['content_item_id'] == content_item_id }
                            .sort_by { |comment| DateTime.parse(comment['pubdate']) }.reverse
-    html_content = "<div style='margin: 20px auto; width: 70%;'>
-                    <div style='border: 1px solid #ddd; border-radius: 10px; overflow: hidden; padding: 20px; background-color: #f9f9f9;'>"
-    html_content += "<div style='margin-bottom: 20px;'><div style='margin-top: 20px; text-align: center;'><h4>Comments</h4></div>
-                      <form action='/submit_comment' method='post'>
-                      <input type='hidden' name='content_item_id' value='#{content_item_id}'>
-                      <input type='hidden' name='comment_user_id' value='#{$user_id}'>
-                        <label for='comment_text' style='font-size: 13px; color: #555;'>Add a comment:</label><br>
-                        <textarea id='comment_text' name='comment_text' rows='4' cols='50' style='width: 100%; margin-top: 10px;'></textarea><br>
-                        <div style='text-align: right;'>
-                          <input type='submit' value='Send' style='background-color: #1F6F3A; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
-                        </div>
-                      </form>
-                    </div>"
+    html_content = CSS_Styler.new().comments_form(content_item_id,sorted_comments)       
+    html_content += "<div style='margin-top: 20px; text-align: center;'><h4>#{sorted_comments.size} comments</h4></div>" 
     if !sorted_comments.empty?
       sorted_comments.each do |comment|
         user = joined_reader.getJoinedId(comment['user_id'], './Data/users.json')
-        html_content +=
-          "<div style='margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #ffffff;text-align:justify;'>
-            <span style='font-weight: bold; color: #333; font-size: 17px;'>#{user}</span>
-            <span style='color: #777; margin-left: 10px; font-size: 14px;'>#{comment['pubdate']}</span>
-            <p style='margin-top: 10px; color: #555; font-size: 15px;'>#{comment['text']}</p>"
-
-            if comment['user_id'] == $user_id # Edit and Delete operations if user is owned of the comment
-                html_content += "<form id='update_comment' action='/update_comment' method='post' style='margin-top: 10px; display: none;'>
-                <input type='hidden' name='content_item_id' value='#{content_item_id}'>
-                <input type='hidden' name='comment_id' value='#{comment['id']}'>
-                <textarea name='updated_text' style='width: 100%;' rows='4' cols='50'>#{comment['text']}</textarea><br><br>
-                <input type='submit' value='Update' style='background-color: #1F6F3A; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
-                <button type='button' class='cancel-edit' style='background-color: #D86E6E; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>Cancel</button>
-              </form>
-              <div style='display: flex; justify-content: flex-end;'>
-              <form action='' onsubmit='return false;'>
-                <input type='submit' class='edit-button' value='Edit' style='background-color: #2B88C0; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
-              </form>          
-              <form action='/delete_comment' method='post'>
-                <input type='hidden' name='content_item_id' value='#{content_item_id}'>
-                <input type='hidden' name='comment_id' value='#{comment['id']}'>
-                <input type='submit' value='Delete' style='background-color: #D86E6E; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>
-              </form>
-              </div>"
-
-              html_content += "<script> document.addEventListener('DOMContentLoaded', function() {
-                var editButton = document.querySelector('.edit-button');
-                var updateForm = document.querySelector('#update_comment');
-                var cancelEditButton = document.querySelector('.cancel-edit');
-                editButton.addEventListener('click', function() {
-                  updateForm.style.display = 'block';
-                });
-                cancelEditButton.addEventListener('click', function() {
-                  updateForm.style.display = 'none';
-                });
-              });</script>"
-            end
-        html_content += "</div>"
+        html_content += CSS_Styler.new().print_comment(comment, content_item_id, user)  
       end
     end
     html_content += "</div></div>"

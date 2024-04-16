@@ -147,6 +147,19 @@ get '/create' do
   html_content
 end
 
+post '/edit' do
+  html_content = "<html>
+                    <head>
+                      <title></title>
+                    </head>
+                    <body>
+                      #{Menu.generate_menu_html()}
+                      #{content_item_reader.generate_edition_form(params['content_item_id'])}
+                    </body>
+                  </html>"
+  html_content
+end
+
 def get_youtube_video_id(url)
   match = url.match(%r{(youtu\.be\/|\/|%3D|v=|vi=)([0-9A-Za-z_-]{11})([%#?&]|$)})
   if match
@@ -166,8 +179,6 @@ def build_youtube_embed_url(url)
 end
 
 put '/create_item' do
-  puts "author123"
-  puts $user_id
   url = './Data/content_items.json'
   if params['type'] == 'Events'
     new_content = {
@@ -206,6 +217,29 @@ put '/create_item' do
   end  
 end
 
+put '/edit_item' do
+  url = './Data/content_items.json'
+  item_id = params[:content_item_id]
+
+  puts "id:"
+  puts item_id
+
+  content = content_item_reader.readFile(url)
+  index_to_edit = content.find_index { |item| item["id"] == item_id }
+
+  puts "index:"
+  puts index_to_edit
+
+  content[index_to_edit]["title"] = params['title']
+  content[index_to_edit]["source"] = params['source']
+  content[index_to_edit]["description"] = params['description']
+  content[index_to_edit]["date"] = params['date']
+  content[index_to_edit]["digital_content"] = params['digital_content']
+  content_item_reader.writeFile(url, content)
+  redirect "/content/#{content[index_to_edit]["type"]}"
+end
+
+
 post '/delete_content_item' do
   content_item_id = params['content_item_id']
   items = content_item_reader.readFile('./Data/content_items.json')
@@ -215,18 +249,18 @@ post '/delete_content_item' do
   redirect "/index"
 end
 
-post '/update_content_item_form' do
-  html_content = "<html>
-                    <head>
-                      <title></title>
-                    </head>
-                    <body>
-                      #{Menu.generate_menu_html()}
-                      #{content_item_reader.print_update_form(params['content_item_id'])}
-                    </body>
-                  </html>"
-  html_content
-end
+# post '/update_content_item_form' do
+#   html_content = "<html>
+#                     <head>
+#                       <title></title>
+#                     </head>
+#                     <body>
+#                       #{Menu.generate_menu_html()}
+#                       #{content_item_reader.print_update_form(params['content_item_id'])}
+#                     </body>
+#                   </html>"
+#   html_content
+# end
 
 post '/update_content_item' do
   content_item_id = params['content_item_id']
