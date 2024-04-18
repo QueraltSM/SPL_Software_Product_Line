@@ -1,7 +1,7 @@
 require 'memoist'
 require 'net/http'
 require 'base64'
-require_relative './Styles/css_styler'
+require_relative './Frontend'
 require_relative './Styles/content_item_styler'
 require_relative 'menu'
 
@@ -258,7 +258,7 @@ end
                   </div>
   
                   <div class="feature" onclick="window.location.href = '/content/Podcasts';">
-                  <i class="fas fa-podcast  fa-2x"></i>
+                  <i class="fas fa-podcast fa-2x"></i>
                       <h2>Podcasts</h2>
                       <p>Listen to insightful discussions and captivating stories.</p>
                   </div>
@@ -279,7 +279,7 @@ end
               <p>Find out what's trending and discover hidden gems.</p>
           </div>
           
-                  <div class="feature" onclick="window.location.href = '/content/Events';">
+                  <div class="feature" onclick="window.location.href = '/Events';">
                   <i class="fas fa-calendar-alt fa-2x"></i>
                   <h2>Events</h2>
                   <p>Discover exciting events happening near you.</p>
@@ -298,7 +298,7 @@ end
     return html
   end
    
-  def print_content_items(type, sort_by)
+  def print_content_items(type, sb)
     reset_state()
     readFile('./Data/content_items.json')
     content_divs = "<h4 style='text-align: center;
@@ -309,15 +309,15 @@ end
     content_divs += "<form id='sort-form' style='margin-top: 20px;margin: 20px;'>
     <div style='display: flex; align-items: center; justify-content: flex-end;'>
       <input type='text' name='search' id='search' placeholder='Search...' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
-      <select id='sort_by' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
-        <option value='date'  #{'selected' if sort_by == 'date'}>Order by date</option>
-        <option value='rating'  #{'selected' if sort_by == 'rating'}>Order by rating</option>
+      <select id='sb' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
+        <option value='date'  #{'selected' if sb == 'date'}>Order by date</option>
+        <option value='rating'  #{'selected' if sb == 'rating'}>Order by rating</option>
       </select>
     </div>
     </form>
     <script>
-    document.getElementById('sort_by').addEventListener('change', function() {
-      window.location.href = '/content/#{type}?sort_by=' + this.value;
+    document.getElementById('sb').addEventListener('change', function() {
+      window.location.href = '/content/#{type}?sb=' + this.value;
     });
     document.getElementById('search').addEventListener('input', function() {
       var searchText = this.value.toLowerCase();
@@ -335,9 +335,9 @@ end
     </script>";
     content_divs += "<div id='#{type}_content' style='display: flex; flex-wrap: wrap; margin: 15px; padding: 20px;'>"
     unique_images = Set.new
-    if sort_by == 'rating'
+    if sb == 'rating'
       items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
-    elsif sort_by == 'date'
+    elsif sb == 'date'
       items = @data.select { |item| item['type'] == type }
              .sort_by { |item| DateTime.parse(item['pubdate']) }
              .reverse
@@ -397,7 +397,7 @@ def print_content_item_data(id) # Visualización del contenido de un content_ite
       styler = ContentItemStyler.new(content_item)
       content_html += styler.content_item_header_style
       if $user_id == content_item['author']
-        content_html +=  CSS_Styler.new().admin_css
+        content_html +=  Frontend.new().admin_css
         content_html += styler.admin_actions
       end
       content_html += styler.content_item_body_style
@@ -407,24 +407,37 @@ def print_content_item_data(id) # Visualización del contenido de un content_ite
   return content_html
 end
 
-def print_events(upcoming)
+def print_events(sb)
   reset_state()
   readFile('./Data/events.json')
-  styler = CSS_Styler.new()
+  styler = Frontend.new()
   html_content = ""
 
-  # Eliminar eventos pasados del archivo events.json
+  # Delete past events from events.json
   @data.reject! { |event| DateTime.parse(event['datetime']) < DateTime.now }
   writeFile('./Data/events.json', @data)
 
   sorted_data = @data.sort_by { |event| DateTime.parse(event['datetime']) }.reverse
   html_content += styler.header_events()
+  items = sb ? sorted_data[-3..-1] : sorted_data
+
+  html_content += styler.search_form_events(sb)
   html_content += "<div style='display: flex; flex-wrap: wrap; justify-content: center; margin: 15px; padding: 10px;text-align:center'>"
-
-  events_to_display = upcoming ? sorted_data[-3..-1] : sorted_data
-
-  events_to_display.each do |event|
+  
+  if sb == 'upcoming'
+    items = @data.select { |item| DateTime.parse(item['datetime']) >= DateTime.now }
+           .sort_by { |item| DateTime.parse(item['datetime']) }
+  elsif sb == 'recent'
+    items = @data.sort_by { |item| DateTime.parse(item['pubdate']) }
+           .reverse
+  end
+  
+  items.each do |event|
     html_content += styler.body_events(event)
+    if event['author'] == $user_id
+      html_content += styler.admin_event_actions(event)
+    end
+    html_content += "</div>"
   end
   html_content += "</div>"
 
@@ -469,12 +482,12 @@ end
     readFile('./Data/comments.json')
     sorted_comments = @data.select { |comment| comment['content_item_id'] == content_item_id }
                            .sort_by { |comment| DateTime.parse(comment['pubdate']) }.reverse
-    html_content = CSS_Styler.new().comments_form(content_item_id,sorted_comments)       
+    html_content = Frontend.new().comments_form(content_item_id,sorted_comments)       
     html_content += "<div style='margin-top: 20px; text-align: center;'><h4>#{sorted_comments.size} comments</h4></div>" 
     if !sorted_comments.empty?
       sorted_comments.each do |comment|
         user = joined_reader.getJoinedId(comment['user_id'], './Data/users.json')
-        html_content += CSS_Styler.new().print_comment(comment, content_item_id, user)  
+        html_content += Frontend.new().print_comment(comment, content_item_id, user)  
       end
     end
     html_content += "</div></div>"

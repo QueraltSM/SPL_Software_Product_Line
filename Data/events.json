@@ -1,56 +1,13 @@
 [
   {
-    "id": 1,
-    "title": "Conference on Technological Innovation",
-    "description": "Join us to explore the latest trends and advancements in technology. Distinguished speakers will share their knowledge on artificial intelligence, cybersecurity, and more.",
-    "location": "TechHub Convention Center, 123 Innovation Street, Technological City",
-    "datetime": "25/03/2025 13:30",
-    "pubdate": "20/02/2025 11:00",
-    "image": "https://th.bing.com/th/id/R.26bac22959c75ec54f2f4eb7495db4e4?rik=WO91Lpw8dVIKGw&pid=ImgRaw&r=0"
-  },
-  {
-    "id": 2,
-    "title": "Creative Art Workshop",
-    "description": "Explore your artistic side at our creative art workshop. Join local artists to learn new techniques, experiment with different mediums, and create unique works of art. No prior experience required, everyone is welcome!",
-    "location": "ArtCreative Art Gallery, 789 Artistic Street, Creative City",
-    "datetime": "10/05/2025 18:00",
-    "pubdate": "10/02/2025 10:50",
-    "image": "https://secureservercdn.net/192.169.220.223/c7a.83f.myftpupload.com/wp-content/uploads/2019/10/Resized_20180126_195638.jpg"
-  },
-  {
-    "id": 3,
-    "title": "Open-Air Cinema Night",
-    "description": "Join us for a magical evening under the stars. Bring your blanket and enjoy classic movies projected on a giant screen. There will be popcorn and refreshments for everyone. A unique cinema experience!",
-    "location": "Stellar Cinema Plaza, 234 Cinematic Street, Cine City",
-    "datetime": "20/06/2025 20:00",
-    "pubdate": "22/04/2025 15:15",
-    "image": "https://static.emisorasunidas.com/uploads/2020/01/cinema.jpg"
-  },
-  {
-    "id": 4,
-    "title": "The Gastronomic Festival Flavors of the World",
-    "description": "Embark on a culinary journey at our Flavors of the World Gastronomic Festival. Discover the diversity of international cuisine with renowned chefs who will guide you through live demonstrations, tastings, and interactive activities. From exquisite dishes to culinary secrets, this event is a unique experience for food lovers. Join us and satisfy your palate with this feast of extraordinary flavors! No culinary experience required, all are welcome!",
-    "location": "CulinaryExpo Center, 456 Delicious Street, Sibarita City",
-    "datetime": "15/07/2025 19:00",
-    "pubdate": "17/05/2025 16:50",
-    "image": "https://media.metrolatam.com/2020/03/10/festivalgastrono-15f988b2146287aadea51b8107b01f76-1200x800.jpg"
-  },
-  {
-    "id": 5,
-    "title": "Urban Art Festival",
-    "description": "Explore creativity in every corner of the city. Local artists will showcase their works in a vibrant urban art festival. Enjoy colorful murals, modern sculptures, and live music. Join the celebration of art in our community!",
-    "location": "Park Amphitheater, 456 Art Avenue, Cultural City",
-    "datetime": "17/04/2025 10:00",
-    "pubdate": "11/01/2025 11:45",
-    "image": "https://www.carlemuseum.org/sites/default/files/styles/social_share_image/public/2023-09/2011_11_42.jpg?h=9bd25c3f&itok=x78I7H6b"
-  },
-  {
-    "id": "fa9d0b39-a376-451b-b143-25fffe103ab5",
-    "title": "Outdoor Concert",
-    "description": "Enjoy a magical evening with live music under the stars. Local artists will perform on an outdoor stage, creating an unforgettable experience for all music lovers.",
-    "location": "456 Park Avenue, Serenade Neighborhood, Harmony City, Music Province",
-    "datetime": "17/04/2025 11:00",
-    "pubdate": "16/03/2025 18:30",
-    "image": "https://offloadmedia.feverup.com/saopaulosecreto.com/wp-content/uploads/2020/05/19075952/image3.jpg"
+    "id": "87e4d306-40c9-4828-9705-dc81d2ab83d9",
+    "author": "126d00cd-a5a8-4b56-bac1-a3e3fa5d155e",
+    "title": "prueba 1",
+    "description": "1111",
+    "date": "",
+    "pubdate": "2024-04-18T23:09:53",
+    "location": "barcelona",
+    "datetime": "2024-04-28T23:09",
+    "image": "https://th.bing.com/th/id/R.2bad70f2d08429a28dfbebd4c237924b?rik=vgEdhJ%2f%2biiEnQQ&riu=http%3a%2f%2fpngimg.com%2fuploads%2ffacebook_logos%2ffacebook_logos_PNG19748.png&ehk=0ZiZ04ZZ6mSJ5oyPxBh1gy4FSYhegWTWyDpCiI73sbw%3d&risl=&pid=ImgRaw&r=0"
   }
 ]

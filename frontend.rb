@@ -1,4 +1,4 @@
-class CSS_Styler
+class Frontend
     
     def login_css
         <<~HTML
@@ -208,28 +208,79 @@ class CSS_Styler
 
     def header_events()
       <<~HTML
-      <br><br>
       <h4 style='text-align: center;
       margin-top: 10px;
       padding: 20px 0;font-size: 30px;
       color: #333;
-      margin-bottom: 20px;'>Event schedules</h4>
+      margin-bottom: 20px;'>Events</h4>
       HTML
     end
 
+    def search_form_events(sb)
+      <<~HTML
+      <form id='sort-form' style='margin-top: 20px; margin: 20px;'>
+        <div style='display: flex; align-items: center; justify-content: flex-end;'>
+          <input type='text' name='search' id='search' placeholder='Search......' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
+          <select id='sb' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
+            <option value='upcoming' #{'selected' if sb == 'upcoming'}>Upcoming</option>
+            <option value='recent' #{'selected' if sb == 'recent'}>Most recents</option>
+          </select>
+        </div>
+      </form>
+      <script>
+        document.getElementById('search').addEventListener('input', filterEvents);
+        document.getElementById('sb').addEventListener('change', function() {
+          window.location.href = '/Events?sb=' + this.value;
+        });
+        function filterEvents() {
+          var searchText = this.value;
+          var eventContainers = document.querySelectorAll('.event-container');
+          Array.from(eventContainers).forEach(function(container) {
+            var title = container.querySelector('.event-title').innerText;
+            var description = container.querySelector('.event-description').innerText;
+            var location = container.querySelector('.event-location').innerText;
+            if (title.toLowerCase().includes(searchText.toLowerCase()) || description.toLowerCase().includes(searchText.toLowerCase()) || location.toLowerCase().includes(searchText.toLowerCase())) {
+              container.style.display = 'block';
+            } else {
+              container.style.display = 'none';
+            }
+          });
+        }
+      </script>
+      HTML
+    end
+    
     def body_events(event)
       image = event['image']
       <<~HTML
-      <div style='width: 500px; margin: 10px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;'>
+      <div class='event-container' style='width: 500px; margin: 10px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;'>
         <img src=#{image} style='width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid #ddd;'>
         <div style='padding: 20px;'>
-          <p style='font-weight: bold; color: #333; font-size: 16px; margin-bottom: 8px;'>#{event['title']}</p>
-          <p style='color: #555; font-size: 13px; margin-bottom: 8px;'>#{event['description']}</p>
-          <p style='color: #777; font-size: 12px; margin-bottom: 8px;'><i class='bi bi-geo-alt'></i> #{event['location']}</p>
-          <p style='color: #777; font-size: 12px;'><i class='bi bi-clock'></i> #{event['datetime']}</p>
+          <p class='event-title' style='font-weight: bold; color: #333; font-size: 16px; margin-bottom: 8px;'>#{event['title']}</p>
+          <p class='event-description' style='color: #555; font-size: 13px; margin-bottom: 8px;'>#{event['description']}</p>
+          <p class='event-location' style='color: #777; font-size: 12px; margin-bottom: 8px;'><i class='bi bi-geo-alt'></i> #{event['location']}</p>
+          <p style='color: #777; font-size: 12px;'><i class='bi bi-clock'></i> #{ Date.parse(event['datetime']).strftime("%d/%m/%Y %I:%M")}</p>
         </div>
-      </div>
       HTML
+    end
+
+    def admin_event_actions(event)
+      <<~HTML
+      <div class='button-container' style='display: flex; align-items: center;'>
+      <form action='/edit_event' method='post'>
+      <input type='hidden' name='event_id' value="#{event['id']}">
+        <button style='background:#2B88C0; margin-right: 10px;'>
+          <i class='fas fa-pencil-alt'></i>
+        </button>
+      </form>
+      <form action='/delete_event' method='post'>
+      <input type='hidden' name='event_id' value="#{event['id']}">
+        <button style='background:#9C3030' onclick="return confirm('Are you sure you want to delete this item?')" title="Delete">
+          <i class='fas fa-trash'></i>
+        </button>
+      </form>
+    </div>
+    HTML
     end
 
     def comments_form(content_item_id,sorted_comments) 
@@ -308,5 +359,4 @@ class CSS_Styler
       HTML
     end
     
-
-end 
+end

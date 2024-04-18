@@ -1,6 +1,6 @@
 require_relative 'semantic_model'
 require_relative 'authenticator'
-require './Styles/css_styler'
+require './frontend'
 require 'sinatra'
 require 'date'
 
@@ -107,14 +107,13 @@ end
 
 get '/content/:type' do
   content_type = params[:type]
-  sort_by = params['sort_by'] || 'date'
   html_content = "<html>
                     <head>
                       <title></title>
                     </head>
                     <body>
                       #{Menu.generate_menu_html()}
-                      #{content_item_reader.print_content_items(content_type.capitalize, sort_by)}
+                      #{content_item_reader.print_content_items(content_type.capitalize, params['sb'] || 'date')}
                     </body>
                   </html>"
   html_content
@@ -127,7 +126,7 @@ get '/Events' do
                     </head>
                     <body>
                       #{Menu.generate_menu_html()}
-                      #{events_reader.print_events(false)}
+                      #{events_reader.print_events(params['sb'] || 'upcoming')}
                     </body>
                   </html>"
   html_content
@@ -220,16 +219,8 @@ end
 put '/edit_item' do
   url = './Data/content_items.json'
   item_id = params[:content_item_id]
-
-  puts "id:"
-  puts item_id
-
   content = content_item_reader.readFile(url)
   index_to_edit = content.find_index { |item| item["id"] == item_id }
-
-  puts "index:"
-  puts index_to_edit
-
   content[index_to_edit]["title"] = params['title']
   content[index_to_edit]["source"] = params['source']
   content[index_to_edit]["description"] = params['description']
@@ -248,19 +239,6 @@ post '/delete_content_item' do
   content_item_reader.writeFile('./Data/content_items.json', items)
   redirect "/index"
 end
-
-# post '/update_content_item_form' do
-#   html_content = "<html>
-#                     <head>
-#                       <title></title>
-#                     </head>
-#                     <body>
-#                       #{Menu.generate_menu_html()}
-#                       #{content_item_reader.print_update_form(params['content_item_id'])}
-#                     </body>
-#                   </html>"
-#   html_content
-# end
 
 post '/update_content_item' do
   content_item_id = params['content_item_id']

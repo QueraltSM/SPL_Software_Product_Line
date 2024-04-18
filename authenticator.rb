@@ -1,4 +1,4 @@
-require './Styles/css_styler'
+require './Frontend'
 
 class Authenticator
   attr_accessor :form_attributes, :fields
@@ -22,8 +22,7 @@ class Authenticator
   end
 
   def generate_form(form_type, error_message = nil)
-    css_styler = CSS_Styler.new
-    form_html = css_styler.send("#{form_type}_css")
+    form_html = Frontend.new().send("#{form_type}_css")
     form_html += "<div class='form-container' style='text-align:center'>"
     form_html += "<h1>#{form_type.capitalize}</h1>"
     form_html += "<form id='#{form_type}Form' action='#{form_type == 'login' ? '/login' : '/signup'}' method='post' #{attributes_to_html(@form_attributes)} novalidate>"

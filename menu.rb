@@ -1,10 +1,9 @@
-require_relative './Styles/css_styler'
+require_relative './frontend'
 class Menu
     def self.generate_menu_html()
-        styler = CSS_Styler.new()
-        menu_html = styler.menu_css()
+        menu_html = Frontend.new().menu_css()
         menu_html += "<div class='menu'>
-                     <a class='logout-link' href='/index'><i class='bi bi-house'></i></a>
+                     <a class='logout-link' href='/index' title='Home'><i class='fa fa-home'></i></a>
                      <a href='/content/News'>News</a>
                      <a href='/content/Books'>Books</a>
                      <a href='/content/Recipes'>Recipes</a>
@@ -16,9 +15,8 @@ class Menu
                      <a href='/content/Art'>Art</a>
                      <a href='/content/Platforms'>Platforms</a>
                      <a href='/Events'>Events</a>
-                     <a href='/create'>Create</a>"
-    
-        menu_html += "<div class='user-info'>
+                     <a href='/create' title='Create'><i class='fas fa-plus-circle'></i></a>
+                     <div class='user-info'>
                         <span>#{$user_name}</span>
                         <a class='logout-link' href='/'><i class='bi bi-box-arrow-right'></i></a>
                         </div>

@@ -251,7 +251,7 @@ class ContentItemStyler
             <option value='Videogames'>Videogame</option>
             <option value='Art'>Art</option>
             <option value='Platforms'>Platform</option>
-            <option value='Events'>Events</option>
+            <option value='Events'>Event</option>
           </select>
         </div>
 
@@ -265,20 +265,20 @@ class ContentItemStyler
         <label id="source-label" for='source' style='display: none; display: block; font-weight: bold;'></label>
         <p style="font-size:13px;color:#9e9e9e;">Enter the source of the content.</p>
         <input type='text' id='source' name='source' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
-    </div>
+        </div>
     
 
-    <div class='form-group' style='padding-bottom:20px;'>
-    <label for='description' style='display: none; display: block; font-weight: bold;'>Description</label>
-    <p id="description-label" style="font-size:13px;color:#9e9e9e;"></p>
-    <textarea id='description' name='description' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px; height: 150px;' required></textarea>
-</div>
+        <div class='form-group' style='padding-bottom:20px;'>
+        <label for='description' style='display: none; display: block; font-weight: bold;'>Description</label>
+        <p id="description-label" style="font-size:13px;color:#9e9e9e;"></p>
+        <textarea id='description' name='description' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px; height: 150px;' required></textarea>
+        </div>
 
 
         <div id='url-div' class='form-group' style='padding-bottom:20px;'>
         <label for='media' style='display: block; font-weight: bold;'>Media URL</label>
         <p style="font-size:13px;color:#9e9e9e;" id="url-label"></p>
-        <input type='url' id='digital_content' name='digital_content' class='form-control' style='width: 100%; margin-top: 10px; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+        <input type='url' id='digital_content' name='digital_content' class='form-control' style='width: 100%; margin-top: 10px; padding: 8px; border: 1px solid lightgray; border-radius: 3px;' required>
         </div>
     
 
@@ -318,7 +318,6 @@ class ContentItemStyler
           document.getElementById('location-div').style.display = 'block';
           document.getElementById('date-div').style.display = 'none';
           document.getElementById('source-div').style.display = 'none';
-          document.getElementById('url-div').style.display = 'none';
           document.getElementById("datetime").required = true;
           document.getElementById("location").required = true;
         } else {
@@ -329,7 +328,6 @@ class ContentItemStyler
           document.getElementById('url-div').style.display = 'block';
           document.getElementById("date").required = true;
           document.getElementById("source").required = true;
-          document.getElementById("digital_content").required = true;
         }
 
         if (document.getElementById('type').value == "News") {
@@ -367,7 +365,11 @@ class ContentItemStyler
           document.getElementById("source-label").innerHTML = "Publisher / Company";
           document.getElementById("url-label").innerHTML = "Please enter the URL of the platform's logo or icon.";
           document.getElementById("description-label").innerHTML = "Provide a comprehensive description of the platform, including details about its purpose, target audience, features, usability, and any other relevant information you want to share.";
-        }   
+        } else if (document.getElementById('type').value == "Events") {
+          document.getElementById("source-label").innerHTML = "Creator";
+          document.getElementById("url-label").innerHTML = "Please enter the URL of an image related to the event.";
+          document.getElementById("description-label").innerHTML = "Provide a comprehensive description of the event, including details about its purpose, target audience, features, and any other relevant information you want to share.";
+        }        
       }
       </script>      
       HTML
