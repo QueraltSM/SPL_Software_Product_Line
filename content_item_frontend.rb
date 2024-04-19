@@ -1,4 +1,4 @@
-class ContentItemStyler
+class ContentItemFrontend
     def initialize(content_item)
       @content_item = content_item
     end
@@ -40,6 +40,38 @@ class ContentItemStyler
       end
       return header_style
     end
+
+    def content_item_body_image(content_item, base64_image)
+      title_with_hyphens = content_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+      <<~HTML
+      <form action='/#{content_item['type']}/#{title_with_hyphens}' method='post' style='text-align:center;cursor: pointer; width: 30%; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f9f9f9;'>
+        <input type='hidden' name='content_item_id' value='#{content_item['id']}'>
+        <button type='submit' style='background: none; border: none; padding: 0; margin: 0;width:100%;cursor: pointer;'>
+          <div style='background: url(data:image/jpeg;base64,#{base64_image}) center center / cover; height: 300px; width: 100%;'></div>
+          <div class='info' style='padding-top: 15px;'>
+            <h3 class='title' style='font-size: 18px; font-weight: bold; color: #333; margin-bottom: 8px;'>#{content_item['title']}</h3>
+            <p class='author' style='color: #555; font-size: 14px; margin-top: 5px;'>#{content_item['source']}</p>
+          </div>
+        </button>
+      </form>
+      HTML
+    end   
+    
+    def content_item_body_video(content_item, embedded_video)
+      title_with_hyphens = content_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+      <<~HTML
+      <form action='/#{content_item['type']}/#{title_with_hyphens}' method='post' style='text-align:center;cursor: pointer; width: 30%; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f9f9f9;'>
+      <input type='hidden' name='content_item_id' value='#{content_item['id']}'>
+        <button type='submit' style='background: none; border: none; padding: 0; margin: 0;width:100%;cursor: pointer;'>
+          #{embedded_video}
+          <div class='info' style='padding-top: 15px;'>
+            <h3 class='title' style='font-size: 18px; font-weight: bold; color: #333; margin-bottom: 8px;'>#{content_item['title']}</h3>
+            <p class='author' style='color: #555; font-size: 14px; margin-top: 5px;'>#{content_item['source']}</p>
+          </div>
+        </button>
+      </form>
+      HTML
+    end 
     
     def rating_html(rating)
       "<p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Rating</strong> #{rating}</p>"

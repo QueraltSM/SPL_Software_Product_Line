@@ -72,91 +72,93 @@ post '/signup' do
 end
 #---------------------------------------
 
-# Ruta de la página principal
+# Home page
 get '/index' do
-  html_content = "<html>
-                    <head>
-                      <title></title>
-                    </head>
-                    <body>
-                      #{Menu.generate_menu_html()}
-                      #{content_item_reader.generate_landing_page()}
-                    </body>
-                  </html>"
-  html_content
+  def generate_landing_page
+    html = Frontend.new().home_header()
+    html += Frontend.new().home_body()
+    html
+  end
+  html = <<~HTML
+    <html>
+      <body>
+        #{Menu.generate_menu_html()}
+        #{generate_landing_page()}
+      </body>
+    </html>
+  HTML
+  html
 end
 #---------------------------------------
 
 # Ruta de visualización de contenido específico
-get '/content_item/:id' do
-  id = params[:id]
-  html_content = "<html>
-                    <head>
-                      <title></title>
-                    </head>
-                    <body>
-                      #{Menu.generate_menu_html()}
-                      #{content_item_reader.print_content_item_data(id)}
-                      #{content_item_reader.rating_content_item(id)}
-                      #{comments_reader.print_comments(id,users_reader)}
-                    </body>
-                  </html>"
-  html_content
+post '/:type/:name' do
+  html = "<html>
+          <body>
+            #{Menu.generate_menu_html()}
+            #{content_item_reader.print_content_item(params['content_item_id'])}
+            #{content_item_reader.rating_content_item(params['content_item_id'])}
+            #{comments_reader.print_comments(params['content_item_id'],users_reader)}
+          </body>
+        </html>"
+  html
 end
 #---------------------------------------
 
-get '/content/:type' do
-  content_type = params[:type]
-  html_content = "<html>
-                    <head>
-                      <title></title>
-                    </head>
-                    <body>
-                      #{Menu.generate_menu_html()}
-                      #{content_item_reader.print_content_items(content_type.capitalize, params['sb'] || 'date')}
-                    </body>
-                  </html>"
-  html_content
-end
-
+# List of event's view
 get '/Events' do
-  html_content = "<html>
-                    <head>
-                      <title></title>
-                    </head>
+  html = "<html>
                     <body>
                       #{Menu.generate_menu_html()}
                       #{events_reader.print_events(params['sb'] || 'upcoming')}
                     </body>
                   </html>"
-  html_content
+  html
 end
 
-#---Content Item---
-get '/create' do
-  html_content = "<html>
-                    <head>
-                      <title></title>
-                    </head>
+
+# View of a particular event
+post '/Event/:name' do
+  html = "<html>
+  <body>
+    #{Menu.generate_menu_html()}
+    #{events_reader.print_event(params['event_id'])}
+  </body>
+</html>"
+html
+end
+
+# Creation form
+get '/Create' do
+  html = "<html>
                     <body>
                       #{Menu.generate_menu_html()}
                       #{content_item_reader.generate_creation_form()}
                     </body>
                   </html>"
-  html_content
+  html
+end
+
+# Multimedia content page based on type
+get '/:type' do
+  content_type = params[:type]
+  html = "<html>
+            <body>
+              #{Menu.generate_menu_html()}
+              #{content_item_reader.print_content_items(content_type.capitalize, params['sb'] || 'date')}
+            </body>
+          </html>"
+  html
 end
 
 post '/edit' do
-  html_content = "<html>
-                    <head>
-                      <title></title>
-                    </head>
+  html = "<html>
                     <body>
                       #{Menu.generate_menu_html()}
                       #{content_item_reader.generate_edition_form(params['content_item_id'])}
                     </body>
                   </html>"
-  html_content
+  html
 end
 
 def get_youtube_video_id(url)
@@ -212,7 +214,7 @@ put '/create_item' do
   if params['type'] == 'Events'
     redirect "/Events"
   else
-    redirect "/content/#{params['type']}"
+    redirect "#{params['type']}"
   end  
 end
 
@@ -227,7 +229,7 @@ put '/edit_item' do
   content[index_to_edit]["date"] = params['date']
   content[index_to_edit]["digital_content"] = params['digital_content']
   content_item_reader.writeFile(url, content)
-  redirect "/content/#{content[index_to_edit]["type"]}"
+  redirect "#{content[index_to_edit]["type"]}"
 end
 
 
