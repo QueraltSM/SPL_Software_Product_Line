@@ -91,20 +91,6 @@ get '/index' do
 end
 #---------------------------------------
 
-# Ruta de visualización de contenido específico
-post '/:type/:name' do
-  html = "<html>
-          <body>
-            #{Menu.generate_menu_html()}
-            #{content_item_reader.print_content_item(params['content_item_id'])}
-            #{content_item_reader.rating_content_item(params['content_item_id'])}
-            #{comments_reader.print_comments(params['content_item_id'],users_reader)}
-          </body>
-        </html>"
-  html
-end
-#---------------------------------------
-
 # List of event's view
 get '/Events' do
   html = "<html>
@@ -128,15 +114,27 @@ post '/Event/:name' do
 html
 end
 
+# View of a particular content item
+post '/:type/:name' do
+  html = "<html>
+          <body>
+            #{Menu.generate_menu_html()}
+            #{content_item_reader.print_content_item(params['content_item_id'])}
+            #{content_item_reader.rating_content_item(params['content_item_id'])}
+            #{comments_reader.print_comments(params['content_item_id'],users_reader)}
+          </body>
+        </html>"
+  html
+end
+
 # Creation form
 get '/Create' do
-  html = "<html>
-                    <body>
-                      #{Menu.generate_menu_html()}
-                      #{content_item_reader.generate_creation_form()}
-                    </body>
-                  </html>"
-  html
+  return "<html>
+        <body>
+         #{Menu.generate_menu_html()}
+         #{Frontend.new().creation_content_item_form}
+        </body>
+    </html>"
 end
 
 # Multimedia content page based on type

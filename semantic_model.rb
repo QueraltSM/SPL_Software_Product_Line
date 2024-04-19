@@ -2,7 +2,6 @@ require 'memoist'
 require 'net/http'
 require 'base64'
 require_relative './Frontend'
-require_relative './content_item_frontend'
 require_relative 'menu'
 
 class SemanticModel
@@ -111,33 +110,11 @@ end
     end
   end
 
-  def image_url_to_base64(image_url)
-    begin
-      uri = URI.parse(image_url)
-      response = Net::HTTP.get_response(uri)
-      if response.is_a?(Net::HTTPSuccess)
-        image_data = response.body
-        base64_data = Base64.strict_encode64(image_data)
-        return base64_data
-      else
-        puts "Error: Unable to fetch the image. HTTP response code: #{response.code}"
-        return nil
-      end
-    rescue StandardError => e
-      puts "Error: #{e.message}"
-      return nil
-    end
-  end
-
-  def generate_creation_form()
-    return ContentItemFrontend.new(nil).creation_content_item_form
-  end
-
   def generate_edition_form(content_item_id)
     readFile('./Data/content_items.json')
     @data.each do |content_item|
       if content_item['id'] == content_item_id
-        return ContentItemFrontend.new(nil).edit_content_item_form(content_item)
+        return Frontend.new().edit_content_item_form(content_item)
       end
     end
     return nil
@@ -146,9 +123,9 @@ end
   def print_content_items(type, sb)
     reset_state()
     readFile('./Data/content_items.json')
-    
-    html = Frontend.new().content_items_header_style(type)
-    html += Frontend.new().content_items_search_form(type, sb)
+    frontend = Frontend.new()
+    html = frontend.content_items_header_style(type)
+    html += frontend.content_items_search_form(type, sb)
 
     html += "<div id='#{type}_content' style='display: flex; flex-wrap: wrap; margin: 15px; padding: 20px;'>"
     unique_images = Set.new
@@ -161,11 +138,11 @@ end
     end    
     items.each do |content_item|
       if content_item['type'] == 'Videos' || content_item['type'] == 'Movies' || content_item['type'] == 'Music'
-        html += ContentItemFrontend.new(content_item).content_item_body_video(content_item, generate_video_embed(content_item['digital_content']))       
+        html += frontend.content_item_body_video(content_item, generate_video_embed(content_item['digital_content']))       
       else
-        base64_image = image_url_to_base64(content_item['digital_content'])
+        base64_image = frontend.image_url_to_base64(content_item['digital_content'])
         unless unique_images.include?(base64_image)                      
-          html += ContentItemFrontend.new(content_item).content_item_body_image(content_item, base64_image)
+          html += frontend.content_item_body_image(content_item, base64_image)
         end
       end
     end
@@ -180,28 +157,28 @@ def print_update_form(id)
   html = "<div style='display: flex; flex-direction: column; align-items: center; margin-top: 20px;text-align:justify;'>"
   @data.each do |content_item|
     if content_item['id'] == id
-      styler = ContentItemFrontend.new(content_item)
-      html += styler.content_item_header_style
-      html += styler.update_content_item_body_style
+      frontend = Frontend.new()
+      html += frontend.content_item_header_style
+      html += frontend.update_content_item_body_style(content_item)
     end
   end
   html += "</div>"
   return html
 end
 
-def print_content_item(id) # Visualización del contenido de un content_item
+def print_content_item(id)
   reset_state()
   readFile('./Data/content_items.json')
   html = "<div style='display: flex; flex-direction: column; align-items: center; margin-top: 20px;text-align:justify;'>"
   @data.each do |content_item|
     if content_item['id'] == id
-      styler = ContentItemFrontend.new(content_item)
-      html += styler.content_item_header_style
+      frontend = Frontend.new()
+      html += frontend.content_item_header_style(content_item)
       if $user_id == content_item['author']
-        html +=  Frontend.new().admin_css
-        html += styler.admin_actions
+        html +=  frontend.admin_css
+        html += frontend.admin_actions(content_item)
       end
-      html += styler.content_item_body_style
+      html += frontend.content_item_body_style(content_item)
     end
   end
   html += "</div>"
@@ -211,7 +188,7 @@ end
 def print_events(sb)
   reset_state()
   readFile('./Data/events.json')
-  styler = Frontend.new()
+  frontend = Frontend.new()
   html = ""
 
   # Delete past events from events.json
@@ -219,10 +196,10 @@ def print_events(sb)
   writeFile('./Data/events.json', @data)
 
   sorted_data = @data.sort_by { |event| DateTime.parse(event['datetime']) }.reverse
-  html += styler.header_events()
+  html += frontend.header_events()
   items = sb ? sorted_data[-3..-1] : sorted_data
 
-  html += styler.search_form_events(sb)
+  html += frontend.search_form_events(sb)
   html += "<div style='display: flex; flex-wrap: wrap; justify-content: center; margin: 15px; padding: 10px;text-align:center'>"
   
   if sb == 'upcoming'
@@ -234,9 +211,9 @@ def print_events(sb)
   end
   
   items.each do |event|
-    html += styler.body_events(event)
+    html += frontend.body_events(event)
     # if event['author'] == $user_id
-    #   html += styler.admin_event_actions(event)
+    #   html += frontend.admin_event_actions(event)
     # end
     html += "</div>"
   end
@@ -245,38 +222,13 @@ def print_events(sb)
   return html
 end
 
-
 def print_event(event_id)
   reset_state()
   readFile('./Data/events.json')
-  styler = Frontend.new()
-  html = ""
-
-  # Buscar el evento con el ID proporcionado
+  frontend = Frontend.new()
   event = @data.find { |event| event['id'] == event_id }
-
-  # Verificar si se encontró el evento
-  if event.nil?
-    html += "<p>Evento no encontrado</p>"
-  else
-    html += styler.header_events()
-
-    # Generar el contenido del evento
-    html += "<div class='event-container' style='width: 500px; margin: 10px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;'>"
-    html += "<img src='#{event['image']}' style='width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid #ddd;'>"
-    html += "<div style='padding: 20px;'>"
-    html += "<p class='event-title' style='font-weight: bold; color: #333; font-size: 16px; margin-bottom: 8px;'>#{event['title']}</p>"
-    html += "<p class='event-description' style='color: #555; font-size: 13px; margin-bottom: 8px;'>#{event['description']}</p>"
-    html += "<p class='event-location' style='color: #777; font-size: 12px; margin-bottom: 8px;'><i class='bi bi-geo-alt'></i> #{event['location']}</p>"
-    html += "<p style='color: #777; font-size: 12px;'><i class='bi bi-clock'></i> #{DateTime.parse(event['datetime']).strftime("%d/%m/%Y %I:%M")}</p>"
-    html += "</div>"
-    html += "</div>"
-  end
-
-  return html
+  return event.nil? ? "<p>Evento no encontrado</p>" : "#{frontend.header_events()}#{frontend.body_event(event)}"
 end
-
-
 
 def rating_content_item(content_item_id)
   content_item = @data.find { |item| item['id'] == content_item_id }
