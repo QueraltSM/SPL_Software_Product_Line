@@ -1,26 +1,38 @@
 [
   {
-    "id": "4c082c76-dd94-43c2-8545-a3dc3fba611b",
-    "title": "asasa",
-    "source": "Vibes",
+    "id": "4a1694ab-a1e7-4f82-a59b-5ea8d10fd88a",
+    "title": "prueba 1",
+    "source": "assasaas",
     "author": "126d00cd-a5a8-4b56-bac1-a3e3fa5d155e",
-    "description": "wqqwwq",
-    "date": "2024-04-10",
-    "pubdate": "2024-04-17T00:02:26",
+    "description": "sasasa212112",
+    "date": "2024-04-20",
+    "pubdate": "2024-04-20T19:37:10",
     "digital_content": "https://th.bing.com/th/id/R.2bad70f2d08429a28dfbebd4c237924b?rik=vgEdhJ%2f%2biiEnQQ&riu=http%3a%2f%2fpngimg.com%2fuploads%2ffacebook_logos%2ffacebook_logos_PNG19748.png&ehk=0ZiZ04ZZ6mSJ5oyPxBh1gy4FSYhegWTWyDpCiI73sbw%3d&risl=&pid=ImgRaw&r=0",
-    "rating": 0,
-    "type": "Podcasts"
+    "rating": 8,
+    "type": "News"
   },
   {
-    "id": "5b82f6a7-4779-4412-9329-a78529ff58fd",
-    "title": "Eden - Serenity's Garden - Ethereal Ambient Music for Relaxation and Deep Sleep",
-    "source": "Vibes",
+    "id": "16c1c5ac-cc10-449b-9e59-4d2bf3cd83a6",
+    "title": "news 2",
+    "source": "prueba texto 123",
     "author": "126d00cd-a5a8-4b56-bac1-a3e3fa5d155e",
-    "description": "adsdw",
-    "date": "2024-04-19",
-    "pubdate": "2024-04-19T18:36:58",
-    "digital_content": "https://youtu.be/doQjVVc6A6U",
+    "description": "dfdfdsdffsd",
+    "date": "2024-04-20",
+    "pubdate": "2024-04-20T19:37:31",
+    "digital_content": "https://th.bing.com/th/id/R.d9c2773b1c241854571d1bdad23af4a5?rik=Au1AINhvAWZmRg&riu=http%3a%2f%2f4.bp.blogspot.com%2f-QMGOoEe7ORo%2fUictQ1DRsJI%2fAAAAAAAB4ow%2fQ3F1jbR67fo%2fs1600%2fcerca-del-cielo-y-los-planetas-im%c3%a1genes-de-fantas%c3%ada-close-to-sky-landscape-1920x1200-wallpaper-.jpg&ehk=7N3VXXUF7ESxVu%2fJqYAG2lwflwMsjAwn7hdRxBGsJms%3d&risl=&pid=ImgRaw&r=0",
+    "rating": 5,
+    "type": "News"
+  },
+  {
+    "id": "5868dcb4-be93-41d8-814a-e79558f0579e",
+    "title": "adios",
+    "source": "dssdds",
+    "author": "5e4ec39a-80b8-4154-8e42-04872ce11fa1",
+    "description": "dsdds",
+    "date": "2024-04-26",
+    "pubdate": "2024-04-21T20:04:45",
+    "digital_content": "https://youtu.be/gK6KEsmz8io",
     "rating": 0,
-    "type": "Movies"
+    "type": "Videos"
   }
 ]

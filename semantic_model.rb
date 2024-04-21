@@ -151,21 +151,6 @@ end
   end
 end  
 
-def print_update_form(id)
-  reset_state()
-  readFile('./Data/content_items.json')
-  html = "<div style='display: flex; flex-direction: column; align-items: center; margin-top: 20px;text-align:justify;'>"
-  @data.each do |content_item|
-    if content_item['id'] == id
-      frontend = Frontend.new()
-      html += frontend.content_item_header_style
-      html += frontend.update_content_item_body_style(content_item)
-    end
-  end
-  html += "</div>"
-  return html
-end
-
 def print_content_item(id)
   reset_state()
   readFile('./Data/content_items.json')
@@ -173,10 +158,9 @@ def print_content_item(id)
   @data.each do |content_item|
     if content_item['id'] == id
       frontend = Frontend.new()
-      html += frontend.content_item_header_style(content_item)
       if $user_id == content_item['author']
-        html +=  frontend.admin_css
-        html += frontend.admin_actions(content_item)
+        html +=  frontend.owner_css
+        html += frontend.owner_actions(content_item)
       end
       html += frontend.content_item_body_style(content_item)
     end
@@ -222,45 +206,11 @@ def print_events(sb)
   return html
 end
 
-def print_event(event_id)
-  reset_state()
-  readFile('./Data/events.json')
-  frontend = Frontend.new()
-  event = @data.find { |event| event['id'] == event_id }
-  return event.nil? ? "<p>Evento no encontrado</p>" : "#{frontend.header_events()}#{frontend.body_event(event)}"
-end
-
-def rating_content_item(content_item_id)
-  content_item = @data.find { |item| item['id'] == content_item_id }
-  content_rating = content_item['rating']
-  html = "<p style='font-size:13px;color:#9e9e9e;text-align:center'>Rating is now #{content_item['rating']}</p>
-                  <div style='margin-bottom: 20px;'>
-                    <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();'>
-                      <input type='hidden' name='content_item_id' value='#{content_item_id}'>
-                      <input type='hidden' name='rating' id='selectedRating'>
-                      <div style='text-align: center;'>
-                        <div class='rating'>"
-  (1..10).each do |i|
-    html += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedRating(#{i})' #{'checked' if i == content_rating}><label for='star#{i}'></label>"
+  def rating_content_item(content_item_id)
+    content_item = @data.find { |item| item['id'] == content_item_id }
+    content_rating = content_item['rating']
+    Frontend.new().rating_body(content_item_id, content_rating)
   end
-  html += "</div><br>
-                    <input id='submitBtn' type='submit' value='Rate' style='background-color: #1F6F3A; color: white; border: none; padding:10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
-                    </div>
-                    </form>
-                    </div>
-                    <script>
-                      function setSelectedRating(starValue) {
-                        document.getElementById('selectedRating').value = starValue;
-                        document.getElementById('submitBtn').value = 'Rate';
-                      }
-                      
-                      function confirmRating() {
-                        return confirm('Are you sure you want to submit this rating?');
-                      }
-                    </script>"
-  return html
-end
-
   
   def print_comments(content_item_id, joined_reader) # Print and manage comments
     reset_state()
@@ -268,7 +218,7 @@ end
     sorted_comments = @data.select { |comment| comment['content_item_id'] == content_item_id }
                            .sort_by { |comment| DateTime.parse(comment['pubdate']) }.reverse
     html = Frontend.new().comments_form(content_item_id,sorted_comments)       
-    html += "<div style='margin-top: 20px; text-align: center;'><h4>#{sorted_comments.size} comments</h4></div>" 
+    html += "<div style='text-align: center;'><h4>#{sorted_comments.size} comments</h4></div>" 
     if !sorted_comments.empty?
       sorted_comments.each do |comment|
         user = joined_reader.getJoinedId(comment['user_id'], './Data/users.json')

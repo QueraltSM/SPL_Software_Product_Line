@@ -5,5 +5,12 @@
     "email": "admin@uned.es",
     "password": "admin123",
     "role": "Admin"
+  },
+  {
+    "id": "5e4ec39a-80b8-4154-8e42-04872ce11fa1",
+    "name": "María",
+    "email": "maria@uned.es",
+    "password": "maria123",
+    "role": "User"
   }
 ]

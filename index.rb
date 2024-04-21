@@ -4,8 +4,6 @@ require './frontend'
 require 'sinatra'
 require 'date'
 
-
-# Inicialización de modelos y lectores
 users_semantic_model = create_semantic_model('./DSL/user.rb')
 users_reader = UsersReader.new
 content_item_semantic_model = create_semantic_model('./DSL/content_item.rb')
@@ -15,9 +13,7 @@ comments_reader = CommentsReader.new
 events_semantic_model = create_semantic_model('./DSL/event.rb')
 events_reader = EventsReader.new
 authentication_form = Authenticator.new
-#---------------------------------------
 
-# Rutas de inicio de sesión
 get '/' do
   redirect '/login'
 end
@@ -41,9 +37,7 @@ post '/login' do
     authentication_form.generate_form("login", "User does not exist or the password is incorrect.")
   end
 end
-#---------------------------------------
 
-# Rutas de registro de usuarios
 get '/signup' do
   authentication_form = Authenticator.new
   authentication_form.form(action: '/singup', method: 'post') do
@@ -70,7 +64,6 @@ post '/signup' do
     redirect "/index"
   end
 end
-#---------------------------------------
 
 # Home page
 get '/index' do
@@ -89,7 +82,6 @@ get '/index' do
   HTML
   html
 end
-#---------------------------------------
 
 # List of event's view
 get '/Events' do
@@ -101,7 +93,6 @@ get '/Events' do
                   </html>"
   html
 end
-
 
 # View of a particular event
 post '/Event/:name' do
@@ -115,16 +106,22 @@ html
 end
 
 # View of a particular content item
-post '/:type/:name' do
-  html = "<html>
-          <body>
-            #{Menu.generate_menu_html()}
-            #{content_item_reader.print_content_item(params['content_item_id'])}
-            #{content_item_reader.rating_content_item(params['content_item_id'])}
-            #{comments_reader.print_comments(params['content_item_id'],users_reader)}
-          </body>
-        </html>"
-  html
+['get', 'post'].each do |method|
+  send(method, '/:type/:name') do
+    content_item_id = params['content_item_id'].nil? || params['content_item_id'].empty? ? $selected_content_item : params['content_item_id']
+    if method == 'post' && !content_item_id.empty?
+      $selected_content_item = content_item_id
+    end
+    html = "<html>
+            <body>
+              #{Menu.generate_menu_html()}
+              #{content_item_reader.print_content_item(content_item_id)}
+              #{content_item_reader.rating_content_item(content_item_id)}
+              #{comments_reader.print_comments(content_item_id, users_reader)}
+            </body>
+          </html>"
+    html
+  end
 end
 
 # Creation form
@@ -227,7 +224,8 @@ put '/edit_item' do
   content[index_to_edit]["date"] = params['date']
   content[index_to_edit]["digital_content"] = params['digital_content']
   content_item_reader.writeFile(url, content)
-  redirect "#{content[index_to_edit]["type"]}"
+  title_with_hyphens = content[index_to_edit]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+  redirect "/#{content[index_to_edit]["type"]}/#{title_with_hyphens}"
 end
 
 
@@ -240,31 +238,7 @@ post '/delete_content_item' do
   redirect "/index"
 end
 
-post '/update_content_item' do
-  content_item_id = params['content_item_id']
-  updated_title = params['updated_title']
-  updated_author = params['updated_author']
-  updated_description = params['updated_description']
-  updated_pubdate = params['updated_pubdate']
-
-  content_items = content_item_reader.readFile('./Data/content_items.json')
-  index_to_update = content_items.find_index { |item| item["id"] == content_item_id }
-
-  if !params['updated_digital_content'].nil?
-    content_items[index_to_update]["digital_content"] = params['updated_digital_content']
-    puts params['updated_digital_content']
-  end
-  content_items[index_to_update]["title"] = updated_title
-  content_items[index_to_update]["author"] = updated_author
-  content_items[index_to_update]["description"] = updated_description
-  content_items[index_to_update]["pubdate"] = updated_pubdate
-  content_item_reader.writeFile('./Data/content_items.json', content_items)
-  redirect "/content_item/#{content_item_id}"
-end
-#---
-
-#---Comments---
-post '/submit_comment' do # Create new comment
+post '/submit_comment' do
   new_comment = {
     "id": SecureRandom.uuid,
     "user_id": params['comment_user_id'],
@@ -276,7 +250,10 @@ post '/submit_comment' do # Create new comment
   comments << new_comment
   comments_reader.writeFile('./Data/comments.json', comments)
   content_item_id = params['content_item_id']
-  redirect "/content_item/#{content_item_id}"
+  content_items = content_item_reader.readFile('./Data/content_items.json')
+  selected_content_item = content_items.find { |item| item["id"] == $selected_content_item }
+  title_with_hyphens = selected_content_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+  redirect "/#{selected_content_item['type']}/#{title_with_hyphens}"
 end
 
 post '/delete_comment' do # Delete a comment
@@ -285,7 +262,10 @@ post '/delete_comment' do # Delete a comment
   index_to_delete = comments.find_index { |comment| comment["id"] == comment_id }
   comments.delete_at(index_to_delete)
   comments_reader.writeFile('./Data/comments.json', comments)
-  redirect "/content_item/#{params['content_item_id']}"
+  content_items = content_item_reader.readFile('./Data/content_items.json')
+  selected_content_item = content_items.find { |item| item["id"] == $selected_content_item }
+  title_with_hyphens = selected_content_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+  redirect "/#{selected_content_item['type']}/#{title_with_hyphens}"
 end
 
 post '/update_comment' do # Actualizar un comentario
@@ -296,22 +276,22 @@ post '/update_comment' do # Actualizar un comentario
   comments[index_to_update]["text"] = updated_text
   comments[index_to_update]["pubdate"] = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
   comments_reader.writeFile('./Data/comments.json', comments)
-  redirect "/content_item/#{params['content_item_id']}"
+  content_items = content_item_reader.readFile('./Data/content_items.json')
+  selected_content_item = content_items.find { |item| item["id"] == $selected_content_item }
+  title_with_hyphens = selected_content_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+  redirect "/#{selected_content_item['type']}/#{title_with_hyphens}"
 end
-#------
 
-#---Rating---
 post '/update_rating' do  # Actualizar la puntuación
-content_items = content_item_reader.readFile('./Data/content_items.json')
-index_to_update = content_items.find_index { |item| item["id"] == params['content_item_id'] }
-current_rating = content_items[index_to_update]["rating"]
-new_rating = params['rating'].to_i 
-average_rating = (current_rating + new_rating) / 2
-content_items[index_to_update]["rating"] = average_rating
-content_item_reader.writeFile('./Data/content_items.json', content_items)
-redirect "/content_item/#{params['content_item_id']}"
+  content_items = content_item_reader.readFile('./Data/content_items.json')
+  index_to_update = content_items.find_index { |item| item["id"] == params['content_item_id'] }
+  current_rating = content_items[index_to_update]["rating"]
+  new_rating = params['rating'].to_i 
+  average_rating = (current_rating + new_rating) / 2
+  content_items[index_to_update]["rating"] = average_rating
+  content_item_reader.writeFile('./Data/content_items.json', content_items)
+  redirect "/#{content_items[index_to_update]["type"] }/#{content_items[index_to_update]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase}"
 end
-#-------
 
 def generate_video_embed(url)
   if url.include?('youtube.com') || url.include?('youtu.be')

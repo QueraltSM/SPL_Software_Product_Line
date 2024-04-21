@@ -168,22 +168,22 @@ class Frontend
           flex-wrap: wrap;
       }
       .feature {
-          width: calc(15% - 20px);
-          background: linear-gradient(to bottom right, #f5f5f5, #e0e0e0);
-          border-radius: 10px;
-          padding: 40px;
-          margin: 20px;
-          text-align: center;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          transition: transform 0.3s ease;
-          cursor: pointer;
-      }
+        width: calc(15% - 20px);
+        background: linear-gradient(135deg, #f5f5f5, #e0e0e0, #f5f5f5);
+        border-radius: 10px;
+        padding: 40px;
+        margin: 20px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+      } 
       .feature:hover {
           transform: translateY(-10px);
           box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
       }
       .feature h2 {
-          font-size: 20px;
+          font-size: 18px;
           color: #333;
           margin-bottom: 10px;
       }
@@ -197,208 +197,76 @@ class Frontend
 
     def home_body()
     <<~HTML
-    <div class="container">
-      <div class="features">
-          <div class="feature" onclick="window.location.href = 'News';">
-              <i class="fas fa-globe fa-2x"></i>
-              <h2>News</h2>
-              <p>Stay informed with breaking news and in-depth articles.</p>
-          </div>
-
-          <div class="feature" onclick="window.location.href = 'Books';">
-              <i class="fas fa-book fa-2x"></i>
-              <h2>Books</h2>
-              <p>Find your next favorite read.</p>
-          </div>
-
-          <div class="feature" onclick="window.location.href = 'Recipes';">
-              <i class="fas fa-utensils fa-2x"></i>
-              <h2>Recipes</h2>
-              <p>Cook up delicious dishes from around the world.</p>
-          </div>
-          <div class="feature" onclick="window.location.href = 'Movies';">
-              <i class="fas fa-film fa-2x"></i>
-              <h2>Movies</h2>
-              <p>Enjoy blockbuster hits and indie gems.</p>
-          </div>
-          <div class="feature" onclick="window.location.href = 'Videos';">
-              <i class="fas fa-video fa-2x"></i>
-              <h2>Videos</h2>
-              <p>Watch entertaining and informative videos.</p>
-          </div>
-          <div class="feature" onclick="window.location.href = 'Music';">
-              <i class="fas fa-music fa-2x"></i>
-              <h2>Music</h2>
-              <p>Listen to the latest tracks and timeless classics.</p>
-          </div>
-
-          <div class="feature" onclick="window.location.href = 'Podcasts';">
-              <i class="fas fa-podcast fa-2x"></i>
-              <h2>Podcasts</h2>
-              <p>Listen to insightful discussions and captivating stories.</p>
-          </div>
-
-          <div class="feature" onclick="window.location.href = 'Videogames';">
-              <i class="fas fa-gamepad fa-2x"></i>
-              <h2>Videogames</h2>
-              <p>Embark on epic adventures and immerse yourself in virtual worlds.</p>
-          </div>
-          <div class="feature" onclick="window.location.href = 'Art';">
-              <i class="fas fa-paint-brush  fa-2x"></i>
-              <h2>Art</h2>
-              <p>Explore stunning artworks and creative masterpieces.</p>
-          </div>
-          <div class="feature" onclick="window.location.href = 'Platforms';">
-              <i class="fas fa-link fa-2x"></i>
-              <h2>Platforms</h2>
-              <p>Find out what's trending and discover hidden gems.</p>
-          </div>
-
-          <div class="feature" onclick="window.location.href = '/Events';">
-              <i class="fas fa-calendar-alt fa-2x"></i>
-              <h2>Events</h2>
-              <p>Discover exciting events happening near you.</p>
-          </div>
-          <div class="feature" onclick="window.location.href = '/Create';">
-              <i class="fas fa-plus-circle fa-2x"></i>
-              <h2>Create</h2>
-              <p>Bring your ideas to life and share them with the world.</p>
-          </div>
-      </div>
-  </div>   
-    HTML
-    end
-
-    def content_item_header_style(content_item)
-      header_style = <<~HTML
-        <style>
-          .input-container {
-            margin-bottom: 20px;
-          }
-          .input-label {
-            color: #444;
-            font-size: 16px;
-            margin-bottom: 5px;
-          }
-          .input-field {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #E3ECD6;;
-            border-radius: 5px;
-            font-size: 16px;
-          }
-          .input-field:focus {
-            outline: none;
-            border-color: #ccc;
-          }
-          .news-style {
-            width: 50%;
-            margin-bottom: 20px;
-            overflow: hidden;
-            margin: 20px auto;
-          }
-        </style>
-      HTML
-      if content_item['type'] == 'News'
-        header_style += "<div class='news-style'>"
-      else
-        header_style += "<div style='width: 70%; margin-bottom: 20px; overflow: hidden;margin: 20px auto;'>"
-      end
-      return header_style
-    end
-    
-    def update_content_item_body_style(content_item)
-      base64_image = image_url_to_base64(content_item['digital_content'])
-      unique_images = Set.new
-      unless unique_images.include?(base64_image)
-        unique_images.add(base64_image)
-        if content_item['type'] == 'Books'
-          <<~HTML
-          <div style='padding: 20px; font-size: 15px; display: flex; align-items: flex-start;'>
-            <form action="/update_content_item" method="post" style="display: flex; width: 100%;">
-              <input type="hidden" name="content_item_id" value="#{content_item['id']}">
-              <div class='thumbnail' name="image-container" style='background: url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat; height: 400px; width: 560px; margin-right: 20px;'></div>
-              <div style='width:100%;'>
-                <div class="input-container">
-                  <label class="input-label"><strong>Title</strong></label>
-                  <input class="input-field" name="updated_title" type="text" style="color: #333;" value="#{content_item['title']}">
-                </div>
-                <div class="input-container">
-                  <label class="input-label"><strong>Author</strong></label>
-                  <input class="input-field" name="updated_author" type="text" style="color: #333;" value="#{content_item['author']}">
-                </div>
-                <div class="input-container">
-                  <label class="input-label"><strong>Description</strong></label>
-                  <textarea class="input-field" name="updated_description" style="color: #333; height: 100px;">#{content_item['description']}</textarea>
-                </div>
-                <div class="input-container">
-                  <label class="input-label"><strong>Release</strong></label>
-                  <input class="input-field" name="updated_pubdate" type="text" style="color: #333;" value="#{content_item['pubdate']}">
-                </div>
-              </div>
-            </form>
-          </div>
-          <div style="margin-top: 20px; text-align: center;">
-            <input type="file" name="updated_digital_content" accept="image/*" style="display: none;">
-            <button class="btn" style="background-color: #2B88C0; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;" onclick="document.getElementById('updated_digital_content').click();">Choose Image</button>
-            <button class="btn" style="background-color: #9C3030; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;" onclick="window.location.href='/content_item/#{content_item['id']}'">Cancel</button>
-            <button class="btn" style="background-color: #1F6F3A; color: #FFF; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" onclick="if(confirm('¿Estás seguro de que quieres actualizar este contenido?')) { document.querySelector('form').submit(); }">Update</button>
-          </div>
-          <script>
-          document.getElementById('updated_digital_content').addEventListener('change', function(event) {
-            var file = event.target.files[0];
-            var reader = new FileReader();
-            reader.onload = function(e) {
-              var imageDataUrl = e.target.result;
-              document.getElementById('image-container').style.backgroundImage = "url(" + imageDataUrl + ")";
-            };
-            reader.readAsDataURL(file);
-          });
-        </script>
-          HTML
-          elsif content_item['type'] == 'Videos' ||  content_item['type'] == 'Movies'
-            <<~HTML
-            <div style='padding: 20px; font-size: 16px; display: flex; flex-direction: column; align-items: flex-start;  border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);'>
-            <h3 style='color: #444; font-size: 26px; margin: 10px; font-weight: bold; text-transform: uppercase;'>#{content_item['title']}</h3>
-            <div style='width: 100%; border-radius: 10px; overflow: hidden;'>
-              <iframe width='100%' height='600' style='border: none; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);' src='#{content_item["digital_content"]}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe>
+      <div class="container">
+        <div class="features">
+            <div class="feature" onclick="window.location.href = 'News';">
+                <i class="fas fa-globe fa-1x"></i>
+                <h2>News</h2>
+                <p>Stay informed with breaking news and in-depth articles.</p>
             </div>
-            <div style='margin-top: 15px;'>
-              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>#{(content_item['type'] == 'Movies') ? 'Director' : 'User' }</strong> #{content_item['author']}</p>
-              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Released</strong> #{content_item['pubdate']}</p>
+
+            <div class="feature" onclick="window.location.href = 'Books';">
+                <i class="fas fa-book fa-1x"></i>
+                <h2>Books</h2>
+                <p>Find your next favorite read.</p>
             </div>
-            <div style='margin-top: 20px;'>
-              <p style='color: #555; font-size: 16px; line-height: 1.6; margin-bottom: 20px;'>#{content_item['description']}</p>
+
+            <div class="feature" onclick="window.location.href = 'Recipes';">
+                <i class="fas fa-utensils fa-1x"></i>
+                <h2>Recipes</h2>
+                <p>Cook up delicious dishes from around the world.</p>
             </div>
-          </div>
-          HTML
-        elsif content_item['type'] == 'News'
-          <<~HTML
-          <div style='padding: 20px; font-size: 15px; display: flex; justify-content: center; align-items: center;'>
-          <div style='max-width: 800px; border: 1px solid #ddd; border-radius: 5px; padding: 20px; background-color: #f9f9f9;'>
-            <h2 style='color: #333; margin-bottom: 10px;'>#{content_item['title']}</h2>
-            <div style="display: flex; justify-content: center; margin-bottom: 15px;">
-              <img src='data:image/jpeg;base64,#{base64_image}' style="max-width: 100%; border-radius: 5px;">
+            <div class="feature" onclick="window.location.href = 'Movies';">
+                <i class="fas fa-film fa-1x"></i>
+                <h2>Movies</h2>
+                <p>Enjoy blockbuster hits and indie gems.</p>
             </div>
-            <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Written by:</strong> #{content_item['source']}</p>
-            <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Posted on:</strong> #{ Date.parse(content_item['date']).strftime("%d/%m/%Y")}</p>
-            <p style='color: #555; font-size: 14px; line-height: 1.6; text-align: justify;'>#{content_item['description']}</p>
-          </div>
+            <div class="feature" onclick="window.location.href = 'Videos';">
+                <i class="fas fa-video fa-1x"></i>
+                <h2>Videos</h2>
+                <p>Watch entertaining and informative videos.</p>
+            </div>
+            <div class="feature" onclick="window.location.href = 'Music';">
+                <i class="fas fa-music fa-1x"></i>
+                <h2>Music</h2>
+                <p>Listen to the latest tracks and timeless classics.</p>
+            </div>
+
+            <div class="feature" onclick="window.location.href = 'Podcasts';">
+                <i class="fas fa-podcast fa-1x"></i>
+                <h2>Podcasts</h2>
+                <p>Listen to insightful discussions and captivating stories.</p>
+            </div>
+
+            <div class="feature" onclick="window.location.href = 'Videogames';">
+                <i class="fas fa-gamepad fa-1x"></i>
+                <h2>Videogames</h2>
+                <p>Embark on epic adventures and immerse yourself in virtual worlds.</p>
+            </div>
+            <div class="feature" onclick="window.location.href = 'Art';">
+                <i class="fas fa-paint-brush  fa-1x"></i>
+                <h2>Art</h2>
+                <p>Explore stunning artworks and creative masterpieces.</p>
+            </div>
+            <div class="feature" onclick="window.location.href = 'Platforms';">
+                <i class="fas fa-link fa-1x"></i>
+                <h2>Platforms</h2>
+                <p>Find out what's trending and discover hidden gems.</p>
+            </div>
+
+            <div class="feature" onclick="window.location.href = '/Events';">
+                <i class="fas fa-calendar-alt fa-1x"></i>
+                <h2>Events</h2>
+                <p>Discover exciting events happening near you.</p>
+            </div>
+            <div class="feature" onclick="window.location.href = '/Create';">
+                <i class="fas fa-plus-circle fa-1x"></i>
+                <h2>Create</h2>
+                <p>Bring your ideas to life and share them with the world.</p>
+            </div>
         </div>
-          HTML
-        else
-          <<~HTML
-          <div style='padding: 20px;font-size:15px'>
-            <h2 style='color: #333;'>#{content_item['title']}</h2>
-            <p style='color: #888; font-style: italic;'>#{content_item['author']}</p>
-            <div style='display: flex; justify-content: center;'><div class='thumbnail' style='background: url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat; height: 250px; width:200px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);'></div></div>
-            <pre style='color: #555; white-space: pre-wrap;'>#{content_item['description']}</pre>
-            <p style='color: #777;'><strong>Publication date</strong>: #{content_item['pubdate']}</p>
-          </div>
-          </div>
-          HTML
-        end
-      end
+    </div>   
+    HTML
     end
 
     def edit_content_item_form(content_item)
@@ -570,7 +438,6 @@ class Frontend
         elsif content_item['type'] == 'News'
           <<~HTML
           <div style='padding: 20px; font-size: 15px;'>
-          <div style='border: 1px solid #ddd; border-radius: 5px; padding: 20px; background-color: #f9f9f9;'>
             <h2 style='color: #333; margin: 20px;text-align:center;'>#{content_item['title']}</h2>
             <div style="display: flex; justify-content: center; margin-bottom: 15px;">
               <img src='data:image/jpeg;base64,#{base64_image}' style="max-width: 100%; border-radius: 5px;">
@@ -578,9 +445,7 @@ class Frontend
             <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>#{content_item['source']}</strong></p>
             <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Posted on:</strong> #{ Date.parse(content_item['date']).strftime("%d/%m/%Y")}</p>
             <p style='color: #555; font-size: 14px; line-height: 1.6; text-align: justify;'>#{content_item['description']}</p>
-          </div>
-        </div>
-        
+         </div>
           HTML
         else
           <<~HTML
@@ -600,11 +465,11 @@ class Frontend
     def content_item_body_image(content_item, base64_image)
       title_with_hyphens = content_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
       <<~HTML
-      <form action='/#{content_item['type']}/#{title_with_hyphens}' method='post' style='text-align:center;cursor: pointer; width: 30%; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f9f9f9;'>
+      <form class='content-item' action='/#{content_item['type']}/#{title_with_hyphens}' method='post' style='text-align:center;cursor: pointer; width: 30%; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f9f9f9;'>
         <input type='hidden' name='content_item_id' value='#{content_item['id']}'>
         <button type='submit' style='background: none; border: none; padding: 0; margin: 0;width:100%;cursor: pointer;'>
           <div style='background: url(data:image/jpeg;base64,#{base64_image}) center center / cover; height: 300px; width: 100%;'></div>
-          <div class='info' style='padding-top: 15px;'>
+          <div style='padding-top: 15px;'>
             <h3 class='title' style='font-size: 18px; font-weight: bold; color: #333; margin-bottom: 8px;'>#{content_item['title']}</h3>
             <p class='author' style='color: #555; font-size: 14px; margin-top: 5px;'>#{content_item['source']}</p>
           </div>
@@ -779,7 +644,7 @@ class Frontend
       HTML
     end
 
-    def admin_css()
+    def owner_css()
       <<~HTML
       <style>
         .button-container {
@@ -807,7 +672,6 @@ class Frontend
       
     def menu_css()
         <<~HTML
-        <head>
         <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css' rel='stylesheet'>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
@@ -848,8 +712,7 @@ class Frontend
             color: #333;
             text-decoration: none;
           }
-        </style>
-        </head>         
+        </style>     
         HTML
     end
 
@@ -877,7 +740,7 @@ class Frontend
      HTML
     end
 
-    def admin_actions(content_item)
+    def owner_actions(content_item)
       <<~HTML
       <div class='button-container' style='display: flex; align-items: center;'>
         <form action='/edit' method='post'>
@@ -942,7 +805,7 @@ class Frontend
     
     def body_events(event)
       image = event['image']
-      title_with_hyphens = event['title'].gsub(' ', '-')
+      title_with_hyphens = event['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
       <<~HTML
       <div onclick="document.getElementById('event_form_#{event['id']}').submit()" class='event-container' style='cursor:pointer; width: 500px; margin: 10px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;'>
         <form id='event_form_#{event['id']}' action='/Event/#{title_with_hyphens}' method='post' style='display: none;'>
@@ -986,13 +849,13 @@ class Frontend
     def content_items_search_form(type, sb)
       <<~HTML
       <form id='sort-form' style='margin-top: 20px;margin: 20px;'>
-      <div style='display: flex; align-items: center; justify-content: flex-end;'>
-        <input type='text' name='search' id='search' placeholder='Search...' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
-        <select id='sb' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
-          <option value='date'  #{'selected' if sb == 'date'}>Order by date</option>
-          <option value='rating'  #{'selected' if sb == 'rating'}>Order by rating</option>
-        </select>
-      </div>
+        <div style='display: flex; align-items: center; justify-content: flex-end;'>
+          <input type='text' name='search' id='search' placeholder='Search...' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
+          <select id='sb' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;'>
+            <option value='date'  #{'selected' if sb == 'date'}>Order by date</option>
+            <option value='rating'  #{'selected' if sb == 'rating'}>Order by rating</option>
+          </select>
+        </div>
       </form>
       <script>
       document.getElementById('sb').addEventListener('change', function() {
@@ -1055,41 +918,37 @@ class Frontend
 
     def print_comment(comment,content_item_id,user) 
       <<~HTML
-      <div style='padding: 15px; border-radius: 5px;text-align:justify;'>
+      <div style='border-radius: 5px;text-align:justify;'>
         <span style='font-weight: bold; color: #333; font-size: 14px;'>#{user}</span>
-        <span style='color: #777; margin-left: 10px; font-size: 13px;'>#{comment['pubdate']}</span>
+        <span style='color: #777; margin-left: 10px; font-size: 12px;'>#{comment['pubdate']}</span>
         <p style='margin-top: 10px; color: #555; font-size: 13px; word-wrap: break-word; word-break: break-all;'>#{comment['text']}</p>
-        #{if comment['user_id'] == $user_id # Edit and Delete operations if user is owner of the comment
+        #{if comment['user_id'] == $user_id
           <<~HTML
-          <form id='update_comment' action='/update_comment' method='post' style='margin-top: 10px; display: none;'>
+          <form id='update_comment_#{comment["id"]}' action='/update_comment' method='post' style='margin-top: 10px; display: none;'>
             <input type='hidden' name='content_item_id' value='#{content_item_id}'>
             <input type='hidden' name='comment_id' value='#{comment["id"]}'>
             <textarea name='updated_text' style='width: 100%;' rows='4' cols='50'>#{comment['text']}</textarea><br><br>
             <input type='submit' value='Update' style='background-color: #1F6F3A; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
-            <button type='button' class='cancel-edit' style='background-color: #D86E6E; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>Cancel</button>
+            <button type='button' id='cancel-button_#{comment["id"]}' class='cancel-edit' style='background-color: #9C3030; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>Cancel</button>
           </form>
           <div style='display: flex; justify-content: flex-end;'>
-            <form action='' onsubmit='return false;'>
-              <input type='submit' class='edit-button' value='Edit' style='background-color: #2B88C0; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
-            </form>          
+            <form action='update_comment_#{comment["id"]}' onsubmit='return false;'>
+              <input type='hidden' name='comment_id' value='#{comment["id"]}'>
+              <input type='submit' id='edit-button_#{comment["id"]}' class='edit-button' value='Edit' style='background-color: #2B88C0; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
+            </form>
             <form action='/delete_comment' method='post'>
               <input type='hidden' name='content_item_id' value='#{content_item_id}'>
               <input type='hidden' name='comment_id' value='#{comment["id"]}'>
-              <input type='submit' value='Delete' style='background-color: #D86E6E; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>
+              <input type='submit' value='Delete' style='background-color: #9C3030; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>
             </form>
           </div>
-          <script> 
-            document.addEventListener('DOMContentLoaded', function() {
-              var editButton = document.querySelector('.edit-button');
-              var updateForm = document.querySelector('#update_comment');
-              var cancelEditButton = document.querySelector('.cancel-edit');
-              editButton.addEventListener('click', function() {
-                updateForm.style.display = 'block';
+          <script>
+              document.getElementById('edit-button_#{comment["id"]}').addEventListener('click', function() {
+                document.getElementById('update_comment_#{comment["id"]}').style.display = 'block';
+              }); 
+              document.getElementById('cancel-button_#{comment["id"]}').addEventListener('click', function() {
+                document.getElementById('update_comment_#{comment["id"]}').style.display = 'none';
               });
-              cancelEditButton.addEventListener('click', function() {
-                updateForm.style.display = 'none';
-              });
-            });
           </script>
           HTML
         end}
@@ -1134,5 +993,35 @@ class Frontend
       "<p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Rating</strong> #{rating}</p>"
     end
 
-    
+    def rating_body(content_item_id, content_rating)
+      html = <<~HTML
+        <p style='font-size:13px;color:#9e9e9e;text-align:center'>Rating is now #{content_rating}</p>
+        <div style='margin-bottom: 20px;'>
+          <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();'>
+            <input type='hidden' name='content_item_id' value='#{content_item_id}'>
+            <input type='hidden' name='rating' id='selectedRating'>
+            <div style='text-align: center;'>
+              <div class='rating'>
+                HTML
+                (1..10).each do |i|
+                  html += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedRating(#{i})' #{'checked' if i == content_rating}><label for='star#{i}'></label>"
+                end
+                html += <<~HTML
+              </div><br>
+              <input id='submitBtn' type='submit' value='Rate' style='background-color: #1F6F3A; color: white; border: none; padding:10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
+            </div>
+          </form>
+        </div>
+        <script>
+          function setSelectedRating(starValue) {
+            document.getElementById('selectedRating').value = starValue;
+            document.getElementById('submitBtn').value = 'Rate';
+          }
+          function confirmRating() {
+            return confirm('Are you sure you want to submit this rating?');
+          }
+        </script>
+      HTML
+      return html
+    end  
 end
