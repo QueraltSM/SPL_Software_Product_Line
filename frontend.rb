@@ -143,7 +143,7 @@ class Frontend
           text-align: center;
       }
       .container {
-          max-width: 1200px;
+          max-width: 80%;
           margin: 0 auto;
           padding: 20px;
       }
@@ -166,9 +166,11 @@ class Frontend
           display: flex;
           justify-content: center;
           flex-wrap: wrap;
+          width: 100%;
+          padding-top: 20px;
       }
       .feature {
-        width: calc(15% - 20px);
+        width: calc(10% - 10px);
         background: linear-gradient(135deg, #f5f5f5, #e0e0e0, #f5f5f5);
         border-radius: 10px;
         padding: 40px;
@@ -248,21 +250,10 @@ class Frontend
                 <h2>Art</h2>
                 <p>Explore stunning artworks and creative masterpieces.</p>
             </div>
-            <div class="feature" onclick="window.location.href = 'Platforms';">
-                <i class="fas fa-link fa-1x"></i>
-                <h2>Platforms</h2>
-                <p>Find out what's trending and discover hidden gems.</p>
-            </div>
-
             <div class="feature" onclick="window.location.href = '/Events';">
                 <i class="fas fa-calendar-alt fa-1x"></i>
                 <h2>Events</h2>
                 <p>Discover exciting events happening near you.</p>
-            </div>
-            <div class="feature" onclick="window.location.href = '/Create';">
-                <i class="fas fa-plus-circle fa-1x"></i>
-                <h2>Create</h2>
-                <p>Bring your ideas to life and share them with the world.</p>
             </div>
         </div>
     </div>   
@@ -387,10 +378,6 @@ class Frontend
           document.getElementById("source-label").innerHTML = "Creator";
           document.getElementById("url-label").innerHTML = "Enter the URL of an image of the artwork.";
           document.getElementById("description-label").innerHTML = "Provide a detailed description of the artwork, like information about the artistic style, the technique used, the theme or meaning of the artwork, historical or cultural context, and any other relevant details you'd like to share.";
-        } else if ("#{content_item["type"]}" === "Platforms") {
-          document.getElementById("source-label").innerHTML = "Publisher / Company";
-          document.getElementById("url-label").innerHTML = "Please enter the URL of the platform's logo or icon.";
-          document.getElementById("description-label").innerHTML = "Provide a comprehensive description of the platform, including details about its purpose, target audience, features, usability, and any other relevant information you want to share.";
         }
       </script>      
       HTML
@@ -465,7 +452,7 @@ class Frontend
     def content_item_body_image(content_item, base64_image)
       title_with_hyphens = content_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
       <<~HTML
-      <form class='content-item' action='/#{content_item['type']}/#{title_with_hyphens}' method='post' style='text-align:center;cursor: pointer; width: 30%; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f9f9f9;'>
+      <form class='content-item' action="/#{content_item['type']}/#{title_with_hyphens}" method='post' style='text-align:center;cursor: pointer; width: 30%; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f9f9f9;'>
         <input type='hidden' name='content_item_id' value='#{content_item['id']}'>
         <button type='submit' style='background: none; border: none; padding: 0; margin: 0;width:100%;cursor: pointer;'>
           <div style='background: url(data:image/jpeg;base64,#{base64_image}) center center / cover; height: 300px; width: 100%;'></div>
@@ -519,7 +506,6 @@ class Frontend
             <option value='Podcasts'>Podcast</option>
             <option value='Videogames'>Videogame</option>
             <option value='Art'>Art</option>
-            <option value='Platforms'>Platform</option>
             <option value='Events'>Event</option>
           </select>
         </div>
@@ -630,10 +616,6 @@ class Frontend
           document.getElementById("source-label").innerHTML = "Creator";
           document.getElementById("url-label").innerHTML = "Enter the URL of an image of the artwork.";
           document.getElementById("description-label").innerHTML = "Provide a detailed description of the artwork, like information about the artistic style, the technique used, the theme or meaning of the artwork, historical or cultural context, and any other relevant details you'd like to share.";
-        } else if (document.getElementById('type').value == "Platforms") {
-          document.getElementById("source-label").innerHTML = "Publisher / Company";
-          document.getElementById("url-label").innerHTML = "Please enter the URL of the platform's logo or icon.";
-          document.getElementById("description-label").innerHTML = "Provide a comprehensive description of the platform, including details about its purpose, target audience, features, usability, and any other relevant information you want to share.";
         } else if (document.getElementById('type').value == "Events") {
           document.getElementById("source-label").innerHTML = "Creator";
           document.getElementById("url-label").innerHTML = "Please enter the URL of an image related to the event.";
@@ -644,6 +626,162 @@ class Frontend
       HTML
     end
 
+    def myposts_table(items)
+      table_rows = ""
+      items.each do |item|
+        type = item['type']
+        title_with_hyphens = item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+        table_rows += <<~HTML
+          <tr data-type="#{type.downcase}">
+            <td>#{type}</td>
+            <td>#{item['title']}</td>
+            <td>#{DateTime.parse(item['pubdate']).strftime("%d/%m/%Y %H:%M")}</td>
+            <td class="table-actions" style="display: flex; align-items: center;">
+            <form action="/#{type}/#{title_with_hyphens}" method='post'>
+              <input type='hidden' name='content_item_id' value="#{item['id']}">
+              <button title="View">
+                <i class='bi bi-eye'></i>
+              </button>
+            </form>
+            <form action='/edit' method='post'>
+              <input type='hidden' name='content_item_id' value="#{item['id']}">
+              <button onclick="return confirm('Are you sure you want to delete this item?')" title="Edit">
+                <i class='bi bi-pencil'></i>
+              </button>
+            </form>
+            <form action='/delete' method='post'>
+              <input type='hidden' name='content_item_id' value="#{item['id']}">
+              <button onclick="return confirm('Are you sure you want to delete this item?')" title="Delete">
+                <i class='bi bi-trash'></i>
+              </button>
+            </form>
+            </td>          
+          </tr>
+        HTML
+      end
+      <<~HTML
+          <style>
+          .table-wrapper {
+            overflow-x: auto;
+          }
+
+          .table {
+            padding-top: 20px;
+            width: 95%;
+            margin-left: auto;
+            margin-right: auto;
+            border-collapse: collapse;
+            border-spacing: 0;
+          }
+          
+          .table th, .table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+          }
+
+          .table th {
+            background-color: #E3ECD6;
+            color: #333;
+            font-weight: bold;
+          }
+
+          .table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+          }
+
+          .table tbody tr:hover {
+            background-color: #f0f0f0;
+          }
+
+          .table-actions button {
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 5px;
+            padding: 5px;
+            color: #999;
+            transition: color 0.3s;
+          }
+
+          .table-actions button:hover {
+            color: #333;
+          }
+        </style>
+        <div class="table-wrapper">
+          <br><br>
+          <h4 style='text-align: center; margin-top: 10px; padding: 20px 0; font-size: 30px; color: #333; margin-bottom: 20px;'>My posts</h4>
+          <div style='display: flex; align-items: center; justify-content: flex-end;'>
+          <form id='sort-form' style='margin-top: 20px; margin-right: 20px; display: flex; align-items: center;'>
+            <div style='margin-right: 10px;'>
+              <input type='text' name='search' id='search' placeholder='Search...' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc;'>
+            </div>
+            <select onchange='filterByType()'id='type' name='type' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+              <option value='all'>All</option>
+              <option value='News'>News</option>  
+              <option value='Books'>Book</option>
+              <option value='Recipes'>Recipe</option>  
+              <option value='Movies'>Movie</option>
+              <option value='Videos'>Video</option>
+              <option value='Music'>Music</option>
+              <option value='Podcasts'>Podcast</option>
+              <option value='Videogames'>Videogame</option>
+              <option value='Art'>Art</option>
+              <option value='Events'>Event</option>
+            </select>
+          </form>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Type of content</th>
+                <th>Title</th>
+                <th>Publication date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              #{table_rows}
+            </tbody>
+          </table>
+        </div>
+        <script>
+        function filterByType() {
+          const selectedType = document.getElementById('type').value;
+          const rows = document.querySelectorAll('#table-body tr');
+          rows.forEach(row => {
+            const type = row.getAttribute('data-type').toLowerCase();
+            if (selectedType === 'all' || type === selectedType.toLowerCase()) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          });
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+          const searchInput = document.getElementById('search');
+          const tableBody = document.getElementById('table-body');
+          searchInput.addEventListener('input', function() {
+            const searchText = this.value.toLowerCase();
+            const rows = tableBody.getElementsByTagName('tr');
+            for (let row of rows) {
+              const titleCell = row.getElementsByTagName('td')[1];
+              if (titleCell) {
+                const titleText = titleCell.textContent.toLowerCase();
+                if (titleText.includes(searchText)) {
+                  row.style.display = '';
+                } else {
+                  row.style.display = 'none';
+                }
+              }
+            }
+          });
+        });
+      </script>
+      HTML
+    end
+    
     def owner_css()
       <<~HTML
       <style>
@@ -718,27 +856,68 @@ class Frontend
 
     def menu_body()
       <<~HTML
+      <style>
+        .dropdown {
+          position: relative;
+        }
+        .dropdown-menu {
+          display: none;
+          position: absolute;
+          background-color: #E3ECD6;
+          z-index: 1;
+          text-align:center;
+          margin-top:0px;
+          padding:0px;
+        
+        }
+        .dropdown.show .dropdown-menu {
+          display: block;
+        }
+      </style>
       <div class='menu'>
-      <a class='logout-link' href='/index' title='Home'><i class='fa fa-home'></i></a>
-      <a href='/News'>News</a>
-      <a href='/Books'>Books</a>
-      <a href='/Recipes'>Recipes</a>
-      <a href='/Movies'>Movies</a>
-      <a href='/Videos'>Videos</a>
-      <a href='/Music'>Music</a>
-      <a href='/Podcasts'>Podcasts</a>
-      <a href='/Videogames'>Videogames</a>
-      <a href='/Art'>Art</a>
-      <a href='/Platforms'>Platforms</a>
-      <a href='/Events'>Events</a>
-      <a href='/Create' title='Create'><i class='fas fa-plus-circle'></i></a>
-      <div class='user-info'>
-         <span><strong>#{$user_name}</strong></span>
-         <a class='logout-link' href='/'><i class='bi bi-box-arrow-right'></i></a>
-         </div>
-     </div>
-     HTML
+        <a class='logout-link' href='/index' title='Home'><i class='fa fa-home'></i></a>
+        <a href='/News'>News</a>
+        <a href='/Books'>Books</a>
+        <a href='/Recipes'>Recipes</a>
+        <a href='/Movies'>Movies</a>
+        <a href='/Videos'>Videos</a>
+        <a href='/Music'>Music</a>
+        <a href='/Podcasts'>Podcasts</a>
+        <a href='/Videogames'>Videogames</a>
+        <a href='/Art'>Art</a>
+        <a href='/Events'>Events</a>
+        <div class='user-info' id='user-info'  style="display: flex; align-items: center;">
+          <div class="dropdown">
+            <a class="dropdown-toggle" id="dropdownMenuButton">
+              <strong>#{$user_name}</strong>
+              <i class='bi bi-caret-down' id='dropdown-icon'></i>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="/Create">Create</a>
+              <a class="dropdown-item" href="/My-posts">My posts</a>
+            </ul>
+          </div>
+          <a class='logout-link' href='/'><i class='bi bi-box-arrow-right'></i></a>
+        </div>
+      </div>
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        const dropdownToggle = document.querySelector('.dropdown-toggle');
+        const dropdownMenu = document.querySelector('.dropdown-menu');
+        dropdownToggle.addEventListener('click', function() {
+          dropdownMenu.parentElement.classList.toggle('show');
+        });
+        document.addEventListener('click', function(event) {
+          if (!dropdownMenu.parentElement.contains(event.target)) {
+            dropdownMenu.parentElement.classList.remove('show');
+          }
+        });
+      });
+      </script>
+      HTML
     end
+    
+    
 
     def owner_actions(content_item)
       <<~HTML
@@ -749,10 +928,10 @@ class Frontend
             <i class='fas fa-pencil-alt'></i>
           </button>
         </form>
-        <form action='/delete_content_item' method='post'>
+        <form action='/delete' method='post'>
           <input type='hidden' name='content_item_id' value="#{content_item['id']}">
           <button style='background:#9C3030' onclick="return confirm('Are you sure you want to delete this item?')" title="Delete">
-            <i class='fas fa-trash'></i>
+            <i class='bi bi-trash'></i>
           </button>
         </form>
       </div> 
@@ -891,7 +1070,7 @@ class Frontend
       <form action='/delete_event' method='post'>
       <input type='hidden' name='event_id' value="#{event['id']}">
         <button style='background:#9C3030' onclick="return confirm('Are you sure you want to delete this item?')" title="Delete">
-          <i class='fas fa-trash'></i>
+          <i class='bi bi-trash'></i>
         </button>
       </form>
     </div>
@@ -906,7 +1085,7 @@ class Frontend
         <form action='/submit_comment' method='post'>
         <input type='hidden' name='content_item_id' value='#{content_item_id}'>
         <input type='hidden' name='comment_user_id' value='#{$user_id}'>
-          <textarea placeholder='Add a comment' id='comment_text' name='comment_text' rows='4' cols='50' style='width: 100%; margin-top: 10px;padding:10px;border: none;outline:none'></textarea><br>
+          <textarea placeholder='Add a comment...' id='comment_text' name='comment_text' rows='4' cols='50' style='background-color: #f9f9f9; width: 100%; margin-top: 10px;padding:10px;border: none;outline:none'></textarea><br>
           <div style='text-align: right;'>
             <input type='submit' value='Comment' style='margin:10px;background-color: #1F6F3A; color: white; border: none; padding: 10px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
           </div>

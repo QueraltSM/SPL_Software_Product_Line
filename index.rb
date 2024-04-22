@@ -134,6 +134,16 @@ get '/Create' do
     </html>"
 end
 
+# My posts form
+get '/My-posts' do
+  return "<html>
+        <body>
+         #{Menu.generate_menu_html()}
+         #{content_item_reader.print_myposts}
+        </body>
+    </html>"
+end
+
 # Multimedia content page based on type
 get '/:type' do
   content_type = params[:type]
@@ -229,7 +239,7 @@ put '/edit_item' do
 end
 
 
-post '/delete_content_item' do
+post '/delete' do
   content_item_id = params['content_item_id']
   items = content_item_reader.readFile('./Data/content_items.json')
   index_to_delete = items.find_index { |item| item["id"] == content_item_id }

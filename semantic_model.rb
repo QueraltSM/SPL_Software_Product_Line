@@ -119,6 +119,18 @@ end
     end
     return nil
   end
+
+  def print_myposts
+    reset_state()
+    readFile('./Data/content_items.json')
+    items = []
+    @data.each do |content_item|
+      if content_item['author'] == $user_id
+        items << content_item
+      end 
+    end
+    Frontend.new().myposts_table(items)
+  end
    
   def print_content_items(type, sb)
     reset_state()
