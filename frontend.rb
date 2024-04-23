@@ -271,57 +271,48 @@ class Frontend
       <form action='/edit_item' method='post' style='max-width: 70%; margin: 0 auto; padding: 20px;'>
         <input type='hidden' name='_method' value='put'>
         <input type='hidden' name='content_item_id' value="#{content_item['id']}">
-  
         <div class='form-group' style='padding-bottom:20px;'>
         <label for='title' id='title-label' style='display: none; display: block; font-weight: bold;'>Title</label>
         <p style="font-size:13px;color:#9e9e9e;">Enter the title of the content.</p>
         <input type='text' id='title' value='#{content_item["title"]}' name='title' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;' required>
         </div>
-    
         <div class='form-group' id='source-div' style='padding-bottom:20px;'>
         <label id="source-label" for='source' style='display: none; display: block; font-weight: bold;'></label>
         <p style="font-size:13px;color:#9e9e9e;">Enter the source of the content.</p>
         <input type='text' id='source'  value='#{content_item["source"]}' name='source' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
         </div>
-    
-  
         <div class='form-group' style='padding-bottom:20px;'>
         <label for='description' style='display: none; display: block; font-weight: bold;'>Description</label>
         <p id="description-label" style="font-size:13px;color:#9e9e9e;"></p>
         <textarea id='description' name='description' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px; height: 150px;' required>#{content_item["description"]}</textarea>
         </div>
-  
-  
         <div id='url-div' class='form-group' style='padding-bottom:20px;'>
         <label for='media' style='display: block; font-weight: bold;'>Media URL</label>
         <p style="font-size:13px;color:#9e9e9e;" id="url-label"></p>
         <input type='url' id='digital_content'  value='#{content_item["digital_content"]}' name='digital_content' class='form-control' style='width: 100%; margin-top: 10px; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
         </div>
-    
-  
         <div class='form-group' id='location-div' style='padding-bottom:20px;'>
         <label for='location' style='display: none; display: block; font-weight: bold;'>Location</label>
         <p style="font-size:13px;color:#9e9e9e;">Please enter the complete address.</p>
         <input type='text' id='location' name='location' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
         </div>
-  
-          <div class='form-group'  id='datetime-div' style='padding-bottom:20px;'>
-          <label for='datetime' style='display: none; display: block; font-weight: bold;'>Date and time</label>
-          <p style="font-size:13px;color:#9e9e9e;">Please select the date and time of the event.</p>
-          <input type='datetime-local' id='datetime' name='datetime' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
+        <div class='form-group'  id='datetime-div' style='padding-bottom:20px;'>
+        <label for='datetime' style='display: none; display: block; font-weight: bold;'>Date and time</label>
+        <p style="font-size:13px;color:#9e9e9e;">Please select the date and time of the event.</p>
+        <input type='datetime-local' id='datetime' name='datetime' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
         </div>
-  
         <div class='form-group' id='date-div' style='padding-bottom:50px;'>
         <label for='date' style='display: none; display: block; font-weight: bold;'>Date of released</label>
         <p style="font-size:13px;color:#9e9e9e;">Select the date of released.</p>
         <input type='date' id='date'  value='#{content_item["date"]}' name='date' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;' min="1970-01-01" step="1">
         </div>
-    
         <div style='text-align: center;padding-bottom:50px;'>
         <button type='submit' class='btn btn-primary' style='width: 10%; padding: 10px; font-weight:bold; background-color: #E3ECD6; border: none; color: #000; border-radius: 3px; cursor: pointer;'>Update</button>
         </div>
       </form>
-  
+      
+      #{autoResizeTextarea('description')}
+
       <script>
         if ("#{content_item["type"]}" === "News") {
           document.getElementById('datetime-div').style.display = 'none';
@@ -359,13 +350,13 @@ class Frontend
           document.getElementById("url-label").innerHTML = "Please enter the URL of the dish's photo.";
         } else if ("#{content_item["type"]}" == "Movies") {
           document.getElementById("source-label").innerHTML = "Director";
-          document.getElementById("url-label").innerHTML = "Please enter the URL of the movie trailer. It can be from YouTube or Vimeo.";
+          document.getElementById("url-label").innerHTML = "Please enter the URL of the movie trailer. It can be from YouTube.";
         } else if ("#{content_item["type"]}" === "Videos") {
           document.getElementById("source-label").innerHTML = "Channel";
-          document.getElementById("url-label").innerHTML = "Please enter the URL of the video. It can be from YouTube or Vimeo.";
+          document.getElementById("url-label").innerHTML = "Please enter the URL of the video. It can be from YouTube.";
         } else if ("#{content_item["type"]}" == "Music") {
           document.getElementById("source-label").innerHTML = "Singer / Band";
-          document.getElementById("url-label").innerHTML = "Please enter the URL of the music video. It can be from YouTube or Vimeo.";
+          document.getElementById("url-label").innerHTML = "Please enter the URL of the music video. It can be from YouTube.";
         } else if ("#{content_item["type"]}" === "Podcasts") {
           document.getElementById("source-label").innerHTML = "Podcast Host";
           document.getElementById("url-label").innerHTML = "Enter the URL of an image for the podcast cover.";
@@ -389,50 +380,114 @@ class Frontend
       unique_images = Set.new
       unless unique_images.include?(base64_image)
         unique_images.add(base64_image)
-        if content_item['type'] == 'Books'
+
+        date = Date.parse(content_item['date']).strftime("%d %B %Y")
+        if  Date.parse(content_item['date']) == Date.today
+          date = "Today"
+        end
+        if content_item['type'] == 'Books' ||  content_item['type'] == 'Podcasts'
           <<~HTML
-          <div style='padding: 20px;font-size:15px;display: flex; justify-content: flex-start; align-items: center;'>
-          <div class='thumbnail' name="image-container" style='background: url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat; height: 400px; width: 560px; margin-right: 20px;'></div>
-            <div style='margin-left: 20px;'>
-                    <h2 style='color: #333;'>#{content_item['title']}</h2>
-                    <div style='margin-top: 15px;'>
-                    <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Author</strong> #{content_item['author']}</p>
-                    <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Released</strong> #{content_item['pubdate']}</p>
-                    #{rating_html(content_item['rating']) if content_item['rating'] != -1}
-                    </div>
-                  <pre style='color: #555; white-space: pre-wrap;'>#{content_item['description']}</pre>
+          <style>
+            .item-container {
+                display: flex;
+                align-items: center;
+                padding: 20px;
+                font-size: 15px;
+                font-family: 'BBC Reith Sans';
+            }
+            .thumbnail {
+                background: url(data:image/jpeg;base64,#{base64_image}) center center / contain no-repeat;
+                height: 400px;
+                width: 35%;
+            }
+            .item-details {
+                width: 50%;
+            }
+            .item-title {
+                color: #333;
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+            .item-author, .item-released {
+                color: #777;
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+            .item-description {
+                color: #555;
+                white-space: pre-wrap;
+                font-family: 'BBC Reith Sans';
+                line-height: 2;
+                font-size: 17px;
+            }
+        </style>
+        <div class='item-container'>
+            <div class='thumbnail' name="image-container"></div>
+            <div class='item-details'>
+                <h2 class='item-title'>#{content_item['title']}</h2>
+                <div style='margin-top: 15px;'>
+                    <p class='item-author' style='text-transform: uppercase;'>#{content_item['source']}</p>
+                    <p class='item-released'>#{date}</p>
                 </div>
-              </div>
-          </div>
+                <pre class='item-description'>#{content_item['description']}</pre>
+            </div>
+        </div>
           HTML
-          elsif content_item['type'] == 'Videos' ||  content_item['type'] == 'Movies'
+          elsif content_item['type'] == 'Videos' ||  content_item['type'] == 'Movies' || content_item['type'] == 'Music'
             <<~HTML
-            <div style='padding: 20px; font-size: 16px; display: flex; flex-direction: column; align-items: flex-start;'>
-            <h3 style='color: #444; font-size: 26px; margin: 10px; font-weight: bold; text-transform: uppercase;'>#{content_item['title']}</h3>
+            <div style='font-family: "BBC Reith Sans"; padding: 20px; display: flex; flex-direction: column; align-items: flex-start;width:60%;'>
             <div style='width: 100%; border-radius: 10px; overflow: hidden;'>
-              <iframe width='100%' height='600' style='border: none; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);' src='#{content_item["digital_content"]}' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe>
+            #{generate_video_embed(content_item['digital_content'])}
             </div>
-            <div style='margin-top: 15px;'>
-              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>#{(content_item['type'] == 'Movies') ? 'Director' : 'Channel' }</strong> #{content_item['author']}</p>
-              <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Released</strong> #{content_item['pubdate']}</p>
-              #{rating_html(content_item['rating']) if content_item['rating'] != -1}
-            </div>
-            <div style='margin-top: 20px;'>
-              <p style='color: #555; font-size: 16px; line-height: 1.6; margin-bottom: 20px;'>#{content_item['description']}</p>
-            </div>
+            <h1 style='color: #444; padding-top:18px; font-weight: bold; text-transform: uppercase;'>#{content_item['title']}</h1>
+            <p style='color: #777; font-size: 20px; margin-bottom: 5px;'>By <strong>#{content_item['source']}</strong></p>
+            <p style='color: #777; font-size: 14px; margin-bottom: 5px;'>#{date}</p>
+            <p style='color: #555; font-size: 17px; line-height: 2; margin-bottom: 20px;'>#{content_item['description']}</p>
           </div>
           HTML
-        elsif content_item['type'] == 'News'
+        elsif content_item['type'] == 'News' || content_item['type'] == 'Recipes' || content_item['type'] == 'Art'
           <<~HTML
-          <div style='padding: 20px; font-size: 15px;'>
-            <h2 style='color: #333; margin: 20px;text-align:center;'>#{content_item['title']}</h2>
-            <div style="display: flex; justify-content: center; margin-bottom: 15px;">
-              <img src='data:image/jpeg;base64,#{base64_image}' style="max-width: 100%; border-radius: 5px;">
+          <style>
+          .container {
+              font-family: 'BBC Reith Sans';
+              text-align: justify;
+              width: 50%;
+              margin: 20px auto;
+              background-color: #fff;
+              border-radius: 15px;
+              overflow: hidden;
+          }
+          .header {
+              padding: 20px 0;
+          }
+          .article-card {
+              padding: 20px;
+              border-bottom: 1px solid #eee;
+          }
+          .article-image {
+              width: 100%;
+              height: auto;
+              border-radius: 10px;
+              object-fit: cover;
+          }
+          .article-source {
+              color: #666;
+              margin-bottom: 5px;
+          }
+          .article-description {
+              line-height: 2;
+              font-size: 17px;
+          }
+          </style>
+          <div class="container">
+            <div class="header">
+              <h1>#{content_item['title']}</h1>
+              <span>By <strong>#{content_item['source']}</strong></span><br>
+              <span style='color: #999999;'>#{date}</span>
             </div>
-            <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>#{content_item['source']}</strong></p>
-            <p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Posted on:</strong> #{ Date.parse(content_item['date']).strftime("%d/%m/%Y")}</p>
-            <p style='color: #555; font-size: 14px; line-height: 1.6; text-align: justify;'>#{content_item['description']}</p>
-         </div>
+          </div>
+          <img class="article-image" src='data:image/jpeg;base64,#{base64_image}' style='max-width:800px; max-height:700px;'>
+          <div class="container"><p class="article-description">#{content_item['description']}</p></div>
           HTML
         else
           <<~HTML
@@ -559,6 +614,8 @@ class Frontend
         <button type='submit' class='btn btn-primary' style='width: 10%; padding: 10px; font-weight:bold; background-color: #E3ECD6; border: none; color: #000; border-radius: 3px; cursor: pointer;'>Publish</button>
         </div>
       </form>
+      
+      #{autoResizeTextarea('description')}
 
       <script>
       document.getElementById('datetime-div').style.display = 'none';
@@ -597,13 +654,13 @@ class Frontend
           document.getElementById("url-label").innerHTML = "Please enter the URL of the dish's photo.";
         } else if (document.getElementById('type').value == "Movies") {
           document.getElementById("source-label").innerHTML = "Director";
-          document.getElementById("url-label").innerHTML = "Please enter the URL of the movie trailer. It can be from YouTube or Vimeo.";
+          document.getElementById("url-label").innerHTML = "Please enter the URL of the movie trailer. It can be from YouTube.";
         } else if (document.getElementById('type').value == "Videos") {
           document.getElementById("source-label").innerHTML = "Channel";
-          document.getElementById("url-label").innerHTML = "Please enter the URL of the video. It can be from YouTube or Vimeo.";
+          document.getElementById("url-label").innerHTML = "Please enter the URL of the video. It can be from YouTube.";
         } else if (document.getElementById('type').value == "Music") {
           document.getElementById("source-label").innerHTML = "Singer / Band";
-          document.getElementById("url-label").innerHTML = "Please enter the URL of the music video. It can be from YouTube or Vimeo.";
+          document.getElementById("url-label").innerHTML = "Please enter the URL of the music video. It can be from YouTube.";
         } else if (document.getElementById('type').value == "Podcasts") {
           document.getElementById("source-label").innerHTML = "Podcast Host";
           document.getElementById("url-label").innerHTML = "Enter the URL of an image for the podcast cover.";
@@ -626,8 +683,9 @@ class Frontend
       HTML
     end
 
-    def myposts_table(items)
+    def manage_content_table(items)
       table_rows = ""
+      items = items.sort_by { |item| DateTime.parse(item['pubdate']) }.reverse
       items.each do |item|
         type = item['type']
         title_with_hyphens = item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
@@ -636,7 +694,7 @@ class Frontend
             <td>#{type}</td>
             <td>#{item['title']}</td>
             <td>#{DateTime.parse(item['pubdate']).strftime("%d/%m/%Y %H:%M")}</td>
-            <td class="table-actions" style="display: flex; align-items: center;">
+            <td class="table-actions" style="display: flex; align-items: center; justify-content: center;">
             <form action="/#{type}/#{title_with_hyphens}" method='post'>
               <input type='hidden' name='content_item_id' value="#{item['id']}">
               <button title="View">
@@ -645,11 +703,12 @@ class Frontend
             </form>
             <form action='/edit' method='post'>
               <input type='hidden' name='content_item_id' value="#{item['id']}">
-              <button onclick="return confirm('Are you sure you want to delete this item?')" title="Edit">
+              <button title="Edit">
                 <i class='bi bi-pencil'></i>
               </button>
             </form>
             <form action='/delete' method='post'>
+              <input type='hidden' name='page' value="/Manage-content">
               <input type='hidden' name='content_item_id' value="#{item['id']}">
               <button onclick="return confirm('Are you sure you want to delete this item?')" title="Delete">
                 <i class='bi bi-trash'></i>
@@ -664,7 +723,6 @@ class Frontend
           .table-wrapper {
             overflow-x: auto;
           }
-
           .table {
             padding-top: 20px;
             width: 95%;
@@ -673,27 +731,23 @@ class Frontend
             border-collapse: collapse;
             border-spacing: 0;
           }
-          
           .table th, .table td {
-            padding: 12px 15px;
+            padding: 10px 10px;
             border-bottom: 1px solid #ddd;
             text-align: center;
+            font-size: 14px;
           }
-
           .table th {
             background-color: #E3ECD6;
             color: #333;
             font-weight: bold;
           }
-
           .table tbody tr:nth-child(even) {
             background-color: #f9f9f9;
           }
-
           .table tbody tr:hover {
             background-color: #f0f0f0;
           }
-
           .table-actions button {
             border: none;
             background: none;
@@ -704,31 +758,30 @@ class Frontend
             color: #999;
             transition: color 0.3s;
           }
-
           .table-actions button:hover {
             color: #333;
           }
         </style>
         <div class="table-wrapper">
           <br><br>
-          <h4 style='text-align: center; margin-top: 10px; padding: 20px 0; font-size: 30px; color: #333; margin-bottom: 20px;'>My posts</h4>
+          <h4 style='text-align: center; margin-top: 10px; padding: 20px 0; font-size: 30px; color: #333;'>Manage content</h4>
           <div style='display: flex; align-items: center; justify-content: flex-end;'>
-          <form id='sort-form' style='margin-top: 20px; margin-right: 20px; display: flex; align-items: center;'>
+          <form id='sort-form' style='margin-right: 20px; display: flex; align-items: center;'>
             <div style='margin-right: 10px;'>
               <input type='text' name='search' id='search' placeholder='Search...' style='padding: 8px; border-radius: 5px; border: 1px solid #ccc;'>
             </div>
             <select onchange='filterByType()'id='type' name='type' class='form-control' style='width: 100%; padding: 8px; border: 1px solid lightgray; border-radius: 3px;'>
               <option value='all'>All</option>
               <option value='News'>News</option>  
-              <option value='Books'>Book</option>
-              <option value='Recipes'>Recipe</option>  
-              <option value='Movies'>Movie</option>
-              <option value='Videos'>Video</option>
+              <option value='Books'>Books</option>
+              <option value='Recipes'>Recipes</option>  
+              <option value='Movies'>Movies</option>
+              <option value='Videos'>Videos</option>
               <option value='Music'>Music</option>
-              <option value='Podcasts'>Podcast</option>
-              <option value='Videogames'>Videogame</option>
+              <option value='Podcasts'>Podcasts</option>
+              <option value='Videogames'>Videogames</option>
               <option value='Art'>Art</option>
-              <option value='Events'>Event</option>
+              <option value='Events'>Events</option>
             </select>
           </form>
           </div>
@@ -781,32 +834,6 @@ class Frontend
       </script>
       HTML
     end
-    
-    def owner_css()
-      <<~HTML
-      <style>
-        .button-container {
-          float: right;
-        }
-        .button-container button {
-          color: #FFF;
-          padding: 10px;
-          border-radius: 5px;
-          margin-left: 10px;
-          border: none;
-          cursor: pointer;
-        }
-        .button-container button:hover {
-          background: #1D6F9C;
-        }
-        .text-container {
-          font-size: 11px;
-          color: #555;
-          margin-bottom: 10px;
-        }
-      </style>
-      HTML
-    end 
       
     def menu_css()
         <<~HTML
@@ -836,7 +863,7 @@ class Frontend
             margin-right: 0;
           }
           .menu a:hover {
-           color:#1F6F3A;
+           color:#1D8348;
           }
           .menu .user-info {
             float: right;
@@ -868,7 +895,6 @@ class Frontend
           text-align:center;
           margin-top:0px;
           padding:0px;
-        
         }
         .dropdown.show .dropdown-menu {
           display: block;
@@ -887,14 +913,14 @@ class Frontend
         <a href='/Art'>Art</a>
         <a href='/Events'>Events</a>
         <div class='user-info' id='user-info'  style="display: flex; align-items: center;">
-          <div class="dropdown">
+          <div class="dropdown" style="width:150px;">
             <a class="dropdown-toggle" id="dropdownMenuButton">
               <strong>#{$user_name}</strong>
               <i class='bi bi-caret-down' id='dropdown-icon'></i>
             </a>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a class="dropdown-item" href="/Create">Create</a>
-              <a class="dropdown-item" href="/My-posts">My posts</a>
+              <a class="dropdown-item" href="/Create">Create content</a>
+              <a class="dropdown-item" href="/Manage-content">Manage content</a>
             </ul>
           </div>
           <a class='logout-link' href='/'><i class='bi bi-box-arrow-right'></i></a>
@@ -917,27 +943,6 @@ class Frontend
       HTML
     end
     
-    
-
-    def owner_actions(content_item)
-      <<~HTML
-      <div class='button-container' style='display: flex; align-items: center;'>
-        <form action='/edit' method='post'>
-          <input type='hidden' name='content_item_id' value="#{content_item['id']}" title="Edit">
-          <button style='background:#2B88C0; margin-right: 10px;'>
-            <i class='fas fa-pencil-alt'></i>
-          </button>
-        </form>
-        <form action='/delete' method='post'>
-          <input type='hidden' name='content_item_id' value="#{content_item['id']}">
-          <button style='background:#9C3030' onclick="return confirm('Are you sure you want to delete this item?')" title="Delete">
-            <i class='bi bi-trash'></i>
-          </button>
-        </form>
-      </div> 
-      HTML
-    end
-
     def header_events()
       <<~HTML
       <h4 style='text-align: center;
@@ -1055,8 +1060,7 @@ class Frontend
       });
       </script>
       HTML
-    end 
-    
+    end
 
     def admin_event_actions(event)
       <<~HTML
@@ -1079,7 +1083,7 @@ class Frontend
 
     def comments_form(content_item_id,sorted_comments) 
       <<~HTML
-      <div style='margin: 20px auto; width: 70%;'>
+      <div style='margin: 20px auto; width: 70%;padding-top:5%;'>
       <div style='border: 1px solid #ddd; border-radius: 10px; overflow: hidden; padding: 20px; background-color: #f9f9f9;'>
       <div style='margin-bottom: 20px;'>
         <form action='/submit_comment' method='post'>
@@ -1087,7 +1091,7 @@ class Frontend
         <input type='hidden' name='comment_user_id' value='#{$user_id}'>
           <textarea placeholder='Add a comment...' id='comment_text' name='comment_text' rows='4' cols='50' style='background-color: #f9f9f9; width: 100%; margin-top: 10px;padding:10px;border: none;outline:none'></textarea><br>
           <div style='text-align: right;'>
-            <input type='submit' value='Comment' style='margin:10px;background-color: #1F6F3A; color: white; border: none; padding: 10px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
+            <input type='submit' value='Comment' style='margin:10px;background-color: #1D8348; color: white; border: none; padding: 10px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
           </div>
         </form>
       </div>
@@ -1107,7 +1111,7 @@ class Frontend
             <input type='hidden' name='content_item_id' value='#{content_item_id}'>
             <input type='hidden' name='comment_id' value='#{comment["id"]}'>
             <textarea name='updated_text' style='width: 100%;' rows='4' cols='50'>#{comment['text']}</textarea><br><br>
-            <input type='submit' value='Update' style='background-color: #1F6F3A; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
+            <input type='submit' value='Update' style='background-color: #1D8348; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
             <button type='button' id='cancel-button_#{comment["id"]}' class='cancel-edit' style='background-color: #9C3030; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>Cancel</button>
           </form>
           <div style='display: flex; justify-content: flex-end;'>
@@ -1174,33 +1178,40 @@ class Frontend
 
     def rating_body(content_item_id, content_rating)
       html = <<~HTML
-        <p style='font-size:13px;color:#9e9e9e;text-align:center'>Rating is now #{content_rating}</p>
-        <div style='margin-bottom: 20px;'>
-          <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();'>
-            <input type='hidden' name='content_item_id' value='#{content_item_id}'>
-            <input type='hidden' name='rating' id='selectedRating'>
-            <div style='text-align: center;'>
-              <div class='rating'>
-                HTML
-                (1..10).each do |i|
-                  html += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedRating(#{i})' #{'checked' if i == content_rating}><label for='star#{i}'></label>"
-                end
-                html += <<~HTML
-              </div><br>
-              <input id='submitBtn' type='submit' value='Rate' style='background-color: #1F6F3A; color: white; border: none; padding:10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
-            </div>
-          </form>
+        <div style='text-align: right;width:80%;'>
+          <p style='font-size:15px;color:#9e9e9e;text-align:center;display:inline-block;'><i class="bi bi-star-fill" style="color:#FFDE59"></i><span style="font-size:18px;color:#000"><strong>&nbsp;#{content_rating}</strong></span>/10</p>
+          <button onclick="rate()" type='submit' style='color: #1D8348; font-weight:bold; background-color:#FFF; border: none; padding:10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'><i class="bi bi-star" style="color:#1D8348"></i> Rate</button>
+        </div>    
+        <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();' style="display:none;;">
+        <input type='hidden' name='content_item_id' value='#{content_item_id}'>
+        <input type='hidden' name='rating' id='selectedRating'>
+        <div style='text-align: center;'>
+          <div class='rating'>
+            HTML
+            (1..10).each do |i|
+              html += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedRating(#{i})' #{'checked' if i == content_rating}><label for='star#{i}'></label>"
+            end
+            html += <<~HTML
+          </div><br>
+          <input id='submitBtn' type='submit' value='Submit' style='background-color: #1F6F3A; color: white; border: none; padding:10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
         </div>
+      </form>
         <script>
           function setSelectedRating(starValue) {
             document.getElementById('selectedRating').value = starValue;
-            document.getElementById('submitBtn').value = 'Rate';
+            document.getElementById('submitBtn').innerText = 'Submit Rating';
           }
           function confirmRating() {
             return confirm('Are you sure you want to submit this rating?');
           }
+          function rate() {
+            var ratingForm = document.getElementById("ratingForm");
+            if (ratingForm.style.display === "block") ratingForm.style.display = "none";
+            else ratingForm.style.display = "block";
+        }        
         </script>
       HTML
       return html
-    end  
+    end
+     
 end

@@ -112,12 +112,14 @@ end
     if method == 'post' && !content_item_id.empty?
       $selected_content_item = content_item_id
     end
+    puts "selected"
+    puts $selected_content_item
     html = "<html>
             <body>
               #{Menu.generate_menu_html()}
-              #{content_item_reader.print_content_item(content_item_id)}
-              #{content_item_reader.rating_content_item(content_item_id)}
-              #{comments_reader.print_comments(content_item_id, users_reader)}
+              #{content_item_reader.print_content_item($selected_content_item)}
+              #{content_item_reader.rating_content_item($selected_content_item)}
+              #{comments_reader.print_comments($selected_content_item, users_reader)}
             </body>
           </html>"
     html
@@ -134,12 +136,12 @@ get '/Create' do
     </html>"
 end
 
-# My posts form
-get '/My-posts' do
+# Administration of content form
+get '/Manage-content' do
   return "<html>
         <body>
          #{Menu.generate_menu_html()}
-         #{content_item_reader.print_myposts}
+         #{content_item_reader.content_administration_form}
         </body>
     </html>"
 end
@@ -157,12 +159,13 @@ get '/:type' do
 end
 
 post '/edit' do
+  $selected_content_item = params['content_item_id']
   html = "<html>
-                    <body>
-                      #{Menu.generate_menu_html()}
-                      #{content_item_reader.generate_edition_form(params['content_item_id'])}
-                    </body>
-                  </html>"
+    <body>
+      #{Menu.generate_menu_html()}
+      #{content_item_reader.generate_edition_form(params['content_item_id'])}
+    </body>
+  </html>"
   html
 end
 
@@ -245,7 +248,7 @@ post '/delete' do
   index_to_delete = items.find_index { |item| item["id"] == content_item_id }
   items.delete_at(index_to_delete)
   content_item_reader.writeFile('./Data/content_items.json', items)
-  redirect "/index"
+  redirect "/#{params['page']}"
 end
 
 post '/submit_comment' do
@@ -297,7 +300,11 @@ post '/update_rating' do  # Actualizar la puntuación
   index_to_update = content_items.find_index { |item| item["id"] == params['content_item_id'] }
   current_rating = content_items[index_to_update]["rating"]
   new_rating = params['rating'].to_i 
-  average_rating = (current_rating + new_rating) / 2
+  if current_rating == 0
+    average_rating = new_rating
+  else
+    average_rating = (current_rating + new_rating) / 2
+  end
   content_items[index_to_update]["rating"] = average_rating
   content_item_reader.writeFile('./Data/content_items.json', content_items)
   redirect "/#{content_items[index_to_update]["type"] }/#{content_items[index_to_update]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase}"
@@ -307,10 +314,7 @@ def generate_video_embed(url)
   if url.include?('youtube.com') || url.include?('youtu.be')
     video_id = extract_youtube_video_id(url)
   return "<div style='position:relative; padding-bottom:56.25%; height:0; overflow:hidden; max-width:100%;'><iframe width='100%' height='100%' src='https://www.youtube.com/embed/#{video_id}' style='position:absolute; top:0; left:0; width:100%; height:100%;' frameborder='0' allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe></div>"
-elsif url.include?('vimeo.com')
-    video_id = extract_vimeo_video_id(url)
-    return "<div style='position:relative; padding-bottom:56.25%; height:0; overflow:hidden; max-width:100%;'><iframe src='https://player.vimeo.com/video/#{video_id}' style='position:absolute; top:0; left:0; width:100%; height:100%;' frameborder='0' allow='autoplay; fullscreen' allowfullscreen></iframe></div>"  
-  else
+ else
     return "<p>Video no compatible</p>"
   end
 end
@@ -324,8 +328,4 @@ def extract_youtube_video_id(url)
     video_id = url.split('/')[-1]
   end
   video_id
-end
-
-def extract_vimeo_video_id(url)
-  url.split('/')[-1]
 end

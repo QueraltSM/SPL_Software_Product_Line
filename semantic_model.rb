@@ -120,7 +120,7 @@ end
     return nil
   end
 
-  def print_myposts
+  def content_administration_form
     reset_state()
     readFile('./Data/content_items.json')
     items = []
@@ -129,94 +129,74 @@ end
         items << content_item
       end 
     end
-    Frontend.new().myposts_table(items)
+    Frontend.new().manage_content_table(items)
   end
    
-  def print_content_items(type, sb)
+    def print_content_items(type, sb)
+      reset_state()
+      readFile('./Data/content_items.json')
+      frontend = Frontend.new()
+      html = frontend.content_items_header_style(type)
+      html += frontend.content_items_search_form(type, sb)
+
+      html += "<div id='#{type}_content' style='display: flex; flex-wrap: wrap; margin: 15px; padding: 20px;'>"
+      unique_images = Set.new
+      if sb == 'rating'
+        items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
+      elsif sb == 'date'
+        items = @data.select { |item| item['type'] == type }
+              .sort_by { |item| DateTime.parse(item['pubdate']) }
+              .reverse
+      end    
+      items.each do |content_item|
+        if content_item['type'] == 'Videos' || content_item['type'] == 'Movies' || content_item['type'] == 'Music'
+          html += frontend.content_item_body_video(content_item, generate_video_embed(content_item['digital_content']))       
+        else
+          base64_image = frontend.image_url_to_base64(content_item['digital_content'])
+          unless unique_images.include?(base64_image)                      
+            html += frontend.content_item_body_image(content_item, base64_image)
+          end
+        end
+      end
+      html += "</div>"
+      return html
+    end
+  end  
+
+  def print_content_item(id)
     reset_state()
     readFile('./Data/content_items.json')
-    frontend = Frontend.new()
-    html = frontend.content_items_header_style(type)
-    html += frontend.content_items_search_form(type, sb)
-
-    html += "<div id='#{type}_content' style='display: flex; flex-wrap: wrap; margin: 15px; padding: 20px;'>"
-    unique_images = Set.new
-    if sb == 'rating'
-      items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
-    elsif sb == 'date'
-      items = @data.select { |item| item['type'] == type }
-             .sort_by { |item| DateTime.parse(item['pubdate']) }
-             .reverse
-    end    
-    items.each do |content_item|
-      if content_item['type'] == 'Videos' || content_item['type'] == 'Movies' || content_item['type'] == 'Music'
-        html += frontend.content_item_body_video(content_item, generate_video_embed(content_item['digital_content']))       
-      else
-        base64_image = frontend.image_url_to_base64(content_item['digital_content'])
-        unless unique_images.include?(base64_image)                      
-          html += frontend.content_item_body_image(content_item, base64_image)
-        end
+    html = "<div style='display: flex; flex-direction: column; align-items: center; margin-top: 20px;text-align:justify;'>"
+    @data.each do |content_item|
+      if content_item['id'] == id
+        frontend = Frontend.new()
+        html += frontend.content_item_body_style(content_item)
       end
     end
     html += "</div>"
     return html
   end
-end  
 
-def print_content_item(id)
-  reset_state()
-  readFile('./Data/content_items.json')
-  html = "<div style='display: flex; flex-direction: column; align-items: center; margin-top: 20px;text-align:justify;'>"
-  @data.each do |content_item|
-    if content_item['id'] == id
-      frontend = Frontend.new()
-      if $user_id == content_item['author']
-        html +=  frontend.owner_css
-        html += frontend.owner_actions(content_item)
-      end
-      html += frontend.content_item_body_style(content_item)
+  def print_events(sb)
+    reset_state()
+    readFile('./Data/events.json')
+    frontend = Frontend.new()
+    html = ""
+    @data.reject! { |event| DateTime.parse(event['datetime']) < DateTime.now } # Delete past events from events.json
+    writeFile('./Data/events.json', @data)
+    sorted_data = @data.sort_by { |event| DateTime.parse(event['datetime']) }.reverse
+    html += frontend.header_events()
+    items = sb ? sorted_data[-3..-1] : sorted_data
+    html += frontend.search_form_events(sb)
+    html += "<div style='display: flex; flex-wrap: wrap; justify-content: center; margin: 15px; padding: 10px;text-align:center'>"
+    if sb == 'upcoming'
+      items = @data.select { |item| DateTime.parse(item['datetime']) >= DateTime.now }.sort_by { |item| DateTime.parse(item['datetime']) }
+    elsif sb == 'recent'
+      items = @data.sort_by { |item| DateTime.parse(item['pubdate']) }.reverse
     end
-  end
-  html += "</div>"
-  return html
-end
-
-def print_events(sb)
-  reset_state()
-  readFile('./Data/events.json')
-  frontend = Frontend.new()
-  html = ""
-
-  # Delete past events from events.json
-  @data.reject! { |event| DateTime.parse(event['datetime']) < DateTime.now }
-  writeFile('./Data/events.json', @data)
-
-  sorted_data = @data.sort_by { |event| DateTime.parse(event['datetime']) }.reverse
-  html += frontend.header_events()
-  items = sb ? sorted_data[-3..-1] : sorted_data
-
-  html += frontend.search_form_events(sb)
-  html += "<div style='display: flex; flex-wrap: wrap; justify-content: center; margin: 15px; padding: 10px;text-align:center'>"
-  
-  if sb == 'upcoming'
-    items = @data.select { |item| DateTime.parse(item['datetime']) >= DateTime.now }
-           .sort_by { |item| DateTime.parse(item['datetime']) }
-  elsif sb == 'recent'
-    items = @data.sort_by { |item| DateTime.parse(item['pubdate']) }
-           .reverse
-  end
-  
-  items.each do |event|
-    html += frontend.body_events(event)
-    # if event['author'] == $user_id
-    #   html += frontend.admin_event_actions(event)
-    # end
     html += "</div>"
+    return html
   end
-  html += "</div>"
-
-  return html
-end
 
   def rating_content_item(content_item_id)
     content_item = @data.find { |item| item['id'] == content_item_id }

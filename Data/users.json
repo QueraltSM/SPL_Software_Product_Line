@@ -12,5 +12,12 @@
     "email": "maria@uned.es",
     "password": "maria123",
     "role": "User"
+  },
+  {
+    "id": "17a6dafd-3144-4b04-99f2-18c43f77ff08",
+    "name": "usuario prueba",
+    "email": "prueba@uned.es",
+    "password": "prueba123",
+    "role": "User"
   }
 ]
