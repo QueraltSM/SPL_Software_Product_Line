@@ -1,4 +1,4 @@
-entity_class "ContentItem" do
+entity_class "Item" do
     field "id", "int"
     field "title", "String"
     field "source", "String"

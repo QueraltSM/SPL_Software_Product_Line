@@ -122,8 +122,8 @@ end
 
   def content_administration_form
     reset_state()
-    content_items = readFile($items_file)
-    items = content_items.select { |item| item['author'] == $user_id }
+    items = readFile($items_file)
+    items = items.select { |item| item['author'] == $user_id }
     Frontend.new().manage_content_table(items)
   end
   
@@ -144,11 +144,11 @@ end
     end    
       items.each do |item|
         if item['type'] == 'Videos' || item['type'] == 'Movies' || item['type'] == 'Music'
-          html += frontend.content_item_body_video(item, generate_video_embed(item['media_url']))       
+          html += frontend.item_body_video(item, generate_video_embed(item['media_url']))       
         else
           base64_image = frontend.image_url_to_base64(item['media_url'])
           unless unique_images.include?(base64_image)                      
-            html += frontend.content_item_body_image(item, base64_image)
+            html += frontend.item_body_image(item, base64_image)
           end
         end
       end

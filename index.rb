@@ -6,12 +6,10 @@ require 'date'
 
 users_semantic_model = create_semantic_model('./DSL/user.rb')
 users_reader = UsersReader.new
-content_item_semantic_model = create_semantic_model('./DSL/content_item.rb')
-content_item_reader = ContentItemsReader.new
+content_item_semantic_model = create_semantic_model('./DSL/item.rb')
+items_reader = ItemsReader.new
 comment_semantic_model = create_semantic_model('./DSL/comment.rb')
 comments_reader = CommentsReader.new
-events_semantic_model = create_semantic_model('./DSL/event.rb')
-events_reader = EventsReader.new
 authentication_form = Authenticator.new
 
 $items_file = './Data/items.json'
@@ -95,8 +93,8 @@ end
     html = "<html>
       <body>
         #{Menu.generate_menu_html()}
-        #{content_item_reader.print_item($selected_item)}
-        #{content_item_reader.rate_item($selected_item)}
+        #{items_reader.print_item($selected_item)}
+        #{items_reader.rate_item($selected_item)}
         #{comments_reader.print_comments($selected_item, users_reader)}
       </body>
     </html>"
@@ -119,7 +117,7 @@ get '/Manage-content' do
   return "<html>
         <body>
          #{Menu.generate_menu_html()}
-         #{content_item_reader.content_administration_form}
+         #{items_reader.content_administration_form}
         </body>
     </html>"
 end
@@ -129,7 +127,7 @@ get '/:type' do
   html = "<html>
     <body>
       #{Menu.generate_menu_html()}
-      #{content_item_reader.print_items(params['type'].capitalize, params['sb'] || 'date')}
+      #{items_reader.print_items(params['type'].capitalize, params['sb'] || 'date')}
     </body>
   </html>"
   html
@@ -140,7 +138,7 @@ post '/edit' do
   html = "<html>
     <body>
       #{Menu.generate_menu_html()}
-      #{content_item_reader.generate_edition_form(params['item_id'])}
+      #{items_reader.generate_edition_form(params['item_id'])}
     </body>
   </html>"
   html
@@ -177,22 +175,22 @@ put '/create_item' do
     "rating": 0,
     "type": params['type']
   }
-  content = content_item_reader.readFile($items_file)
+  content = items_reader.readFile($items_file)
   content << new_content
-  content_item_reader.writeFile(url, content)
+  items_reader.writeFile(url, content)
   redirect "#{params['type']}"
 end
 
 put '/edit_item' do
   item_id = params[:item_id]
-  content = content_item_reader.readFile($items_file)
+  content = items_reader.readFile($items_file)
   index_to_edit = content.find_index { |item| item["id"] == item_id }
   content[index_to_edit]["title"] = params['title']
   content[index_to_edit]["source"] = params['source']
   content[index_to_edit]["description"] = params['description']
   content[index_to_edit]["date"] = params['date']
   content[index_to_edit]["media_url"] = params['media_url']
-  content_item_reader.writeFile($items_file, content)
+  items_reader.writeFile($items_file, content)
   title_with_hyphens = content[index_to_edit]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
   redirect "/#{content[index_to_edit]["type"]}/#{title_with_hyphens}"
 end
@@ -200,10 +198,10 @@ end
 
 post '/delete' do
   item_id = params['item_id']
-  items = content_item_reader.readFile($items_file)
+  items = items_reader.readFile($items_file)
   index_to_delete = items.find_index { |item| item["id"] == item_id }
   items.delete_at(index_to_delete)
-  content_item_reader.writeFile($items_file, items)
+  items_reader.writeFile($items_file, items)
   redirect "/#{params['page']}"
 end
 
@@ -219,7 +217,7 @@ post '/submit_comment' do
   comments << new_comment
   comments_reader.writeFile('./Data/comments.json', comments)
   item_id = params['item_id']
-  content_items = content_item_reader.readFile($items_file)
+  content_items = items_reader.readFile($items_file)
   selected_item = content_items.find { |item| item["id"] == $selected_item }
   title_with_hyphens = selected_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
   redirect "/#{selected_item['type']}/#{title_with_hyphens}"
@@ -231,7 +229,7 @@ post '/delete_comment' do # Delete a comment
   index_to_delete = comments.find_index { |comment| comment["id"] == comment_id }
   comments.delete_at(index_to_delete)
   comments_reader.writeFile('./Data/comments.json', comments)
-  content_items = content_item_reader.readFile($items_file)
+  content_items = items_reader.readFile($items_file)
   selected_item = content_items.find { |item| item["id"] == $selected_item }
   title_with_hyphens = selected_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
   redirect "/#{selected_item['type']}/#{title_with_hyphens}"
@@ -245,14 +243,14 @@ post '/update_comment' do # Actualizar un comentario
   comments[index_to_update]["text"] = updated_text
   comments[index_to_update]["pubdate"] = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
   comments_reader.writeFile('./Data/comments.json', comments)
-  content_items = content_item_reader.readFile($items_file)
+  content_items = items_reader.readFile($items_file)
   selected_item = content_items.find { |item| item["id"] == $selected_item }
   title_with_hyphens = selected_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
   redirect "/#{selected_item['type']}/#{title_with_hyphens}"
 end
 
 post '/update_rating' do  # Actualizar la puntuación
-  content_items = content_item_reader.readFile($items_file)
+  content_items = items_reader.readFile($items_file)
   index_to_update = content_items.find_index { |item| item["id"] == params['item_id'] }
   current_rating = content_items[index_to_update]["rating"]
   new_rating = params['rating'].to_i 
@@ -262,7 +260,7 @@ post '/update_rating' do  # Actualizar la puntuación
     average_rating = (current_rating + new_rating) / 2
   end
   content_items[index_to_update]["rating"] = average_rating
-  content_item_reader.writeFile($items_file, content_items)
+  items_reader.writeFile($items_file, content_items)
   redirect "/#{content_items[index_to_update]["type"] }/#{content_items[index_to_update]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase}"
 end
 
@@ -271,7 +269,7 @@ def generate_video_embed(url)
     video_id = extract_youtube_video_id(url)
   return "<div style='position:relative; padding-bottom:56.25%; height:0; overflow:hidden; max-width:100%;'><iframe width='100%' height='100%' src='https://www.youtube.com/embed/#{video_id}' style='position:absolute; top:0; left:0; width:100%; height:100%;' frameborder='0' allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe></div>"
  else
-    return "<p>Video no compatible</p>"
+    return "<p>Video not supported</p>"
   end
 end
 

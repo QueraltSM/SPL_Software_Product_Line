@@ -536,7 +536,7 @@ class Frontend
       end
     end
 
-    def content_item_body_image(item, base64_image)
+    def item_body_image(item, base64_image)
       title_with_hyphens = item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
       <<~HTML
       <form class='item' action="/#{item['type']}/#{title_with_hyphens}" method='post' style='text-align:center;cursor: pointer; width: 30%; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f9f9f9;'>
@@ -570,7 +570,7 @@ class Frontend
     end  
 
 
-    def content_item_body_video(content_item, embedded_video)
+    def item_body_video(item, embedded_video)
       title_with_hyphens = item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
       <<~HTML
       <form action='/#{item['type']}/#{title_with_hyphens}' method='post' style='text-align:center;cursor: pointer; width: 30%; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f9f9f9;'>
