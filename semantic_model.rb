@@ -110,11 +110,11 @@ end
     end
   end
 
-  def generate_edition_form(content_item_id)
-    readFile('./Data/content_items.json')
-    @data.each do |content_item|
-      if content_item['id'] == content_item_id
-        return Frontend.new().edit_content_item_form(content_item)
+  def generate_edition_form(id)
+    items = readFile($items_file)
+    items.each do |item|
+      if item['id'] == id
+        return Frontend.new().edit_item_form(item)
       end
     end
     return nil
@@ -122,39 +122,33 @@ end
 
   def content_administration_form
     reset_state()
-    readFile('./Data/content_items.json')
-    items = []
-    @data.each do |content_item|
-      if content_item['author'] == $user_id
-        items << content_item
-      end 
-    end
+    content_items = readFile($items_file)
+    items = content_items.select { |item| item['author'] == $user_id }
     Frontend.new().manage_content_table(items)
   end
-   
-    def print_content_items(type, sb)
-      reset_state()
-      readFile('./Data/content_items.json')
-      frontend = Frontend.new()
-      html = frontend.content_items_header_style(type)
-      html += frontend.content_items_search_form(type, sb)
-
-      html += "<div id='#{type}_content' style='display: flex; flex-wrap: wrap; margin: 15px; padding: 20px;'>"
-      unique_images = Set.new
-      if sb == 'rating'
-        items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
-      elsif sb == 'date'
-        items = @data.select { |item| item['type'] == type }
-              .sort_by { |item| DateTime.parse(item['pubdate']) }
-              .reverse
-      end    
-      items.each do |content_item|
-        if content_item['type'] == 'Videos' || content_item['type'] == 'Movies' || content_item['type'] == 'Music'
-          html += frontend.content_item_body_video(content_item, generate_video_embed(content_item['digital_content']))       
+  
+  def print_items(type, sb)
+    reset_state()
+    readFile($items_file)
+    frontend = Frontend.new()
+    html = frontend.items_header_style(type)
+    html += frontend.items_search_form(type, sb)
+    html += "<div id='#{type}_content' style='display: flex; flex-wrap: wrap; margin: 15px; padding: 20px;'>"
+    unique_images = Set.new
+    if sb == 'rating'
+      items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
+    elsif sb == 'date'
+      items = @data.select { |item| item['type'] == type }
+        .sort_by { |item| DateTime.parse(item['pubdate']) }
+        .reverse
+    end    
+      items.each do |item|
+        if item['type'] == 'Videos' || item['type'] == 'Movies' || item['type'] == 'Music'
+          html += frontend.content_item_body_video(item, generate_video_embed(item['media_url']))       
         else
-          base64_image = frontend.image_url_to_base64(content_item['digital_content'])
+          base64_image = frontend.image_url_to_base64(item['media_url'])
           unless unique_images.include?(base64_image)                      
-            html += frontend.content_item_body_image(content_item, base64_image)
+            html += frontend.content_item_body_image(item, base64_image)
           end
         end
       end
@@ -163,62 +157,39 @@ end
     end
   end  
 
-  def print_content_item(id)
+  def print_item(id)
     reset_state()
-    readFile('./Data/content_items.json')
+    readFile($items_file)
     html = "<div style='display: flex; flex-direction: column; align-items: center; margin-top: 20px;text-align:justify;'>"
-    @data.each do |content_item|
-      if content_item['id'] == id
+    @data.each do |item|
+      if item['id'] == id
         frontend = Frontend.new()
-        html += frontend.content_item_body_style(content_item)
+        html += frontend.item_body_style(item)
       end
     end
     html += "</div>"
     return html
   end
 
-  def print_events(sb)
-    reset_state()
-    readFile('./Data/events.json')
-    frontend = Frontend.new()
-    html = ""
-    @data.reject! { |event| DateTime.parse(event['datetime']) < DateTime.now } # Delete past events from events.json
-    writeFile('./Data/events.json', @data)
-    sorted_data = @data.sort_by { |event| DateTime.parse(event['datetime']) }.reverse
-    html += frontend.header_events()
-    items = sb ? sorted_data[-3..-1] : sorted_data
-    html += frontend.search_form_events(sb)
-    html += "<div style='display: flex; flex-wrap: wrap; justify-content: center; margin: 15px; padding: 10px;text-align:center'>"
-    if sb == 'upcoming'
-      items = @data.select { |item| DateTime.parse(item['datetime']) >= DateTime.now }.sort_by { |item| DateTime.parse(item['datetime']) }
-    elsif sb == 'recent'
-      items = @data.sort_by { |item| DateTime.parse(item['pubdate']) }.reverse
-    end
-    html += "</div>"
-    return html
-  end
-
-  def rating_content_item(content_item_id)
-    content_item = @data.find { |item| item['id'] == content_item_id }
-    content_rating = content_item['rating']
-    Frontend.new().rating_body(content_item_id, content_rating)
+  def rate_item(item_id)
+    item = @data.find { |item| item['id'] == item_id }
+    Frontend.new().rating_body(item_id, item['rating'])
   end
   
-  def print_comments(content_item_id, joined_reader) # Print and manage comments
+  def print_comments(item_id, joined_reader) # Print and manage comments
     reset_state()
     readFile('./Data/comments.json')
-    sorted_comments = @data.select { |comment| comment['content_item_id'] == content_item_id }
+    sorted_comments = @data.select { |comment| comment['item_id'] == item_id }
                            .sort_by { |comment| DateTime.parse(comment['pubdate']) }.reverse
-    html = Frontend.new().comments_form(content_item_id,sorted_comments)       
+    html = Frontend.new().comments_form(item_id,sorted_comments)       
     html += "<div style='text-align: center;'><h4>#{sorted_comments.size} comments</h4></div>" 
     if !sorted_comments.empty?
       sorted_comments.each do |comment|
         user = joined_reader.getJoinedId(comment['user_id'], './Data/users.json')
-        html += Frontend.new().print_comment(comment, content_item_id, user)  
+        html += Frontend.new().print_comment(comment, item_id, user)  
       end
     end
     html += "</div></div>"
     return html
     end
-    
 end

@@ -14,6 +14,8 @@ events_semantic_model = create_semantic_model('./DSL/event.rb')
 events_reader = EventsReader.new
 authentication_form = Authenticator.new
 
+$items_file = './Data/items.json'
+
 get '/' do
   redirect '/login'
 end
@@ -83,45 +85,21 @@ get '/index' do
   html
 end
 
-# List of event's view
-get '/Events' do
-  html = "<html>
-                    <body>
-                      #{Menu.generate_menu_html()}
-                      #{events_reader.print_events(params['sb'] || 'upcoming')}
-                    </body>
-                  </html>"
-  html
-end
-
-# View of a particular event
-post '/Event/:name' do
-  html = "<html>
-  <body>
-    #{Menu.generate_menu_html()}
-    #{events_reader.print_event(params['event_id'])}
-  </body>
-</html>"
-html
-end
-
 # View of a particular content item
 ['get', 'post'].each do |method|
   send(method, '/:type/:name') do
-    content_item_id = params['content_item_id'].nil? || params['content_item_id'].empty? ? $selected_content_item : params['content_item_id']
-    if method == 'post' && !content_item_id.empty?
-      $selected_content_item = content_item_id
+    item_id = params['item_id'].nil? || params['item_id'].empty? ? $selected_item : params['item_id']
+    if method == 'post' && !item_id.empty?
+      $selected_item = item_id
     end
-    puts "selected"
-    puts $selected_content_item
     html = "<html>
-            <body>
-              #{Menu.generate_menu_html()}
-              #{content_item_reader.print_content_item($selected_content_item)}
-              #{content_item_reader.rating_content_item($selected_content_item)}
-              #{comments_reader.print_comments($selected_content_item, users_reader)}
-            </body>
-          </html>"
+      <body>
+        #{Menu.generate_menu_html()}
+        #{content_item_reader.print_item($selected_item)}
+        #{content_item_reader.rate_item($selected_item)}
+        #{comments_reader.print_comments($selected_item, users_reader)}
+      </body>
+    </html>"
     html
   end
 end
@@ -148,22 +126,21 @@ end
 
 # Multimedia content page based on type
 get '/:type' do
-  content_type = params[:type]
   html = "<html>
-            <body>
-              #{Menu.generate_menu_html()}
-              #{content_item_reader.print_content_items(content_type.capitalize, params['sb'] || 'date')}
-            </body>
-          </html>"
+    <body>
+      #{Menu.generate_menu_html()}
+      #{content_item_reader.print_items(params['type'].capitalize, params['sb'] || 'date')}
+    </body>
+  </html>"
   html
 end
 
 post '/edit' do
-  $selected_content_item = params['content_item_id']
+  $selected_item = params['item_id']
   html = "<html>
     <body>
       #{Menu.generate_menu_html()}
-      #{content_item_reader.generate_edition_form(params['content_item_id'])}
+      #{content_item_reader.generate_edition_form(params['item_id'])}
     </body>
   </html>"
   html
@@ -188,66 +165,45 @@ def build_youtube_embed_url(url)
 end
 
 put '/create_item' do
-  url = './Data/content_items.json'
-  if params['type'] == 'Events'
-    new_content = {
-      "id": SecureRandom.uuid,
-      "author": $user_id,
-      "title": params['title'],
-      "description": params['description'],
-      "date": params['date'],
-      "pubdate": Time.now.strftime("%Y-%m-%dT%H:%M:%S"),
-      "location": params['location'],
-      "datetime": params['datetime'],
-      "image": params['digital_content']
-    }
-    url = './Data/events.json'
-  else
-    new_content = {
-      "id": SecureRandom.uuid,
-      "title": params['title'],
-      "source": params['source'],
-      "author": $user_id,
-      "description": params['description'],
-      "date": params['date'],
-      "pubdate": Time.now.strftime("%Y-%m-%dT%H:%M:%S"),
-      "digital_content": params['digital_content'],
-      "rating": 0,
-      "type": params['type']
-    }
-  end
-  content = content_item_reader.readFile(url)
+  new_content = {
+    "id": SecureRandom.uuid,
+    "title": params['title'],
+    "source": params['source'],
+    "author": $user_id,
+    "description": params['description'],
+    "date": params['date'],
+    "pubdate": Time.now.strftime("%Y-%m-%dT%H:%M:%S"),
+    "media_url": params['media_url'],
+    "rating": 0,
+    "type": params['type']
+  }
+  content = content_item_reader.readFile($items_file)
   content << new_content
   content_item_reader.writeFile(url, content)
-  if params['type'] == 'Events'
-    redirect "/Events"
-  else
-    redirect "#{params['type']}"
-  end  
+  redirect "#{params['type']}"
 end
 
 put '/edit_item' do
-  url = './Data/content_items.json'
-  item_id = params[:content_item_id]
-  content = content_item_reader.readFile(url)
+  item_id = params[:item_id]
+  content = content_item_reader.readFile($items_file)
   index_to_edit = content.find_index { |item| item["id"] == item_id }
   content[index_to_edit]["title"] = params['title']
   content[index_to_edit]["source"] = params['source']
   content[index_to_edit]["description"] = params['description']
   content[index_to_edit]["date"] = params['date']
-  content[index_to_edit]["digital_content"] = params['digital_content']
-  content_item_reader.writeFile(url, content)
+  content[index_to_edit]["media_url"] = params['media_url']
+  content_item_reader.writeFile($items_file, content)
   title_with_hyphens = content[index_to_edit]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
   redirect "/#{content[index_to_edit]["type"]}/#{title_with_hyphens}"
 end
 
 
 post '/delete' do
-  content_item_id = params['content_item_id']
-  items = content_item_reader.readFile('./Data/content_items.json')
-  index_to_delete = items.find_index { |item| item["id"] == content_item_id }
+  item_id = params['item_id']
+  items = content_item_reader.readFile($items_file)
+  index_to_delete = items.find_index { |item| item["id"] == item_id }
   items.delete_at(index_to_delete)
-  content_item_reader.writeFile('./Data/content_items.json', items)
+  content_item_reader.writeFile($items_file, items)
   redirect "/#{params['page']}"
 end
 
@@ -255,18 +211,18 @@ post '/submit_comment' do
   new_comment = {
     "id": SecureRandom.uuid,
     "user_id": params['comment_user_id'],
-    "content_item_id":  params['content_item_id'],
+    "item_id":  params['item_id'],
     "text": params['comment_text'],
     "pubdate": DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
   }
   comments = comments_reader.readFile('./Data/comments.json')
   comments << new_comment
   comments_reader.writeFile('./Data/comments.json', comments)
-  content_item_id = params['content_item_id']
-  content_items = content_item_reader.readFile('./Data/content_items.json')
-  selected_content_item = content_items.find { |item| item["id"] == $selected_content_item }
-  title_with_hyphens = selected_content_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
-  redirect "/#{selected_content_item['type']}/#{title_with_hyphens}"
+  item_id = params['item_id']
+  content_items = content_item_reader.readFile($items_file)
+  selected_item = content_items.find { |item| item["id"] == $selected_item }
+  title_with_hyphens = selected_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+  redirect "/#{selected_item['type']}/#{title_with_hyphens}"
 end
 
 post '/delete_comment' do # Delete a comment
@@ -275,10 +231,10 @@ post '/delete_comment' do # Delete a comment
   index_to_delete = comments.find_index { |comment| comment["id"] == comment_id }
   comments.delete_at(index_to_delete)
   comments_reader.writeFile('./Data/comments.json', comments)
-  content_items = content_item_reader.readFile('./Data/content_items.json')
-  selected_content_item = content_items.find { |item| item["id"] == $selected_content_item }
-  title_with_hyphens = selected_content_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
-  redirect "/#{selected_content_item['type']}/#{title_with_hyphens}"
+  content_items = content_item_reader.readFile($items_file)
+  selected_item = content_items.find { |item| item["id"] == $selected_item }
+  title_with_hyphens = selected_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+  redirect "/#{selected_item['type']}/#{title_with_hyphens}"
 end
 
 post '/update_comment' do # Actualizar un comentario
@@ -289,15 +245,15 @@ post '/update_comment' do # Actualizar un comentario
   comments[index_to_update]["text"] = updated_text
   comments[index_to_update]["pubdate"] = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
   comments_reader.writeFile('./Data/comments.json', comments)
-  content_items = content_item_reader.readFile('./Data/content_items.json')
-  selected_content_item = content_items.find { |item| item["id"] == $selected_content_item }
-  title_with_hyphens = selected_content_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
-  redirect "/#{selected_content_item['type']}/#{title_with_hyphens}"
+  content_items = content_item_reader.readFile($items_file)
+  selected_item = content_items.find { |item| item["id"] == $selected_item }
+  title_with_hyphens = selected_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+  redirect "/#{selected_item['type']}/#{title_with_hyphens}"
 end
 
 post '/update_rating' do  # Actualizar la puntuación
-  content_items = content_item_reader.readFile('./Data/content_items.json')
-  index_to_update = content_items.find_index { |item| item["id"] == params['content_item_id'] }
+  content_items = content_item_reader.readFile($items_file)
+  index_to_update = content_items.find_index { |item| item["id"] == params['item_id'] }
   current_rating = content_items[index_to_update]["rating"]
   new_rating = params['rating'].to_i 
   if current_rating == 0
@@ -306,7 +262,7 @@ post '/update_rating' do  # Actualizar la puntuación
     average_rating = (current_rating + new_rating) / 2
   end
   content_items[index_to_update]["rating"] = average_rating
-  content_item_reader.writeFile('./Data/content_items.json', content_items)
+  content_item_reader.writeFile($items_file, content_items)
   redirect "/#{content_items[index_to_update]["type"] }/#{content_items[index_to_update]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase}"
 end
 
