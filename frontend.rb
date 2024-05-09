@@ -353,61 +353,6 @@ class Frontend
       HTML
     end
 
-    def event_body_style(event)
-      base64_image = image_url_to_base64(event['media_url'])
-      unique_images = Set.new
-      unless unique_images.include?(base64_image)
-        unique_images.add(base64_image)
-        date = Date.parse(event['date']).strftime("%d %B %Y")
-        if  Date.parse(event['date']) == Date.today
-          date = "Today"
-        end
-        <<~HTML
-          <style>
-          .container {
-              font-family: 'BBC Reith Sans';
-              text-align: justify;
-              width: 50%;
-              margin: 20px auto;
-              background-color: #fff;
-              border-radius: 15px;
-              overflow: hidden;
-          }
-          .header {
-              padding: 20px 0;
-          }
-          .article-card {
-              padding: 20px;
-              border-bottom: 1px solid #eee;
-          }
-          .article-image {
-              width: 100%;
-              height: auto;
-              border-radius: 10px;
-              object-fit: cover;
-          }
-          .article-source {
-              color: #666;
-              margin-bottom: 5px;
-          }
-          .article-description {
-              line-height: 2;
-              font-size: 17px;
-          }
-          </style>
-          <div class="container">
-            <div class="header">
-              <h1>#{event['title']}</h1>
-              <span>By <strong>#{event['source']}</strong></span><br>
-              <span style='color: #999999;'>#{date}</span>
-            </div>
-          </div>
-          <img class="article-image" src='data:image/jpeg;base64,#{base64_image}' style='max-width:800px; max-height:700px;'>
-          <div class="container"><p class="article-description">#{event['description']}</p></div>
-          HTML
-        end
-    end 
-
     def item_body_style(item)
       base64_image = image_url_to_base64(item['media_url'])
       unique_images = Set.new
@@ -1189,10 +1134,6 @@ class Frontend
         puts "Error: #{e.message}"
         return nil
       end
-    end
-
-    def rating_html(rating)
-      "<p style='color: #777; font-size: 14px; margin-bottom: 5px;'><strong>Rating</strong> #{rating}</p>"
     end
 
     def rating_body(item_id, content_rating)

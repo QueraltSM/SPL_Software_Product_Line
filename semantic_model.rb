@@ -1,4 +1,4 @@
-require 'memoist'
+# require 'memoist'
 require 'net/http'
 require 'base64'
 require_relative './Frontend'
@@ -74,9 +74,9 @@ class_reader.class_eval do
     @data = []
   end
   def user_exists?(email, password)
-      readFile('./Data/users.json')
-      @data.find { |user| user['email'].downcase == email.downcase && user['password'] == password }
-  end
+    readFile('./Data/users.json')
+    @data.find { |user| user['email'].downcase == email.downcase && Base64.decode64(user['password']) == password }
+end
   def email_exists?(email)
     readFile('./Data/users.json')
     @data.find { |user| user['email'].downcase == email.downcase }
@@ -87,8 +87,7 @@ def create_user?(name,email, password)
     "id": SecureRandom.uuid,
     "name": name,
     "email": email,
-    "password": password,
-    "role": "User"
+    "password": Base64.encode64(password).chomp
   }
   users = readFile('./Data/users.json')
   users << new_user

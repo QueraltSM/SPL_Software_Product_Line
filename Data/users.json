@@ -1,23 +1,14 @@
 [
   {
-    "id": "126d00cd-a5a8-4b56-bac1-a3e3fa5d155e",
-    "name": "Administrator",
-    "email": "admin@uned.es",
-    "password": "admin123",
-    "role": "Admin"
-  },
-  {
     "id": "5e4ec39a-80b8-4154-8e42-04872ce11fa1",
     "name": "María",
     "email": "maria@uned.es",
-    "password": "maria123",
-    "role": "User"
+    "password": "bWFyaWExMjM="
   },
   {
     "id": "17a6dafd-3144-4b04-99f2-18c43f77ff08",
     "name": "usuario prueba",
     "email": "prueba@uned.es",
-    "password": "prueba123",
-    "role": "User"
+    "password": "cHJ1ZWJhMTIz"
   }
 ]

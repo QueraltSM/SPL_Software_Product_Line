@@ -93,14 +93,15 @@ end
     html = "<html>
       <body>
         #{Menu.generate_menu_html()}
-        #{items_reader.print_item($selected_item)}
-        #{items_reader.rate_item($selected_item)}
-        #{comments_reader.print_comments($selected_item, users_reader)}
-      </body>
-    </html>"
-    html
+        #{items_reader.print_item($selected_item)}"
+        html += "#{params['type'] != 'Events' ? items_reader.rate_item($selected_item) : ''}"
+        html += "#{params['type'] != 'Events' ? comments_reader.print_comments($selected_item, users_reader) : ''}"
+        html += "</body>
+        </html>"
+      html
   end
 end
+
 
 # Creation form
 get '/Create' do
