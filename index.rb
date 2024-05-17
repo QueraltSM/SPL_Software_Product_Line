@@ -14,10 +14,12 @@ authentication_form = Authenticator.new
 
 $items_file = './Data/items.json'
 
+# Starting point
 get '/' do
   redirect '/login'
 end
 
+# Login form
 get '/login' do
   authentication_form = Authenticator.new
   authentication_form.form(action: '/login', method: 'post') do
@@ -27,6 +29,7 @@ get '/login' do
   authentication_form.generate_form('login')
 end
 
+# Manages login request
 post '/login' do
   email = params[:email]
   password = params[:password]
@@ -38,6 +41,7 @@ post '/login' do
   end
 end
 
+# Signup form
 get '/signup' do
   authentication_form = Authenticator.new
   authentication_form.form(action: '/singup', method: 'post') do
@@ -49,6 +53,7 @@ get '/signup' do
   authentication_form.generate_form('signup')
 end 
 
+# Manages signup request
 post '/signup' do
   name = params[:name]
   email = params[:email]
@@ -67,16 +72,12 @@ end
 
 # Home page
 get '/index' do
-  def generate_landing_page
-    html = Frontend.new().home_header()
-    html += Frontend.new().home_body()
-    html
-  end
   html = <<~HTML
     <html>
       <body>
         #{Menu.generate_menu_html()}
-        #{generate_landing_page()}
+        #{Frontend.new().home_header()}
+        #{Frontend.new().home_body()}
       </body>
     </html>
   HTML
@@ -90,6 +91,9 @@ end
     if method == 'post' && !item_id.empty?
       $selected_item = item_id
     end
+    
+    puts $selected_item
+
     html = "<html>
       <body>
         #{Menu.generate_menu_html()}
@@ -106,32 +110,63 @@ end
 # Creation form
 get '/Create' do
   return "<html>
-        <body>
-         #{Menu.generate_menu_html()}
-         #{Frontend.new().creation_content_item_form}
-        </body>
+      <body>
+        #{Menu.generate_menu_html()}
+        #{Frontend.new().creation_item_form_styles}
+        #{Frontend.new().creation_item_form}
+        #{Frontend.new().creation_item_form_scripts}
+      </body>
     </html>"
 end
 
+# Method to process the Creation of content
+put '/create_item' do
+  new_content = {
+    "id": SecureRandom.uuid,
+    "title": params['title'],
+    "source": params['source'],
+    "author": $user_id,
+    "description": params['description'],
+    "date": params['date'],
+    "pubdate": Time.now.strftime("%Y-%m-%dT%H:%M:%S"),
+    "media_url": params['media_url'],
+    "rating": 0,
+    "type": params['type']
+  }
+  content = items_reader.readFile($items_file)
+  content << new_content
+  items_reader.writeFile($items_file, content)
+  redirect "#{params['type']}"
+end
+
+# View multimedia content page based on type
+get '/:type' do
+  "<html>
+    <body>
+      #{Menu.generate_menu_html()}
+      #{items_reader.print_items(params['type'].capitalize, params['sb'] || 'date')}
+    </body>
+  </html>"
+end
+
+# Method that generates HTML code to embed a video
+def generate_video_embed(url)
+  if url.include?('youtube.com') || url.include?('youtu.be')
+    video_id = extract_youtube_video_id(url)
+  return "<div style='position:relative; padding-bottom:56.25%; height:0; overflow:hidden; max-width:100%;'><iframe width='100%' height='100%' src='https://www.youtube.com/embed/#{video_id}' style='position:absolute; top:0; left:0; width:100%; height:100%;' frameborder='0' allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe></div>"
+ else
+    return "<p>Video not supported</p>"
+  end
+end
+
 # Administration of content form
-get '/Manage-content' do
+get '/manage-content' do
   return "<html>
         <body>
          #{Menu.generate_menu_html()}
          #{items_reader.content_administration_form}
         </body>
     </html>"
-end
-
-# Multimedia content page based on type
-get '/:type' do
-  html = "<html>
-    <body>
-      #{Menu.generate_menu_html()}
-      #{items_reader.print_items(params['type'].capitalize, params['sb'] || 'date')}
-    </body>
-  </html>"
-  html
 end
 
 post '/edit' do
@@ -161,25 +196,6 @@ def build_youtube_embed_url(url)
   else
     return nil
   end
-end
-
-put '/create_item' do
-  new_content = {
-    "id": SecureRandom.uuid,
-    "title": params['title'],
-    "source": params['source'],
-    "author": $user_id,
-    "description": params['description'],
-    "date": params['date'],
-    "pubdate": Time.now.strftime("%Y-%m-%dT%H:%M:%S"),
-    "media_url": params['media_url'],
-    "rating": 0,
-    "type": params['type']
-  }
-  content = items_reader.readFile($items_file)
-  content << new_content
-  items_reader.writeFile(url, content)
-  redirect "#{params['type']}"
 end
 
 put '/edit_item' do
@@ -263,15 +279,6 @@ post '/update_rating' do  # Actualizar la puntuación
   content_items[index_to_update]["rating"] = average_rating
   items_reader.writeFile($items_file, content_items)
   redirect "/#{content_items[index_to_update]["type"] }/#{content_items[index_to_update]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase}"
-end
-
-def generate_video_embed(url)
-  if url.include?('youtube.com') || url.include?('youtu.be')
-    video_id = extract_youtube_video_id(url)
-  return "<div style='position:relative; padding-bottom:56.25%; height:0; overflow:hidden; max-width:100%;'><iframe width='100%' height='100%' src='https://www.youtube.com/embed/#{video_id}' style='position:absolute; top:0; left:0; width:100%; height:100%;' frameborder='0' allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe></div>"
- else
-    return "<p>Video not supported</p>"
-  end
 end
 
 def extract_youtube_video_id(url)

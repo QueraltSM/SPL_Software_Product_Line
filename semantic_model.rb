@@ -53,35 +53,39 @@ class_reader.class_eval do
     @data = Array.new
     @username = nil
   end
+
+  # Method that reads the content of a JSON file
   define_method :readFile do |file_path|
     file_content = File.read(file_path)
     @data = JSON.parse(file_content)
   end
+
+  # Method that writes data to a JSON file
   define_method :writeFile do |file_path, data|
     File.open(file_path, 'w') do |file|
       file.write(JSON.pretty_generate(data))
     end
   end  
-  define_method :process_line do |line|
-    @data << entity_class_data.new(line)
-  end
-  define_method :print do
-    @data.each do |entity|
-      puts entity.to_s
-    end
-  end
+
   def reset_state
     @data = []
   end
+
+  # Check if user exists (email and password matches)
   def user_exists?(email, password)
     readFile('./Data/users.json')
     @data.find { |user| user['email'].downcase == email.downcase && Base64.decode64(user['password']) == password }
-end
+  end
+
+  # Check if user email exists
   def email_exists?(email)
     readFile('./Data/users.json')
     @data.find { |user| user['email'].downcase == email.downcase }
+  end
+
 end
 
+# Create user in users.json file
 def create_user?(name,email, password)
   new_user = {
     "id": SecureRandom.uuid,
@@ -94,6 +98,7 @@ def create_user?(name,email, password)
   writeFile('./Data/users.json', users)
 end
 
+# Save user in local variables
 def save_user(email)
   readFile('./Data/users.json')
   user = @data.find { |u| u['email'].downcase == email.downcase }
@@ -126,36 +131,35 @@ end
     Frontend.new().manage_content_table(items)
   end
   
+  # Method that generates the HTML to display digital content elements of a specific type
   def print_items(type, sb)
     reset_state()
     readFile($items_file)
     frontend = Frontend.new()
-    html = frontend.items_header_style(type)
+    html = frontend.items_header_styles(type)
     html += frontend.items_search_form(type, sb)
+    html += frontend.items_search_form_scripts(type)
     html += "<div id='#{type}_content' style='display: flex; flex-wrap: wrap; margin: 15px; padding: 20px;'>"
+    items = if sb == 'rating'
+              @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
+            elsif sb == 'date' || type == 'Events'
+              @data.select { |item| item['type'] == type }.sort_by { |item| DateTime.parse(item['date'] || item['pubdate']) }.reverse
+            end
     unique_images = Set.new
-    if sb == 'rating'
-      items = @data.select { |item| item['type'] == type }.sort_by { |item| -(item['rating'] || 0).to_i }
-    elsif sb == 'date'
-      items = @data.select { |item| item['type'] == type }
-        .sort_by { |item| DateTime.parse(item['pubdate']) }
-        .reverse
-    end    
-      items.each do |item|
-        if item['type'] == 'Videos' || item['type'] == 'Movies' || item['type'] == 'Music'
-          html += frontend.item_body_video(item, generate_video_embed(item['media_url']))       
-        else
-          base64_image = frontend.image_url_to_base64(item['media_url'])
-          unless unique_images.include?(base64_image)                      
-            html += frontend.item_body_image(item, base64_image)
-          end
+    items.each do |item|
+      if ['Videos', 'Movies', 'Music'].include?(item['type'])
+        html += frontend.item_body_video(item, generate_video_embed(item['media_url']))
+      else
+        base64_image = frontend.image_url_to_base64(item['media_url'])
+        unless unique_images.include?(base64_image)
+          html += frontend.item_body_image(item, base64_image)
         end
       end
-      html += "</div>"
-      return html
     end
-  end  
-
+    html += "</div>"
+    html
+  end
+ 
   def print_item(id)
     reset_state()
     readFile($items_file)

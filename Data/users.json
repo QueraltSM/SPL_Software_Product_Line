@@ -1,14 +1,14 @@
 [
   {
     "id": "5e4ec39a-80b8-4154-8e42-04872ce11fa1",
-    "name": "María",
+    "name": "María Sosa Mompel",
     "email": "maria@uned.es",
     "password": "bWFyaWExMjM="
   },
   {
-    "id": "17a6dafd-3144-4b04-99f2-18c43f77ff08",
-    "name": "usuario prueba",
-    "email": "prueba@uned.es",
-    "password": "cHJ1ZWJhMTIz"
+    "id": "67af018a-d955-4b62-89dd-04ad2580a461",
+    "name": "Miguel Hernández Noguera",
+    "email": "miguel@uned.es",
+    "password": "bWlndWVsMTIz"
   }
 ]
