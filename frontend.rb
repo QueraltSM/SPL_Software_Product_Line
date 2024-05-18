@@ -255,7 +255,7 @@ class Frontend
     HTML
     end
 
-    def edit_item_form(item)
+    def edition_item_form(item)
       <<~HTML
       <br><br>
       <h4 style='text-align: center;
@@ -295,9 +295,7 @@ class Frontend
         <button type='submit' class='btn btn-primary' style='width: 10%; padding: 10px; font-weight:bold; background-color: #E3ECD6; border: none; color: #000; border-radius: 3px; cursor: pointer;'>Update</button>
         </div>
       </form>
-      
       #{auto_resize('description')}
-
       <script>
         if ("#{item["type"]}" === "News") {
           document.getElementById("source-label").innerHTML = "Source";
@@ -677,7 +675,94 @@ class Frontend
       HTML
     end
     
-    def manage_content_table(items)
+
+    def edit_item_form_styles
+      <<~HTML
+      <style>
+      .table-wrapper {
+        overflow-x: auto;
+      }
+      .table {
+        padding-top: 20px;
+        width: 95%;
+        margin-left: auto;
+        margin-right: auto;
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+      .table th, .table td {
+        padding: 10px 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+        font-size: 14px;
+      }
+      .table th {
+        background-color: #E3ECD6;
+        color: #333;
+        font-weight: bold;
+      }
+      .table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      .table tbody tr:hover {
+        background-color: #f0f0f0;
+      }
+      .table-actions button {
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 16px;
+        margin-right: 5px;
+        padding: 5px;
+        color: #999;
+        transition: color 0.3s;
+      }
+      .table-actions button:hover {
+        color: #333;
+      }
+      </style>
+    HTML
+    end
+
+    def edit_item_form_scripts
+      <<~HTML
+      <script>
+      function filterByType() {
+        const selectedType = document.getElementById('type').value;
+        const rows = document.querySelectorAll('#table-body tr');
+        rows.forEach(row => {
+          const type = row.getAttribute('data-type').toLowerCase();
+          if (selectedType === 'all' || type === selectedType.toLowerCase()) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      }
+      document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById('search');
+        const tableBody = document.getElementById('table-body');
+        searchInput.addEventListener('input', function() {
+          const searchText = this.value.toLowerCase();
+          const rows = tableBody.getElementsByTagName('tr');
+          for (let row of rows) {
+            const titleCell = row.getElementsByTagName('td')[1];
+            if (titleCell) {
+              const titleText = titleCell.textContent.toLowerCase();
+              if (titleText.includes(searchText)) {
+                row.style.display = '';
+              } else {
+                row.style.display = 'none';
+              }
+            }
+          }
+        });
+      });
+    </script>
+    HTML
+    end
+
+    def edit_item_form(items)
       table_rows = ""
       items = items.sort_by { |item| DateTime.parse(item['pubdate']) }.reverse
       items.each do |item|
@@ -702,7 +787,7 @@ class Frontend
               </button>
             </form>
             <form action='/delete' method='post'>
-              <input type='hidden' name='page' value="/manage-content">
+              <input type='hidden' name='page' value="edit">
               <input type='hidden' name='item_id' value="#{item['id']}">
               <button onclick="return confirm('Are you sure you want to delete this item?')" title="Delete">
                 <i class='bi bi-trash'></i>
@@ -713,52 +798,9 @@ class Frontend
         HTML
       end
       <<~HTML
-          <style>
-          .table-wrapper {
-            overflow-x: auto;
-          }
-          .table {
-            padding-top: 20px;
-            width: 95%;
-            margin-left: auto;
-            margin-right: auto;
-            border-collapse: collapse;
-            border-spacing: 0;
-          }
-          .table th, .table td {
-            padding: 10px 10px;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
-            font-size: 14px;
-          }
-          .table th {
-            background-color: #E3ECD6;
-            color: #333;
-            font-weight: bold;
-          }
-          .table tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-          }
-          .table tbody tr:hover {
-            background-color: #f0f0f0;
-          }
-          .table-actions button {
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-size: 16px;
-            margin-right: 5px;
-            padding: 5px;
-            color: #999;
-            transition: color 0.3s;
-          }
-          .table-actions button:hover {
-            color: #333;
-          }
-        </style>
         <div class="table-wrapper">
           <br><br>
-          <h4 style='text-align: center; margin-top: 10px; padding: 20px 0; font-size: 30px; color: #333;'>Manage content</h4>
+          <h4 style='text-align: center; margin-top: 10px; padding: 20px 0; font-size: 30px; color: #333;'>Edit content</h4>
           <div style='display: flex; align-items: center; justify-content: flex-end;'>
           <form id='sort-form' style='margin-right: 20px; display: flex; align-items: center;'>
             <div style='margin-right: 10px;'>
@@ -793,39 +835,6 @@ class Frontend
             </tbody>
           </table>
         </div>
-        <script>
-        function filterByType() {
-          const selectedType = document.getElementById('type').value;
-          const rows = document.querySelectorAll('#table-body tr');
-          rows.forEach(row => {
-            const type = row.getAttribute('data-type').toLowerCase();
-            if (selectedType === 'all' || type === selectedType.toLowerCase()) {
-              row.style.display = '';
-            } else {
-              row.style.display = 'none';
-            }
-          });
-        }
-        document.addEventListener("DOMContentLoaded", function() {
-          const searchInput = document.getElementById('search');
-          const tableBody = document.getElementById('table-body');
-          searchInput.addEventListener('input', function() {
-            const searchText = this.value.toLowerCase();
-            const rows = tableBody.getElementsByTagName('tr');
-            for (let row of rows) {
-              const titleCell = row.getElementsByTagName('td')[1];
-              if (titleCell) {
-                const titleText = titleCell.textContent.toLowerCase();
-                if (titleText.includes(searchText)) {
-                  row.style.display = '';
-                } else {
-                  row.style.display = 'none';
-                }
-              }
-            }
-          });
-        });
-      </script>
       HTML
     end
       
@@ -913,8 +922,8 @@ class Frontend
               <i class='bi bi-caret-down' id='dropdown-icon'></i>
             </a>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a class="dropdown-item" href="/Create">Create content</a>
-              <a class="dropdown-item" href="/manage-content">Manage content</a>
+              <a class="dropdown-item" href="/create">Create content</a>
+              <a class="dropdown-item" href="/edit">Edit content</a>
             </ul>
           </div>
           <a class='logout-link' href='/'><i class='bi bi-box-arrow-right'></i></a>
@@ -1011,45 +1020,52 @@ class Frontend
       HTML
     end 
 
-    def print_comment(comment,item_id,user) 
+    def print_comment_scripts(comment)
       <<~HTML
-      <div style='border-radius: 5px;text-align:justify;'>
-        <span style='font-weight: bold; color: #333; font-size: 14px;'>#{user}</span>
-        <span style='color: #777; margin-left: 10px; font-size: 12px;'>#{comment['pubdate']}</span>
-        <p style='margin-top: 10px; color: #555; font-size: 13px; word-wrap: break-word; word-break: break-all;'>#{comment['text']}</p>
-        #{if comment['user_id'] == $user_id
-          <<~HTML
-          <form id='update_comment_#{comment["id"]}' action='/update_comment' method='post' style='margin-top: 10px; display: none;'>
-            <input type='hidden' name='item_id' value='#{item_id}'>
-            <input type='hidden' name='comment_id' value='#{comment["id"]}'>
-            <textarea name='updated_text' style='width: 100%;' rows='4' cols='50'>#{comment['text']}</textarea><br><br>
-            <input type='submit' value='Update' style='background-color: #1D8348; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
-            <button type='button' id='cancel-button_#{comment["id"]}' class='cancel-edit' style='background-color: #9C3030; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>Cancel</button>
-          </form>
-          <div style='display: flex; justify-content: flex-end;'>
-            <form action='update_comment_#{comment["id"]}' onsubmit='return false;'>
-              <input type='hidden' name='comment_id' value='#{comment["id"]}'>
-              <input type='submit' id='edit-button_#{comment["id"]}' class='edit-button' value='Edit' style='background-color: #2B88C0; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
-            </form>
-            <form action='/delete_comment' method='post'>
-              <input type='hidden' name='item_id' value='#{item_id}'>
-              <input type='hidden' name='comment_id' value='#{comment["id"]}'>
-              <input type='submit' value='Delete' style='background-color: #9C3030; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>
-            </form>
-          </div>
-          <script>
-              document.getElementById('edit-button_#{comment["id"]}').addEventListener('click', function() {
-                document.getElementById('update_comment_#{comment["id"]}').style.display = 'block';
-              }); 
-              document.getElementById('cancel-button_#{comment["id"]}').addEventListener('click', function() {
-                document.getElementById('update_comment_#{comment["id"]}').style.display = 'none';
-              });
-          </script>
-          HTML
-        end}
-      </div>
+      <script>
+        document.getElementById('edit-button_#{comment["id"]}').addEventListener('click', function() {
+          document.getElementById('update_comment_#{comment["id"]}').style.display = 'block';
+        }); 
+        document.getElementById('cancel-button_#{comment["id"]}').addEventListener('click', function() {
+          document.getElementById('update_comment_#{comment["id"]}').style.display = 'none';
+        });
+      </script>
       HTML
     end
+
+    def print_comment(comment, item_id, user)
+      <<~HTML
+        <div style='border-radius: 5px; text-align: justify;'>
+          <span style='font-weight: bold; color: #333; font-size: 14px;'>#{user}</span>
+          <span style='color: #777; margin-left: 10px; font-size: 12px;'>#{comment['pubdate']}</span>
+          <p style='margin-top: 10px; color: #555; font-size: 13px; word-wrap: break-word; word-break: break-all;'>#{comment['text']}</p>
+          #{comment_controls(comment, item_id) if comment['user_id'] == $user_id}
+        </div>
+      HTML
+    end
+    
+    def comment_controls(comment, item_id)
+      <<~HTML
+        <form id='update_comment_#{comment["id"]}' action='/update_comment' method='post' style='margin-top: 10px; display: none;'>
+          <input type='hidden' name='item_id' value='#{item_id}'>
+          <input type='hidden' name='comment_id' value='#{comment["id"]}'>
+          <textarea name='updated_text' style='width: 100%;' rows='4' cols='50'>#{comment['text']}</textarea><br><br>
+          <input type='submit' value='Update' style='background-color: #1D8348; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
+          <button type='button' id='cancel-button_#{comment["id"]}' class='cancel-edit' style='background-color: #9C3030; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>Cancel</button>
+        </form>
+        <div style='display: flex; justify-content: flex-end;'>
+          <form action='update_comment_#{comment["id"]}' onsubmit='return false;'>
+            <input type='hidden' name='comment_id' value='#{comment["id"]}'>
+            <input type='submit' id='edit-button_#{comment["id"]}' class='edit-button' value='Edit' style='background-color: #2B88C0; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px; margin-right: 10px;'>
+          </form>
+          <form action='/delete_comment' method='post'>
+            <input type='hidden' name='item_id' value='#{item_id}'>
+            <input type='hidden' name='comment_id' value='#{comment["id"]}'>
+            <input type='submit' value='Delete' style='background-color: #9C3030; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border-radius: 3px;'>
+          </form>
+        </div>
+      HTML
+    end    
     
     def auto_resize(id)
       <<~HTML
@@ -1075,42 +1091,52 @@ class Frontend
       nil
   end
     
+  def rating_item_scripts
+    <<~HTML
+      <script>
+        function setSelectedRating(starValue) {
+          document.getElementById('selectedRating').value = starValue;
+          document.getElementById('submitBtn').innerText = 'Submit Rating';
+        }
+        function confirmRating() {
+          return confirm('Are you sure you want to submit this rating?');
+        }
+        function rate() {
+          var ratingForm = document.getElementById("ratingForm");
+          ratingForm.style.display = ratingForm.style.display === "block" ? "none" : "block";
+        }        
+      </script>
+    HTML
+  end  
 
-    def rating_body(item_id, content_rating)
-      html = <<~HTML
-        <div style='text-align: right;width:80%;'>
-          <p style='font-size:15px;color:#9e9e9e;text-align:center;display:inline-block;'><i class="bi bi-star-fill" style="color:#FFDE59"></i><span style="font-size:18px;color:#000"><strong>&nbsp;#{content_rating}</strong></span>/10</p>
-          <button onclick="rate()" type='submit' style='color: #1D8348; font-weight:bold; background-color:#FFF; border: none; padding:10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'><i class="bi bi-star" style="color:#1D8348"></i> Rate</button>
-        </div>    
-        <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();' style="display:none;;">
+  def rating_item_body(item_id, content_rating)
+    <<~HTML
+      <div style='text-align: right; width: 80%;'>
+        <p style='font-size: 15px; color: #9e9e9e; text-align: center; display: inline-block;'>
+          <i class="bi bi-star-fill" style="color: #FFDE59"></i>
+          <span style="font-size: 18px; color: #000;">
+            <strong>&nbsp;#{content_rating}</strong>
+          </span>/10
+        </p>
+        <button onclick="rate()" type='submit' style='color: #1D8348; font-weight: bold; background-color: #FFF; border: none; padding: 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
+          <i class="bi bi-star" style="color: #1D8348"></i> Rate
+        </button>
+      </div>    
+      <form id='ratingForm' action='/update_rating' method='post' onsubmit='return confirmRating();' style="display: none;">
         <input type='hidden' name='item_id' value='#{item_id}'>
         <input type='hidden' name='rating' id='selectedRating'>
         <div style='text-align: center;'>
           <div class='rating'>
-            HTML
-            (1..10).each do |i|
-              html += "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedRating(#{i})' #{'checked' if i == content_rating}><label for='star#{i}'></label>"
-            end
-            html += <<~HTML
+            #{
+              (1..10).map do |i|
+                "<input type='radio' id='star#{i}' name='rating' value='#{i}' onclick='setSelectedRating(#{i})' #{'checked' if i == content_rating}><label for='star#{i}'></label>"
+              end.join
+            }
           </div><br>
-          <input id='submitBtn' type='submit' value='Submit' style='background-color: #1F6F3A; color: white; border: none; padding:10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
+          <input id='submitBtn' type='submit' value='Submit' style='background-color: #1F6F3A; color: white; border: none; padding: 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 15px; margin-top: 10px; cursor: pointer; border-radius: 5px;'>
         </div>
       </form>
-        <script>
-          function setSelectedRating(starValue) {
-            document.getElementById('selectedRating').value = starValue;
-            document.getElementById('submitBtn').innerText = 'Submit Rating';
-          }
-          function confirmRating() {
-            return confirm('Are you sure you want to submit this rating?');
-          }
-          function rate() {
-            var ratingForm = document.getElementById("ratingForm");
-            if (ratingForm.style.display === "block") ratingForm.style.display = "none";
-            else ratingForm.style.display = "block";
-        }        
-        </script>
-      HTML
-      return html
-    end
+    HTML
+  end
+  
 end

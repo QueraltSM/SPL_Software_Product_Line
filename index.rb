@@ -91,9 +91,6 @@ end
     if method == 'post' && !item_id.empty?
       $selected_item = item_id
     end
-    
-    puts $selected_item
-
     html = "<html>
       <body>
         #{Menu.generate_menu_html()}
@@ -106,9 +103,8 @@ end
   end
 end
 
-
 # Creation form
-get '/Create' do
+get '/create' do
   return "<html>
       <body>
         #{Menu.generate_menu_html()}
@@ -139,6 +135,106 @@ put '/create_item' do
   redirect "#{params['type']}"
 end
 
+# Method that updates rating
+post '/update_rating' do 
+  content_items = items_reader.readFile($items_file)
+  index_to_update = content_items.find_index { |item| item["id"] == params['item_id'] }
+  current_rating = content_items[index_to_update]["rating"]
+  new_rating = params['rating'].to_i 
+  if current_rating == 0
+    average_rating = new_rating
+  else
+    average_rating = (current_rating + new_rating) / 2
+  end
+  content_items[index_to_update]["rating"] = average_rating
+  items_reader.writeFile($items_file, content_items)
+  redirect "/#{content_items[index_to_update]["type"] }/#{content_items[index_to_update]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase}"
+end
+
+# Method that handles submission of comments
+post '/submit_comment' do
+  new_comment = {
+    "id": SecureRandom.uuid,
+    "user_id": params['comment_user_id'],
+    "item_id": params['item_id'],
+    "text": params['comment_text'],
+    "pubdate": DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
+  }
+  comments = comments_reader.readFile('./Data/comments.json') << new_comment
+  comments_reader.writeFile('./Data/comments.json', comments)
+  redirect "/#{items_reader.readFile($items_file).find { |item| item['id'] == params['item_id'] }['type']}/#{items_reader.readFile($items_file).find { |item| item['id'] == params['item_id'] }['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase}"
+end
+
+ # Update comment
+ post '/update_comment' do
+  comments = comments_reader.readFile('./Data/comments.json')
+  index_to_update = comments.find_index { |comment| comment["id"] == params['comment_id'] }
+  comments[index_to_update]["text"] = params['updated_text']
+  comments[index_to_update]["pubdate"] = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
+  comments_reader.writeFile('./Data/comments.json', comments)
+  content_items = items_reader.readFile($items_file)
+  selected_item = content_items.find { |item| item["id"] == $selected_item }
+  title_with_hyphens = selected_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+  redirect "/#{selected_item['type']}/#{title_with_hyphens}"
+end
+
+# Delete a comment
+post '/delete_comment' do
+  comments = comments_reader.readFile('./Data/comments.json')
+  index_to_delete = comments.find_index { |comment| comment["id"] == params['comment_id'] }
+  comments.delete_at(index_to_delete)
+  comments_reader.writeFile('./Data/comments.json', comments)
+  content_items = items_reader.readFile($items_file)
+  selected_item = content_items.find { |item| item["id"] == $selected_item }
+  title_with_hyphens = selected_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+  redirect "/#{selected_item['type']}/#{title_with_hyphens}"
+end
+
+# Generate table for edition of content
+get '/edit' do
+  return "<html>
+      <body>
+        #{Menu.generate_menu_html()}
+        #{items_reader.item_administration_form}
+      </body>
+    </html>"
+end
+
+# Generate edition form of particular content
+post '/edit' do
+  $selected_item = params['item_id']
+  html = "<html>
+    <body>
+      #{Menu.generate_menu_html()}
+      #{items_reader.generate_edition_form(params['item_id'])}
+    </body>
+  </html>"
+  html
+end
+
+# Method handles request to edit a specific item of content
+put '/edit_item' do
+  content = items_reader.readFile($items_file)
+  index_to_edit = content.find_index { |item| item["id"] == params[:item_id] }
+  content[index_to_edit]["title"] = params['title']
+  content[index_to_edit]["source"] = params['source']
+  content[index_to_edit]["description"] = params['description']
+  content[index_to_edit]["date"] = params['date']
+  content[index_to_edit]["media_url"] = params['media_url']
+  items_reader.writeFile($items_file, content)
+  title_with_hyphens = content[index_to_edit]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
+  redirect "/#{content[index_to_edit]["type"]}/#{title_with_hyphens}"
+end
+
+# Method that delete a content
+post '/delete' do
+  items = items_reader.readFile($items_file)
+  index_to_delete = items.find_index { |item| item["id"] == params['item_id'] }
+  items.delete_at(index_to_delete)
+  items_reader.writeFile($items_file, items)
+  redirect "/#{params['page']}"
+end
+
 # View multimedia content page based on type
 get '/:type' do
   "<html>
@@ -159,128 +255,7 @@ def generate_video_embed(url)
   end
 end
 
-# Administration of content form
-get '/manage-content' do
-  return "<html>
-        <body>
-         #{Menu.generate_menu_html()}
-         #{items_reader.content_administration_form}
-        </body>
-    </html>"
-end
-
-post '/edit' do
-  $selected_item = params['item_id']
-  html = "<html>
-    <body>
-      #{Menu.generate_menu_html()}
-      #{items_reader.generate_edition_form(params['item_id'])}
-    </body>
-  </html>"
-  html
-end
-
-def get_youtube_video_id(url)
-  match = url.match(%r{(youtu\.be\/|\/|%3D|v=|vi=)([0-9A-Za-z_-]{11})([%#?&]|$)})
-  if match
-    return match[2]
-  else
-    return nil
-  end
-end
-
-def build_youtube_embed_url(url)
-  video_id = get_youtube_video_id(url)
-  if video_id
-    return "https://www.youtube.com/embed/#{video_id}"
-  else
-    return nil
-  end
-end
-
-put '/edit_item' do
-  item_id = params[:item_id]
-  content = items_reader.readFile($items_file)
-  index_to_edit = content.find_index { |item| item["id"] == item_id }
-  content[index_to_edit]["title"] = params['title']
-  content[index_to_edit]["source"] = params['source']
-  content[index_to_edit]["description"] = params['description']
-  content[index_to_edit]["date"] = params['date']
-  content[index_to_edit]["media_url"] = params['media_url']
-  items_reader.writeFile($items_file, content)
-  title_with_hyphens = content[index_to_edit]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
-  redirect "/#{content[index_to_edit]["type"]}/#{title_with_hyphens}"
-end
-
-
-post '/delete' do
-  item_id = params['item_id']
-  items = items_reader.readFile($items_file)
-  index_to_delete = items.find_index { |item| item["id"] == item_id }
-  items.delete_at(index_to_delete)
-  items_reader.writeFile($items_file, items)
-  redirect "/#{params['page']}"
-end
-
-post '/submit_comment' do
-  new_comment = {
-    "id": SecureRandom.uuid,
-    "user_id": params['comment_user_id'],
-    "item_id":  params['item_id'],
-    "text": params['comment_text'],
-    "pubdate": DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
-  }
-  comments = comments_reader.readFile('./Data/comments.json')
-  comments << new_comment
-  comments_reader.writeFile('./Data/comments.json', comments)
-  item_id = params['item_id']
-  content_items = items_reader.readFile($items_file)
-  selected_item = content_items.find { |item| item["id"] == $selected_item }
-  title_with_hyphens = selected_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
-  redirect "/#{selected_item['type']}/#{title_with_hyphens}"
-end
-
-post '/delete_comment' do # Delete a comment
-  comment_id = params['comment_id']
-  comments = comments_reader.readFile('./Data/comments.json')
-  index_to_delete = comments.find_index { |comment| comment["id"] == comment_id }
-  comments.delete_at(index_to_delete)
-  comments_reader.writeFile('./Data/comments.json', comments)
-  content_items = items_reader.readFile($items_file)
-  selected_item = content_items.find { |item| item["id"] == $selected_item }
-  title_with_hyphens = selected_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
-  redirect "/#{selected_item['type']}/#{title_with_hyphens}"
-end
-
-post '/update_comment' do # Actualizar un comentario
-  comment_id = params['comment_id']
-  updated_text = params['updated_text']
-  comments = comments_reader.readFile('./Data/comments.json')
-  index_to_update = comments.find_index { |comment| comment["id"] == comment_id }
-  comments[index_to_update]["text"] = updated_text
-  comments[index_to_update]["pubdate"] = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
-  comments_reader.writeFile('./Data/comments.json', comments)
-  content_items = items_reader.readFile($items_file)
-  selected_item = content_items.find { |item| item["id"] == $selected_item }
-  title_with_hyphens = selected_item['title'].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase
-  redirect "/#{selected_item['type']}/#{title_with_hyphens}"
-end
-
-post '/update_rating' do  # Actualizar la puntuación
-  content_items = items_reader.readFile($items_file)
-  index_to_update = content_items.find_index { |item| item["id"] == params['item_id'] }
-  current_rating = content_items[index_to_update]["rating"]
-  new_rating = params['rating'].to_i 
-  if current_rating == 0
-    average_rating = new_rating
-  else
-    average_rating = (current_rating + new_rating) / 2
-  end
-  content_items[index_to_update]["rating"] = average_rating
-  items_reader.writeFile($items_file, content_items)
-  redirect "/#{content_items[index_to_update]["type"] }/#{content_items[index_to_update]["title"].gsub(/[-\s']+/, '-').gsub(/(^\W+|\W+$)/, '').downcase}"
-end
-
+# Method that retrieves the unique video ID from a YouTube video URL
 def extract_youtube_video_id(url)
   video_id = ''
   if url.include?('youtube.com')

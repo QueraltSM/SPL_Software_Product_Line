@@ -106,29 +106,30 @@ def save_user(email)
   $user_name = user['name']
 end  
 
-  def getJoinedId(iduser,data)
-    readFile(data)
-    user = @data.find { |user| user['id'] == iduser }
-    if user
-      user['name']
-    end
+# Method that looks up a user by their ID in a JSON file of user data and returns their name if found.
+def getJoinedId(iduser,data)
+  readFile(data)
+  user = @data.find { |user| user['id'] == iduser }
+  if user
+    user['name']
   end
+end
 
-  def generate_edition_form(id)
-    items = readFile($items_file)
-    items.each do |item|
-      if item['id'] == id
-        return Frontend.new().edit_item_form(item)
-      end
-    end
-    return nil
-  end
+# Generate edition form of particular content
+def generate_edition_form(id)
+  item = readFile($items_file).find { |item| item['id'] == id }
+  item ? Frontend.new().edition_item_form(item) : nil
+end
 
-  def content_administration_form
+  # Method that generates a form for managing the content of the website
+  def item_administration_form()
     reset_state()
-    items = readFile($items_file)
-    items = items.select { |item| item['author'] == $user_id }
-    Frontend.new().manage_content_table(items)
+    items = readFile($items_file).select { |item| item['author'] == $user_id }
+    frontend = Frontend.new()
+    html = frontend.edit_item_form_styles
+    html += frontend.edit_item_form(items)
+    html += frontend.edit_item_form_scripts
+    return html
   end
   
   # Method that generates the HTML to display digital content elements of a specific type
@@ -160,7 +161,8 @@ end
     html
   end
  
-  def print_item(id)
+  # Generates the HTML for displaying a specific item based on its ID
+  def print_item (id)
     reset_state()
     readFile($items_file)
     html = "<div style='display: flex; flex-direction: column; align-items: center; margin-top: 20px;text-align:justify;'>"
@@ -174,12 +176,17 @@ end
     return html
   end
 
+  # Rate a particular content
   def rate_item(item_id)
     item = @data.find { |item| item['id'] == item_id }
-    Frontend.new().rating_body(item_id, item['rating'])
+    frontend = Frontend.new
+    html = frontend.rating_item_body(item_id, item['rating'])
+    html += frontend.rating_item_scripts()
+    html
   end
   
-  def print_comments(item_id, joined_reader) # Print and manage comments
+  # Print and manage comments
+  def print_comments(item_id, joined_reader)
     reset_state()
     readFile('./Data/comments.json')
     sorted_comments = @data.select { |comment| comment['item_id'] == item_id }
@@ -189,7 +196,8 @@ end
     if !sorted_comments.empty?
       sorted_comments.each do |comment|
         user = joined_reader.getJoinedId(comment['user_id'], './Data/users.json')
-        html += Frontend.new().print_comment(comment, item_id, user)  
+        html += Frontend.new().print_comment(comment, item_id, user) 
+        html += Frontend.new().print_comment_scripts(comment)
       end
     end
     html += "</div></div>"
