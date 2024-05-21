@@ -132,6 +132,114 @@ class Frontend
         HTML
       end  
 
+      def menu_css()
+        <<~HTML
+        <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css' rel='stylesheet'>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+        <style>
+          body {
+            margin: 0 auto;
+            font-family: "Lato", sans-serif;
+            color: black;
+          }
+          .menu {
+            background-color: #E3ECD6;
+            padding: 10px;
+            text-align: center;
+          }
+          .menu a {
+            color: #333;
+            text-decoration: none;
+            margin: 10px;
+            padding: 10px;
+            display: inline-block;
+            font-size: 14px;
+          }
+          .menu a:last-child {
+            margin-right: 0;
+          }
+          .menu a:hover {
+           color:#1D8348;
+          }
+          .menu .user-info {
+            float: right;
+          }
+          .menu .user-info span {
+            color: #333;
+            margin-right: 10px;
+            font-size: 13px;
+          }
+          .menu .logout-link {
+            color: #333;
+            text-decoration: none;
+          }
+        </style>     
+        HTML
+    end
+
+    def menu_body()
+      <<~HTML
+      <style>
+        .dropdown {
+          position: relative;
+        }
+        .dropdown-menu {
+          display: none;
+          position: absolute;
+          background-color: #E3ECD6;
+          z-index: 1;
+          text-align:center;
+          margin-top:0px;
+          padding:0px;
+        }
+        .dropdown.show .dropdown-menu {
+          display: block;
+        }
+      </style>
+      <div class='menu'>
+        <a class='logout-link' href='/index' title='Home'><i class='fa fa-home'></i></a>
+        <a href='/News'>News</a>
+        <a href='/Books'>Books</a>
+        <a href='/Recipes'>Recipes</a>
+        <a href='/Movies'>Movies</a>
+        <a href='/Videos'>Videos</a>
+        <a href='/Music'>Music</a>
+        <a href='/Podcasts'>Podcasts</a>
+        <a href='/Videogames'>Videogames</a>
+        <a href='/Art'>Art</a>
+        <a href='/Events'>Events</a>
+        <div class='user-info' id='user-info'  style="display: flex; align-items: center;">
+          <div class="dropdown" style="width:100%;">
+            <a class="dropdown-toggle" id="dropdownMenuButton">
+              <strong>#{$user_name}</strong>
+              <i class='bi bi-caret-down' id='dropdown-icon'></i>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="/create">Create content</a>
+              <a class="dropdown-item" href="/edit">Edit content</a>
+            </ul>
+          </div>
+          <a class='logout-link' href='/'><i class='bi bi-box-arrow-right'></i></a>
+        </div>
+      </div>
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        const dropdownToggle = document.querySelector('.dropdown-toggle');
+        const dropdownMenu = document.querySelector('.dropdown-menu');
+        dropdownToggle.addEventListener('click', function() {
+          dropdownMenu.parentElement.classList.toggle('show');
+        });
+        document.addEventListener('click', function(event) {
+          if (!dropdownMenu.parentElement.contains(event.target)) {
+            dropdownMenu.parentElement.classList.remove('show');
+          }
+        });
+      });
+      </script>
+      HTML
+    end
+
     def home_header() 
     <<~HTML
       <style>
@@ -194,9 +302,9 @@ class Frontend
       }
     </style>
     HTML
-    end  
+  end  
 
-    def home_body()
+  def home_body()
     <<~HTML
       <div class="container">
         <div class="features">
@@ -253,7 +361,7 @@ class Frontend
         </div>
     </div>   
     HTML
-    end
+  end
 
     def edition_item_form(item)
       <<~HTML
@@ -674,7 +782,6 @@ class Frontend
       #{auto_resize('description')}
       HTML
     end
-    
 
     def edit_item_form_styles
       <<~HTML
@@ -835,114 +942,6 @@ class Frontend
             </tbody>
           </table>
         </div>
-      HTML
-    end
-      
-    def menu_css()
-        <<~HTML
-        <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css' rel='stylesheet'>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-        <style>
-          body {
-            margin: 0 auto;
-            font-family: "Lato", sans-serif;
-            color: black;
-          }
-          .menu {
-            background-color: #E3ECD6;
-            padding: 10px;
-            text-align: center;
-          }
-          .menu a {
-            color: #333;
-            text-decoration: none;
-            margin: 10px;
-            padding: 10px;
-            display: inline-block;
-            font-size: 14px;
-          }
-          .menu a:last-child {
-            margin-right: 0;
-          }
-          .menu a:hover {
-           color:#1D8348;
-          }
-          .menu .user-info {
-            float: right;
-          }
-          .menu .user-info span {
-            color: #333;
-            margin-right: 10px;
-            font-size: 13px;
-          }
-          .menu .logout-link {
-            color: #333;
-            text-decoration: none;
-          }
-        </style>     
-        HTML
-    end
-
-    def menu_body()
-      <<~HTML
-      <style>
-        .dropdown {
-          position: relative;
-        }
-        .dropdown-menu {
-          display: none;
-          position: absolute;
-          background-color: #E3ECD6;
-          z-index: 1;
-          text-align:center;
-          margin-top:0px;
-          padding:0px;
-        }
-        .dropdown.show .dropdown-menu {
-          display: block;
-        }
-      </style>
-      <div class='menu'>
-        <a class='logout-link' href='/index' title='Home'><i class='fa fa-home'></i></a>
-        <a href='/News'>News</a>
-        <a href='/Books'>Books</a>
-        <a href='/Recipes'>Recipes</a>
-        <a href='/Movies'>Movies</a>
-        <a href='/Videos'>Videos</a>
-        <a href='/Music'>Music</a>
-        <a href='/Podcasts'>Podcasts</a>
-        <a href='/Videogames'>Videogames</a>
-        <a href='/Art'>Art</a>
-        <a href='/Events'>Events</a>
-        <div class='user-info' id='user-info'  style="display: flex; align-items: center;">
-          <div class="dropdown" style="width:100%;">
-            <a class="dropdown-toggle" id="dropdownMenuButton">
-              <strong>#{$user_name}</strong>
-              <i class='bi bi-caret-down' id='dropdown-icon'></i>
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a class="dropdown-item" href="/create">Create content</a>
-              <a class="dropdown-item" href="/edit">Edit content</a>
-            </ul>
-          </div>
-          <a class='logout-link' href='/'><i class='bi bi-box-arrow-right'></i></a>
-        </div>
-      </div>
-      <script>
-        document.addEventListener("DOMContentLoaded", function() {
-        const dropdownToggle = document.querySelector('.dropdown-toggle');
-        const dropdownMenu = document.querySelector('.dropdown-menu');
-        dropdownToggle.addEventListener('click', function() {
-          dropdownMenu.parentElement.classList.toggle('show');
-        });
-        document.addEventListener('click', function(event) {
-          if (!dropdownMenu.parentElement.contains(event.target)) {
-            dropdownMenu.parentElement.classList.remove('show');
-          }
-        });
-      });
-      </script>
       HTML
     end
 
@@ -1138,5 +1137,4 @@ class Frontend
       </form>
     HTML
   end
-  
 end

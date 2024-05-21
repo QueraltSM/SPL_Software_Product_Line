@@ -48,11 +48,6 @@ class Authenticator
     form_html
   end
 
-  # Save the generated form to a specified file
-  def save_to_file(filename, form_type, error_message = nil)
-    File.write(filename, generate_form(form_type, error_message))
-  end
-
   # Convert a hash of attributes to an HTML attribute string
   def attributes_to_html(attributes)
     attributes.map { |k, v| "#{k}='#{v}'" }.join(' ')

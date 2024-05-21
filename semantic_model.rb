@@ -1,4 +1,3 @@
-# require 'memoist'
 require 'net/http'
 require 'base64'
 require_relative './Frontend'
@@ -82,7 +81,6 @@ class_reader.class_eval do
     readFile('./Data/users.json')
     @data.find { |user| user['email'].downcase == email.downcase }
   end
-
 end
 
 # Create user in users.json file
